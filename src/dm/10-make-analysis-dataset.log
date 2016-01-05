@@ -1,0 +1,2061 @@
+--------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/10-make-analysis-dataset.
+> log
+  log type:  text
+ opened on:  17 Dec 2015, 14:17:37
+
+. 
+. *----------------------------------------
+. * 10-make-analysis-dataset.do
+. * ben arnold
+. *
+. * merge the appended epidemiology
+. * data to the appended water quality data
+. *
+. * calculate daily measures of symptom
+. * incidence, prevalence, and cumulative
+. * incidence
+. *
+. * calculate days of missed of daily
+. * activities due to GI illness
+. *
+. * calculate days of missed work
+. * due to GI illness
+. *
+. * calculate medical visits due to GI illness
+. *
+. * ...and due to all syndromes (not used in the analysis, but just for posterit
+> y)
+. *   Syndrome 1 (GI): stomachache, diarrhea, nausea, vomiting
+. *   Syndrome 2 (eyes): watery eyes, eye infection
+. *   Syndrome 3 (resp): sore throat, cough/runny nose, cold
+. *   Syndrome 4 (ears): earache
+. *   Syndrome 5 (uti): urinary tract infection
+. *   Syndrome 6 (skin): infected cuts, skin rash
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * input files:
+. *       13beaches-epi.dta
+. *   13beaches-wq.dta
+. *
+. * output files:
+. *       13beaches-analysis.dta
+. *
+. *----------------------------------------
+. 
+. 
+. *----------------------------------------
+. * Load the combined epidemiology dataset
+. *----------------------------------------
+. 
+. use "~/dropbox/13beaches/data/final/13beaches-epi.dta", clear
+(13 beaches epi data, created by 4-append-epi-data.do)
+
+. 
+. 
+. *---------------------------------------------
+. * Create daily prevalence, incidence, and 
+. * at risk indicators for 0 to 14 days for
+. * each symptom
+. *---------------------------------------------
+. 
+. * calculate length of follow-up
+. * (clean one data entry error on a telephone date)
+. replace teledate = mdy(7,21,2009) if indid=="BB1001675701"
+(1 real change made)
+
+. 
+. gen fudays = teledate - intdate
+(31,171 missing values generated)
+
+.         label var fudays "Days between beach visit and CATI interview"
+
+. 
+. local symps "diarrhea nausea stomach vomiting rash eyeinfection earache fever 
+> urinarytractinfection cough sorethroat runnynose cold"
+
+. 
+. foreach symp of local symps {
+  2. 
+.         * first day of symptoms
+.         gen `symp'st = (`symp'stdt - intdate)
+  3.                 label var `symp'st "First day of `symp'"
+  4. 
+.         * recode duration for periods < 1 day
+.         replace `symp'days = 1 if `symp'days == 0
+  5.         
+.         * last day of symptoms
+.         gen `symp'end = `symp'st + `symp'days - 1
+  6.                 * have to comment this out b/c don't have teledate for many
+>  indivs
+.                 * replace `symp'end = (teledate - intdate) if `symp'still==1
+.                 replace `symp'days = (`symp'end - `symp'st + 1) if (`symp'days
+> ==. & `symp'st!=. & `symp'end!=.)
+  7.                 label var `symp'end "Last day of `symp'"
+  8.         * prevalent illness
+.         forvalues i = 0/12 {
+  9.                 gen byte `symp'p`i' = 0
+ 10.                 label var `symp'p`i' "Prevalent `symp', day `i'"
+ 11.                 replace `symp'p`i' = 1 if `i'>=`symp'st & `i'<= `symp'end
+ 12.         }
+ 13.         * incident illness
+.         forvalues i = 0/12 {
+ 14.                 gen byte `symp'i`i' = 0
+ 15.                 label var `symp'i`i' "Incident `symp', day `i'"
+ 16.                 replace `symp'i`i' = 1 if `i'==`symp'st
+ 17.         }
+ 18.         * at risk
+.         forvalues i = 0/12 {    
+ 19.                 gen byte `symp'risk`i' = 1
+ 20.                 label var `symp'risk`i' "At risk for `symp', day `i'"
+ 21.                 replace `symp'risk`i' = 0 if `i'>`symp'st
+ 22.         }
+ 23.         * cumulative incidence indicators
+.         forvalues i = 0/12 {
+ 24.                 gen byte `symp'ci`i' = 0
+ 25.                 replace `symp'ci`i' = 1 if (`i'>=`symp'st)
+ 26.                 label var `symp'ci`i' "Incident `symp' by day `i'"
+ 27.         }
+ 28.                 
+. 
+. }
+(84,231 missing values generated)
+(38 real changes made)
+(84,620 missing values generated)
+(0 real changes made)
+(336 real changes made)
+(863 real changes made)
+(1,100 real changes made)
+(1,095 real changes made)
+(1,035 real changes made)
+(944 real changes made)
+(999 real changes made)
+(1,066 real changes made)
+(1,074 real changes made)
+(1,075 real changes made)
+(950 real changes made)
+(630 real changes made)
+(486 real changes made)
+(334 real changes made)
+(640 real changes made)
+(528 real changes made)
+(364 real changes made)
+(307 real changes made)
+(252 real changes made)
+(297 real changes made)
+(325 real changes made)
+(286 real changes made)
+(278 real changes made)
+(138 real changes made)
+(58 real changes made)
+(19 real changes made)
+(2 real changes made)
+(336 real changes made)
+(976 real changes made)
+(1,504 real changes made)
+(1,868 real changes made)
+(2,175 real changes made)
+(2,427 real changes made)
+(2,724 real changes made)
+(3,049 real changes made)
+(3,335 real changes made)
+(3,613 real changes made)
+(3,751 real changes made)
+(3,809 real changes made)
+(336 real changes made)
+(976 real changes made)
+(1,504 real changes made)
+(1,868 real changes made)
+(2,175 real changes made)
+(2,427 real changes made)
+(2,724 real changes made)
+(3,049 real changes made)
+(3,335 real changes made)
+(3,613 real changes made)
+(3,751 real changes made)
+(3,809 real changes made)
+(3,828 real changes made)
+(85,696 missing values generated)
+(23 real changes made)
+(85,923 missing values generated)
+(0 real changes made)
+(217 real changes made)
+(467 real changes made)
+(580 real changes made)
+(633 real changes made)
+(629 real changes made)
+(616 real changes made)
+(627 real changes made)
+(701 real changes made)
+(751 real changes made)
+(757 real changes made)
+(656 real changes made)
+(365 real changes made)
+(288 real changes made)
+(215 real changes made)
+(317 real changes made)
+(269 real changes made)
+(242 real changes made)
+(180 real changes made)
+(161 real changes made)
+(177 real changes made)
+(229 real changes made)
+(240 real changes made)
+(190 real changes made)
+(103 real changes made)
+(36 real changes made)
+(15 real changes made)
+(2 real changes made)
+(217 real changes made)
+(534 real changes made)
+(803 real changes made)
+(1,045 real changes made)
+(1,225 real changes made)
+(1,386 real changes made)
+(1,563 real changes made)
+(1,792 real changes made)
+(2,032 real changes made)
+(2,222 real changes made)
+(2,325 real changes made)
+(2,361 real changes made)
+(217 real changes made)
+(534 real changes made)
+(803 real changes made)
+(1,045 real changes made)
+(1,225 real changes made)
+(1,386 real changes made)
+(1,563 real changes made)
+(1,792 real changes made)
+(2,032 real changes made)
+(2,222 real changes made)
+(2,325 real changes made)
+(2,361 real changes made)
+(2,376 real changes made)
+(84,738 missing values generated)
+(50 real changes made)
+(85,136 missing values generated)
+(0 real changes made)
+(284 real changes made)
+(656 real changes made)
+(822 real changes made)
+(919 real changes made)
+(901 real changes made)
+(883 real changes made)
+(952 real changes made)
+(1,017 real changes made)
+(1,075 real changes made)
+(1,120 real changes made)
+(996 real changes made)
+(652 real changes made)
+(524 real changes made)
+(281 real changes made)
+(474 real changes made)
+(383 real changes made)
+(334 real changes made)
+(256 real changes made)
+(227 real changes made)
+(259 real changes made)
+(272 real changes made)
+(286 real changes made)
+(292 real changes made)
+(143 real changes made)
+(71 real changes made)
+(31 real changes made)
+(3 real changes made)
+(284 real changes made)
+(758 real changes made)
+(1,141 real changes made)
+(1,475 real changes made)
+(1,731 real changes made)
+(1,958 real changes made)
+(2,217 real changes made)
+(2,489 real changes made)
+(2,775 real changes made)
+(3,067 real changes made)
+(3,210 real changes made)
+(3,281 real changes made)
+(284 real changes made)
+(758 real changes made)
+(1,141 real changes made)
+(1,475 real changes made)
+(1,731 real changes made)
+(1,958 real changes made)
+(2,217 real changes made)
+(2,489 real changes made)
+(2,775 real changes made)
+(3,067 real changes made)
+(3,210 real changes made)
+(3,281 real changes made)
+(3,312 real changes made)
+(86,825 missing values generated)
+(11 real changes made)
+(87,008 missing values generated)
+(0 real changes made)
+(95 real changes made)
+(201 real changes made)
+(221 real changes made)
+(233 real changes made)
+(239 real changes made)
+(239 real changes made)
+(252 real changes made)
+(274 real changes made)
+(306 real changes made)
+(302 real changes made)
+(281 real changes made)
+(217 real changes made)
+(193 real changes made)
+(94 real changes made)
+(156 real changes made)
+(117 real changes made)
+(113 real changes made)
+(95 real changes made)
+(92 real changes made)
+(100 real changes made)
+(114 real changes made)
+(121 real changes made)
+(110 real changes made)
+(84 real changes made)
+(32 real changes made)
+(13 real changes made)
+(1 real change made)
+(95 real changes made)
+(251 real changes made)
+(368 real changes made)
+(481 real changes made)
+(576 real changes made)
+(668 real changes made)
+(768 real changes made)
+(882 real changes made)
+(1,003 real changes made)
+(1,113 real changes made)
+(1,197 real changes made)
+(1,229 real changes made)
+(95 real changes made)
+(251 real changes made)
+(368 real changes made)
+(481 real changes made)
+(576 real changes made)
+(668 real changes made)
+(768 real changes made)
+(882 real changes made)
+(1,003 real changes made)
+(1,113 real changes made)
+(1,197 real changes made)
+(1,229 real changes made)
+(1,242 real changes made)
+(85,060 missing values generated)
+(6 real changes made)
+(85,343 missing values generated)
+(0 real changes made)
+(755 real changes made)
+(1,164 real changes made)
+(1,391 real changes made)
+(1,474 real changes made)
+(1,522 real changes made)
+(1,520 real changes made)
+(1,505 real changes made)
+(1,551 real changes made)
+(1,584 real changes made)
+(1,597 real changes made)
+(1,556 real changes made)
+(718 real changes made)
+(461 real changes made)
+(754 real changes made)
+(555 real changes made)
+(384 real changes made)
+(273 real changes made)
+(206 real changes made)
+(159 real changes made)
+(138 real changes made)
+(198 real changes made)
+(158 real changes made)
+(123 real changes made)
+(51 real changes made)
+(11 real changes made)
+(6 real changes made)
+(1 real change made)
+(755 real changes made)
+(1,310 real changes made)
+(1,694 real changes made)
+(1,967 real changes made)
+(2,173 real changes made)
+(2,332 real changes made)
+(2,470 real changes made)
+(2,668 real changes made)
+(2,826 real changes made)
+(2,949 real changes made)
+(3,000 real changes made)
+(3,011 real changes made)
+(755 real changes made)
+(1,310 real changes made)
+(1,694 real changes made)
+(1,967 real changes made)
+(2,173 real changes made)
+(2,332 real changes made)
+(2,470 real changes made)
+(2,668 real changes made)
+(2,826 real changes made)
+(2,949 real changes made)
+(3,000 real changes made)
+(3,011 real changes made)
+(3,017 real changes made)
+(87,286 missing values generated)
+(0 real changes made)
+(87,701 missing values generated)
+(0 real changes made)
+(165 real changes made)
+(277 real changes made)
+(341 real changes made)
+(410 real changes made)
+(433 real changes made)
+(450 real changes made)
+(485 real changes made)
+(502 real changes made)
+(521 real changes made)
+(547 real changes made)
+(555 real changes made)
+(465 real changes made)
+(440 real changes made)
+(159 real changes made)
+(114 real changes made)
+(77 real changes made)
+(85 real changes made)
+(45 real changes made)
+(44 real changes made)
+(60 real changes made)
+(46 real changes made)
+(43 real changes made)
+(54 real changes made)
+(27 real changes made)
+(20 real changes made)
+(10 real changes made)
+(6 real changes made)
+(165 real changes made)
+(279 real changes made)
+(356 real changes made)
+(441 real changes made)
+(486 real changes made)
+(530 real changes made)
+(590 real changes made)
+(636 real changes made)
+(679 real changes made)
+(733 real changes made)
+(760 real changes made)
+(780 real changes made)
+(165 real changes made)
+(279 real changes made)
+(356 real changes made)
+(441 real changes made)
+(486 real changes made)
+(530 real changes made)
+(590 real changes made)
+(636 real changes made)
+(679 real changes made)
+(733 real changes made)
+(760 real changes made)
+(780 real changes made)
+(790 real changes made)
+(86,647 missing values generated)
+(3 real changes made)
+(86,703 missing values generated)
+(0 real changes made)
+(125 real changes made)
+(315 real changes made)
+(459 real changes made)
+(542 real changes made)
+(589 real changes made)
+(589 real changes made)
+(612 real changes made)
+(616 real changes made)
+(641 real changes made)
+(639 real changes made)
+(599 real changes made)
+(249 real changes made)
+(133 real changes made)
+(123 real changes made)
+(211 real changes made)
+(177 real changes made)
+(165 real changes made)
+(143 real changes made)
+(104 real changes made)
+(111 real changes made)
+(113 real changes made)
+(128 real changes made)
+(81 real changes made)
+(50 real changes made)
+(17 real changes made)
+(6 real changes made)
+(2 real changes made)
+(125 real changes made)
+(336 real changes made)
+(513 real changes made)
+(678 real changes made)
+(821 real changes made)
+(925 real changes made)
+(1,036 real changes made)
+(1,149 real changes made)
+(1,277 real changes made)
+(1,358 real changes made)
+(1,408 real changes made)
+(1,425 real changes made)
+(125 real changes made)
+(336 real changes made)
+(513 real changes made)
+(678 real changes made)
+(821 real changes made)
+(925 real changes made)
+(1,036 real changes made)
+(1,149 real changes made)
+(1,277 real changes made)
+(1,358 real changes made)
+(1,408 real changes made)
+(1,425 real changes made)
+(1,431 real changes made)
+(86,015 missing values generated)
+(8 real changes made)
+(86,332 missing values generated)
+(0 real changes made)
+(154 real changes made)
+(364 real changes made)
+(511 real changes made)
+(549 real changes made)
+(553 real changes made)
+(558 real changes made)
+(564 real changes made)
+(610 real changes made)
+(662 real changes made)
+(715 real changes made)
+(622 real changes made)
+(416 real changes made)
+(358 real changes made)
+(153 real changes made)
+(242 real changes made)
+(253 real changes made)
+(204 real changes made)
+(173 real changes made)
+(161 real changes made)
+(156 real changes made)
+(185 real changes made)
+(205 real changes made)
+(182 real changes made)
+(86 real changes made)
+(38 real changes made)
+(11 real changes made)
+(1 real change made)
+(154 real changes made)
+(396 real changes made)
+(649 real changes made)
+(853 real changes made)
+(1,026 real changes made)
+(1,187 real changes made)
+(1,343 real changes made)
+(1,528 real changes made)
+(1,733 real changes made)
+(1,915 real changes made)
+(2,001 real changes made)
+(2,039 real changes made)
+(154 real changes made)
+(396 real changes made)
+(649 real changes made)
+(853 real changes made)
+(1,026 real changes made)
+(1,187 real changes made)
+(1,343 real changes made)
+(1,528 real changes made)
+(1,733 real changes made)
+(1,915 real changes made)
+(2,001 real changes made)
+(2,039 real changes made)
+(2,050 real changes made)
+(87,494 missing values generated)
+(0 real changes made)
+(87,498 missing values generated)
+(0 real changes made)
+(44 real changes made)
+(122 real changes made)
+(206 real changes made)
+(243 real changes made)
+(262 real changes made)
+(261 real changes made)
+(262 real changes made)
+(260 real changes made)
+(275 real changes made)
+(273 real changes made)
+(250 real changes made)
+(83 real changes made)
+(39 real changes made)
+(44 real changes made)
+(84 real changes made)
+(96 real changes made)
+(70 real changes made)
+(57 real changes made)
+(42 real changes made)
+(42 real changes made)
+(42 real changes made)
+(51 real changes made)
+(36 real changes made)
+(17 real changes made)
+(4 real changes made)
+(4 real changes made)
+(0 real changes made)
+(44 real changes made)
+(128 real changes made)
+(224 real changes made)
+(294 real changes made)
+(351 real changes made)
+(393 real changes made)
+(435 real changes made)
+(477 real changes made)
+(528 real changes made)
+(564 real changes made)
+(581 real changes made)
+(585 real changes made)
+(44 real changes made)
+(128 real changes made)
+(224 real changes made)
+(294 real changes made)
+(351 real changes made)
+(393 real changes made)
+(435 real changes made)
+(477 real changes made)
+(528 real changes made)
+(564 real changes made)
+(581 real changes made)
+(585 real changes made)
+(589 real changes made)
+(85,454 missing values generated)
+(3 real changes made)
+(85,889 missing values generated)
+(0 real changes made)
+(202 real changes made)
+(478 real changes made)
+(753 real changes made)
+(1,040 real changes made)
+(1,224 real changes made)
+(1,342 real changes made)
+(1,454 real changes made)
+(1,572 real changes made)
+(1,705 real changes made)
+(1,779 real changes made)
+(1,712 real changes made)
+(887 real changes made)
+(622 real changes made)
+(193 real changes made)
+(283 real changes made)
+(299 real changes made)
+(320 real changes made)
+(253 real changes made)
+(211 real changes made)
+(225 real changes made)
+(242 real changes made)
+(254 real changes made)
+(190 real changes made)
+(84 real changes made)
+(35 real changes made)
+(19 real changes made)
+(9 real changes made)
+(202 real changes made)
+(485 real changes made)
+(784 real changes made)
+(1,104 real changes made)
+(1,357 real changes made)
+(1,568 real changes made)
+(1,793 real changes made)
+(2,035 real changes made)
+(2,289 real changes made)
+(2,479 real changes made)
+(2,563 real changes made)
+(2,598 real changes made)
+(202 real changes made)
+(485 real changes made)
+(784 real changes made)
+(1,104 real changes made)
+(1,357 real changes made)
+(1,568 real changes made)
+(1,793 real changes made)
+(2,035 real changes made)
+(2,289 real changes made)
+(2,479 real changes made)
+(2,563 real changes made)
+(2,598 real changes made)
+(2,617 real changes made)
+(83,490 missing values generated)
+(7 real changes made)
+(83,922 missing values generated)
+(0 real changes made)
+(292 real changes made)
+(825 real changes made)
+(1,297 real changes made)
+(1,544 real changes made)
+(1,588 real changes made)
+(1,649 real changes made)
+(1,646 real changes made)
+(1,766 real changes made)
+(1,951 real changes made)
+(1,998 real changes made)
+(1,878 real changes made)
+(916 real changes made)
+(618 real changes made)
+(289 real changes made)
+(576 real changes made)
+(588 real changes made)
+(476 real changes made)
+(371 real changes made)
+(389 real changes made)
+(340 real changes made)
+(425 real changes made)
+(479 real changes made)
+(367 real changes made)
+(169 real changes made)
+(69 real changes made)
+(28 real changes made)
+(3 real changes made)
+(292 real changes made)
+(868 real changes made)
+(1,456 real changes made)
+(1,932 real changes made)
+(2,303 real changes made)
+(2,692 real changes made)
+(3,032 real changes made)
+(3,457 real changes made)
+(3,936 real changes made)
+(4,303 real changes made)
+(4,472 real changes made)
+(4,541 real changes made)
+(292 real changes made)
+(868 real changes made)
+(1,456 real changes made)
+(1,932 real changes made)
+(2,303 real changes made)
+(2,692 real changes made)
+(3,032 real changes made)
+(3,457 real changes made)
+(3,936 real changes made)
+(4,303 real changes made)
+(4,472 real changes made)
+(4,541 real changes made)
+(4,569 real changes made)
+(80,891 missing values generated)
+(16 real changes made)
+(81,458 missing values generated)
+(0 real changes made)
+(640 real changes made)
+(1,379 real changes made)
+(2,025 real changes made)
+(2,603 real changes made)
+(2,876 real changes made)
+(3,057 real changes made)
+(3,219 real changes made)
+(3,509 real changes made)
+(3,814 real changes made)
+(3,989 real changes made)
+(3,849 real changes made)
+(1,662 real changes made)
+(984 real changes made)
+(635 real changes made)
+(798 real changes made)
+(769 real changes made)
+(775 real changes made)
+(611 real changes made)
+(559 real changes made)
+(580 real changes made)
+(669 real changes made)
+(741 real changes made)
+(577 real changes made)
+(300 real changes made)
+(98 real changes made)
+(35 real changes made)
+(5 real changes made)
+(640 real changes made)
+(1,438 real changes made)
+(2,207 real changes made)
+(2,982 real changes made)
+(3,593 real changes made)
+(4,152 real changes made)
+(4,732 real changes made)
+(5,401 real changes made)
+(6,142 real changes made)
+(6,719 real changes made)
+(7,019 real changes made)
+(7,117 real changes made)
+(640 real changes made)
+(1,438 real changes made)
+(2,207 real changes made)
+(2,982 real changes made)
+(3,593 real changes made)
+(4,152 real changes made)
+(4,732 real changes made)
+(5,401 real changes made)
+(6,142 real changes made)
+(6,719 real changes made)
+(7,019 real changes made)
+(7,117 real changes made)
+(7,152 real changes made)
+(84,697 missing values generated)
+(1 real change made)
+(84,704 missing values generated)
+(0 real changes made)
+(174 real changes made)
+(539 real changes made)
+(920 real changes made)
+(1,272 real changes made)
+(1,462 real changes made)
+(1,593 real changes made)
+(1,668 real changes made)
+(1,807 real changes made)
+(1,936 real changes made)
+(2,000 real changes made)
+(1,941 real changes made)
+(682 real changes made)
+(280 real changes made)
+(173 real changes made)
+(373 real changes made)
+(406 real changes made)
+(411 real changes made)
+(298 real changes made)
+(294 real changes made)
+(292 real changes made)
+(358 real changes made)
+(348 real changes made)
+(258 real changes made)
+(109 real changes made)
+(43 real changes made)
+(12 real changes made)
+(1 real change made)
+(174 real changes made)
+(547 real changes made)
+(953 real changes made)
+(1,364 real changes made)
+(1,662 real changes made)
+(1,956 real changes made)
+(2,248 real changes made)
+(2,606 real changes made)
+(2,954 real changes made)
+(3,212 real changes made)
+(3,321 real changes made)
+(3,364 real changes made)
+(174 real changes made)
+(547 real changes made)
+(953 real changes made)
+(1,364 real changes made)
+(1,662 real changes made)
+(1,956 real changes made)
+(2,248 real changes made)
+(2,606 real changes made)
+(2,954 real changes made)
+(3,212 real changes made)
+(3,321 real changes made)
+(3,364 real changes made)
+(3,376 real changes made)
+
+. 
+. 
+. *---------------------------------------------
+. * Zero-out Mission Bay prevalence indicators
+. * and symptoms that were not measured in that
+. * cohort
+. *---------------------------------------------
+. local symps "diarrhea nausea stomach vomiting rash eyeinfection earache fever 
+> urinarytractinfection cough sorethroat runnynose cold"
+
+. foreach symp of local symps {
+  2.         * Mission Bay has no information about which days an indiv was ill,
+.         * so we cannot extract information about daily prevalence
+.         forvalues i = 0/12 {
+  3.                 replace `symp'p`i' = . if beach=="Mission Bay"
+  4.         }
+  5. }
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+
+. 
+. local symps "cold urinarytractinfection"
+
+. foreach symp of local symps {
+  2.         forvalues i = 0/12 {
+  3.                 replace `symp'i`i' = . if beach=="Mission Bay"
+  4.                 replace `symp'ci`i' = . if beach=="Mission Bay"
+  5.                 replace `symp'risk`i' = . if beach=="Mission Bay"
+  6.         }
+  7. }
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+
+. 
+. *---------------------------------------------
+. * Composite Outcome: GI Illness
+. * As defined in Wade 2010, Colford 2012, Arnold 2013, Yau 2014
+. * note that for mission bay we do not have
+. * information about illness duration and so 
+. * we cannot calculate daily prevalence.  Assume
+. * that GI illness started on the first date of
+. * any one of the symptoms
+. *---------------------------------------------
+. 
+. * Identify prevalent days
+. forvalues i = 0/12 {
+  2.         gen byte gip`i' = (diarrheap`i'==1) | (vomitingp`i'==1) | (nauseap`
+> i'==1 & stomachp`i'==1) | (nauseap`i'==1 & stopdaily_gas==1) | (stomachp`i'==1
+>  & stopdaily_gas==1)
+  3.                 label var gip`i' "Prevalent GI illness, day `i'"
+  4.                 replace gip`i' = . if beach=="Mission Bay"
+  5. }
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+(12,469 real changes made, 12,469 to missing)
+
+. * Identify the start and end date
+. gen gist= .
+(88,083 missing values generated)
+
+.         label var gist "First day of GI illness"
+
+. forvalues i = 12(-1)0 {
+  2.         replace gist = `i' if gip`i' == 1
+  3. }
+(195 real changes made)
+(400 real changes made)
+(954 real changes made)
+(1,181 real changes made)
+(1,220 real changes made)
+(1,203 real changes made)
+(1,122 real changes made)
+(1,100 real changes made)
+(1,210 real changes made)
+(1,320 real changes made)
+(1,292 real changes made)
+(1,023 real changes made)
+(440 real changes made)
+
+. gen giend = .
+(88,083 missing values generated)
+
+.         label var giend "Last day of GI illness"
+
+. forvalues i = 0/12 {
+  2.         replace giend = `i' if gip`i' == 1
+  3. }
+(440 real changes made)
+(1,023 real changes made)
+(1,292 real changes made)
+(1,320 real changes made)
+(1,210 real changes made)
+(1,100 real changes made)
+(1,122 real changes made)
+(1,203 real changes made)
+(1,220 real changes made)
+(1,181 real changes made)
+(954 real changes made)
+(400 real changes made)
+(195 real changes made)
+
+. * backfill any prevalent days
+. forvalues i = 0/12 {
+  2.         replace gip`i' = 1 if (`i' >= gist) & (`i' <= giend)
+  3. }
+(0 real changes made)
+(5 real changes made)
+(13 real changes made)
+(14 real changes made)
+(23 real changes made)
+(29 real changes made)
+(29 real changes made)
+(30 real changes made)
+(17 real changes made)
+(8 real changes made)
+(5 real changes made)
+(2 real changes made)
+(0 real changes made)
+
+. * calculate duration
+. gen gidays = giend - gist + 1
+(83,236 missing values generated)
+
+.         label var gidays "Days of GI illness"
+
+. 
+. * Figure out the GI illness start date for
+. * Mission Bay -- assume it is the minimum
+. * start date for the GI symptoms
+. gen mbmin = .
+(88,083 missing values generated)
+
+. forvalues i = 12(-1)0 {
+  2.         replace mbmin = `i' if (diarrheaci`i'==1 | vomitingci`i'==1 | nause
+> aci`i'==1 | stomachci`i'==1) & (beach=="Mission Bay")
+  3. }
+(712 real changes made)
+(699 real changes made)
+(672 real changes made)
+(636 real changes made)
+(580 real changes made)
+(517 real changes made)
+(463 real changes made)
+(421 real changes made)
+(381 real changes made)
+(319 real changes made)
+(236 real changes made)
+(177 real changes made)
+(70 real changes made)
+
+. replace gist = mbmin if beach=="Mission Bay"
+(712 real changes made)
+
+. drop mbmin
+
+. 
+. * incident illness
+. forvalues i = 0/12 {
+  2.         gen byte gii`i' = 0
+  3.         label var gii`i' "Incident GI illness, day `i'"
+  4.         replace gii`i' = 1 if `i'==gist
+  5. }
+(510 real changes made)
+(844 real changes made)
+(708 real changes made)
+(554 real changes made)
+(438 real changes made)
+(382 real changes made)
+(432 real changes made)
+(477 real changes made)
+(454 real changes made)
+(414 real changes made)
+(218 real changes made)
+(90 real changes made)
+(38 real changes made)
+
+. * days at risk
+. forvalues i = 0/12 {    
+  2.         gen byte girisk`i' = 1
+  3.         label var girisk`i' "At risk for GI illness, day `i'"
+  4.         replace girisk`i' = 0 if `i'> gist
+  5. }
+(0 real changes made)
+(510 real changes made)
+(1,354 real changes made)
+(2,062 real changes made)
+(2,616 real changes made)
+(3,054 real changes made)
+(3,436 real changes made)
+(3,868 real changes made)
+(4,345 real changes made)
+(4,799 real changes made)
+(5,213 real changes made)
+(5,431 real changes made)
+(5,521 real changes made)
+
+. * cumulative incidence indicators
+. forvalues i = 0/12 {
+  2.         gen byte gici`i' = 0
+  3.         replace gici`i' = 1 if (`i'>=gist)
+  4.         label var gici`i' "Incident GI illness by day `i'"      
+  5. }       
+(510 real changes made)
+(1,354 real changes made)
+(2,062 real changes made)
+(2,616 real changes made)
+(3,054 real changes made)
+(3,436 real changes made)
+(3,868 real changes made)
+(4,345 real changes made)
+(4,799 real changes made)
+(5,213 real changes made)
+(5,431 real changes made)
+(5,521 real changes made)
+(5,559 real changes made)
+
+. 
+. *---------------------------------------------
+. * URI (defined consistent with Wade et al. 2010)
+. * any 2 of sore throat, cough, runny nose, code, fever
+. *---------------------------------------------
+. 
+. * Identify prevalent days
+. forvalues i = 0/12 {
+  2.         egen temp = rowtotal(sorethroatp`i' coughp`i' runnynosep`i' coldp`i
+> ' feverp`i')
+  3.         gen byte urip`i' = temp > 1
+  4.                 label var urip`i' "Prevalent URI, day `i'"              
+  5.         drop temp
+  6. }
+
+. * Identify the start and end date
+. gen urist= .
+(88,083 missing values generated)
+
+.         label var urist "First day of URI"
+
+. forvalues i = 12(-1)0 {
+  2.         replace urist = `i' if urip`i' == 1
+  3. }
+(295 real changes made)
+(729 real changes made)
+(2,126 real changes made)
+(2,243 real changes made)
+(2,181 real changes made)
+(1,996 real changes made)
+(1,870 real changes made)
+(1,804 real changes made)
+(1,696 real changes made)
+(1,523 real changes made)
+(1,187 real changes made)
+(699 real changes made)
+(220 real changes made)
+
+. gen uriend = .
+(88,083 missing values generated)
+
+.         label var uriend "Last day of URI"
+
+. forvalues i = 0/12 {
+  2.         replace uriend = `i' if urip`i' == 1
+  3. }
+(220 real changes made)
+(699 real changes made)
+(1,187 real changes made)
+(1,523 real changes made)
+(1,696 real changes made)
+(1,804 real changes made)
+(1,870 real changes made)
+(1,996 real changes made)
+(2,181 real changes made)
+(2,243 real changes made)
+(2,126 real changes made)
+(729 real changes made)
+(295 real changes made)
+
+. * backfill any prevalent days
+. forvalues i = 0/12 {
+  2.         replace urip`i' = 1 if (`i' >= urist) & (`i' <= uriend)
+  3. }
+(0 real changes made)
+(0 real changes made)
+(2 real changes made)
+(9 real changes made)
+(14 real changes made)
+(20 real changes made)
+(15 real changes made)
+(20 real changes made)
+(10 real changes made)
+(6 real changes made)
+(2 real changes made)
+(1 real change made)
+(0 real changes made)
+
+. * calculate duration
+. gen uridays = uriend - urist + 1
+(83,781 missing values generated)
+
+.         label var uridays "Days of URI"
+
+.         
+. * estimate the start date of URI for Mission Bay
+. * since we do not have daily prevalence information,
+. * we have to assume the earliest start date of 2+ URI symptoms
+. gen mbmin=.
+(88,083 missing values generated)
+
+. gen counter = 0
+
+. forvalues i=0/12 {
+  2.         replace counter = counter+1 if (sorethroati`i'==1) & (beach=="Missi
+> on Bay")
+  3.         replace counter = counter+1 if (coughi`i'==1) & (beach=="Mission Ba
+> y")
+  4.         replace counter = counter+1 if (runnynosei`i'==1) & (beach=="Missio
+> n Bay")
+  5.         replace counter = counter+1 if (feveri`i'==1) & (beach=="Mission Ba
+> y") 
+  6.         replace mbmin = `i' if (counter>=2) & (mbmin==.) & (beach=="Mission
+>  Bay")
+  7. }
+(23 real changes made)
+(38 real changes made)
+(43 real changes made)
+(24 real changes made)
+(22 real changes made)
+(48 real changes made)
+(38 real changes made)
+(44 real changes made)
+(41 real changes made)
+(42 real changes made)
+(41 real changes made)
+(42 real changes made)
+(64 real changes made)
+(30 real changes made)
+(46 real changes made)
+(32 real changes made)
+(47 real changes made)
+(53 real changes made)
+(35 real changes made)
+(46 real changes made)
+(28 real changes made)
+(35 real changes made)
+(47 real changes made)
+(26 real changes made)
+(32 real changes made)
+(40 real changes made)
+(25 real changes made)
+(30 real changes made)
+(20 real changes made)
+(25 real changes made)
+(35 real changes made)
+(25 real changes made)
+(37 real changes made)
+(16 real changes made)
+(23 real changes made)
+(51 real changes made)
+(39 real changes made)
+(52 real changes made)
+(30 real changes made)
+(43 real changes made)
+(36 real changes made)
+(46 real changes made)
+(51 real changes made)
+(26 real changes made)
+(39 real changes made)
+(39 real changes made)
+(27 real changes made)
+(46 real changes made)
+(24 real changes made)
+(31 real changes made)
+(18 real changes made)
+(24 real changes made)
+(27 real changes made)
+(21 real changes made)
+(20 real changes made)
+(11 real changes made)
+(13 real changes made)
+(14 real changes made)
+(11 real changes made)
+(15 real changes made)
+(5 real changes made)
+(11 real changes made)
+(9 real changes made)
+(2 real changes made)
+(6 real changes made)
+
+. replace urist = mbmin if beach=="Mission Bay"
+(390 real changes made)
+
+. drop mbmin counter
+
+. 
+. 
+. 
+. * incident illness
+. forvalues i = 0/12 {
+  2.         gen byte urii`i' = 0
+  3.         label var urii`i' "Incident URI, day `i'"
+  4.         replace urii`i' = 1 if `i'==urist
+  5. }
+(242 real changes made)
+(535 real changes made)
+(606 real changes made)
+(536 real changes made)
+(411 real changes made)
+(386 real changes made)
+(385 real changes made)
+(477 real changes made)
+(492 real changes made)
+(360 real changes made)
+(170 real changes made)
+(72 real changes made)
+(20 real changes made)
+
+. * days at risk
+. forvalues i = 0/12 {    
+  2.         gen byte uririsk`i' = 1
+  3.         label var uririsk`i' "At risk for URI, day `i'"
+  4.         replace uririsk`i' = 0 if `i'> urist
+  5. }
+(0 real changes made)
+(242 real changes made)
+(777 real changes made)
+(1,383 real changes made)
+(1,919 real changes made)
+(2,330 real changes made)
+(2,716 real changes made)
+(3,101 real changes made)
+(3,578 real changes made)
+(4,070 real changes made)
+(4,430 real changes made)
+(4,600 real changes made)
+(4,672 real changes made)
+
+. * cumulative incidence indicators
+. forvalues i = 0/12 {
+  2.         gen byte urici`i' = 0
+  3.         replace urici`i' = 1 if (`i'>=urist)
+  4.         label var urici`i' "Incident URI by day `i'"
+  5. }       
+(242 real changes made)
+(777 real changes made)
+(1,383 real changes made)
+(1,919 real changes made)
+(2,330 real changes made)
+(2,716 real changes made)
+(3,101 real changes made)
+(3,578 real changes made)
+(4,070 real changes made)
+(4,430 real changes made)
+(4,600 real changes made)
+(4,672 real changes made)
+(4,692 real changes made)
+
+. 
+. 
+. 
+. *---------------------------------------------
+. * Count of days missed of daily activities due to
+. * GI illness
+. * Survey Question:
+. * "Did the [symptoms] prevent you from performing 
+. *  daily activities such as school, recreation, 
+. *  or vacation activities, or work around the home?"
+. *---------------------------------------------
+. 
+. gen byte dailygi = 0
+
+.         replace dailygi = stopdailydays_gas if (stopdailydays_gas!=.)
+(2,364 real changes made)
+
+.         * recode single value of 98 to 0
+.         replace dailygi = 0 if dailygi==98
+(1 real change made)
+
+.         * recode values >10 to 10
+.         replace dailygi = 10 if dailygi>10
+(9 real changes made)
+
+.         label var dailygi "Days of missed activities due to GI illness"
+
+.         
+. 
+. *---------------------------------------------
+. * Count of days missed of paid work due to
+. * GI illness, including direct and indirect impacts
+. * Survey Questions:
+. * "When your [symptoms] began, were you working 
+. *  for pay either inside or outside the home? 
+. *  Please include jobs for which you were self employed."
+. * and
+. * "How many TOTAL days did other household members lose 
+. *  time from work because of [your/NAME]'s symptoms?"
+. *---------------------------------------------
+. 
+. gen byte workgi = 0
+
+.         replace workgi = stayhomedays_gas if (working==1 & stayhome_gas!=.)
+(2,096 real changes made, 1,663 to missing)
+
+.         replace workgi = 0 if workgi==.
+(1,663 real changes made)
+
+.         * add secondary days missed
+.         replace workgi = workgi + othersmissdays_gas if (othersmissdays_gas>0 
+> & othersmissdays_gas!=.)
+(234 real changes made)
+
+.         label var workgi "Days of paid work missed due to GI illness"
+
+. 
+. *---------------------------------------------
+. * Count of medical visits due to GI illness
+. * and overall
+. * Includes healthcare provider 
+. * in-person visits, phone consultations, and
+. * emergency room visits
+. * For people who reported separately for
+. * healthcare providers and ER visits, take the
+. * higher number reported
+. *
+. * For the overall medical visit count, take
+. * a conservative approach due to the limitations
+. * of the instrument, by just taking the highest
+. * number of visits reported for each individual
+. * across the different symptom categories 
+. * (GI, eye, respiratory, ear, uti, skin) due
+. * to the possibility for co-moribidity and 
+. * shared visits due to multiple symptoms
+. *---------------------------------------------
+. gen byte medgi = 0
+
+.         replace medgi = visitdoctimes_gas if visitdoc_gas==1
+(684 real changes made, 98 to missing)
+
+.         replace medgi = visitertimes_gas if (emergencyroom_gas==1 & visitertim
+> es_gas > medgi)
+(37 real changes made)
+
+.         replace medgi = 1 if inlist(medgi,0,.) & (phonedoc_gas==1)
+(213 real changes made)
+
+.         replace medgi = 0 if medgi ==.
+(98 real changes made)
+
+.         label var medgi "Num. medical visits due to GI illness, incl. phone co
+> nsults and ER visits"
+
+. 
+. 
+. gen byte medvisits = 0
+
+.         replace medvisits = visitdoctimes_gas if visitdoc_gas==1
+(684 real changes made, 98 to missing)
+
+.         replace medvisits = visitertimes_gas if (emergencyroom_gas==1 & visite
+> rtimes_gas > medvisits)
+(37 real changes made)
+
+.         
+.         replace medvisits = visitdoctimes_eye if (visitdoc_eye==1 & visitdocti
+> mes_eye > medvisits)
+(274 real changes made, 43 to missing)
+
+.         replace medvisits = visitertimes_eye if (emergencyroom_eye==1 & visite
+> rtimes_eye > medvisits)
+(2 real changes made)
+
+.         
+.         replace medvisits = visitdoctimes_res if (visitdoc_res==1 & visitdocti
+> mes_res > medvisits)
+(962 real changes made, 71 to missing)
+
+.         replace medvisits = visitertimes_res if (emergencyroom_res==1 & visite
+> rtimes_res > medvisits)
+(20 real changes made)
+
+.         
+.         replace medvisits = visitdoctimes_ear if (visitdoc_ear==1 & visitdocti
+> mes_ear > medvisits)
+(212 real changes made, 27 to missing)
+
+.         replace medvisits = visitertimes_ear if (emergencyroom_ear==1 & visite
+> rtimes_ear > medvisits)
+(7 real changes made)
+
+.         
+.         replace medvisits = visitdoctimes_uti if (visitdoc_uti==1 & visitdocti
+> mes_uti > medvisits)
+(134 real changes made)
+
+.         replace medvisits = visitertimes_uti if (emergencyroom_uti==1 & visite
+> rtimes_uti > medvisits)
+(2 real changes made)
+
+.         
+.         replace medvisits = visitdoctimes_skn if (visitdoc_skn==1 & visitdocti
+> mes_skn > medvisits)
+(278 real changes made, 28 to missing)
+
+.         replace medvisits = visitertimes_skn if (emergencyroom_skn==1 & visite
+> rtimes_skn > medvisits)
+(11 real changes made)
+
+.         
+.         replace medvisits = 1 if inlist(medvisits,0,.) & (phonedoc_gas==1 | ph
+> onedoc_eye==1 | phonedoc_res==1 | phonedoc_ear==1 | phonedoc_uti==1 | phonedoc
+> _skn==1)
+(704 real changes made)
+
+.         
+.         replace medvisits = 0 if medvisits==.
+(265 real changes made)
+
+.         label var medvisits "Num. medical visits (GI, Eye, Resp, Ear, UTI, Ski
+> n), incl. phone consults and ER"
+
+. 
+.         
+. *---------------------------------------------
+. * create final covariates
+. *---------------------------------------------
+. 
+. 
+. * create an age category variable for stratification
+. gen agestrat = .
+(88,083 missing values generated)
+
+. replace agestrat = 1 if age<=4
+(6,990 real changes made)
+
+. replace agestrat = 2 if age>4 & age<=10
+(11,446 real changes made)
+
+. replace agestrat = 3 if age>10 & age!=.
+(68,428 real changes made)
+
+.         label define agestrat 1 "(0, 4]" 2 "(4, 10]" 3 ">10"
+
+.         label values agestrat agestrat
+
+.         label var agestrat "Age category used for stratification"
+
+.         
+. * create an age category variable
+. egen agecat = cut(age), at(0,5(10)75,200) icodes
+(1219 missing values generated)
+
+.         replace agecat=9 if age==.
+(1,219 real changes made)
+
+.         label define agecat 0 "0-4" 1 "5-14" 2 "15-24" 3 "25-34" 4 "35-44" 5 "
+> 45-54" 6 "55-64" 7 "65-74" 8 "75+" 9 "Missing"
+
+.         label values agecat agecat
+
+.         label var agecat "Age category"
+
+. 
+. * identify females
+. gen byte female = (sex==2)
+
+.         label var female "Female"
+
+.         
+. * create a GI contact at baseline analysis variable
+. gen byte gicontactbase = gicontact_base
+(883 missing values generated)
+
+.         replace gicontactbase = 2 if gicontactbase==.
+(883 real changes made)
+
+.         label define ynm 0 "No" 1 "Yes" 2 "Missing"
+
+.         label values gicontactbase ynm
+
+.         label var gicontactbase "Contact with person with GI symptoms at enrol
+> lment"
+
+.         
+.         
+. * identify swimmers
+. gen swimmer = (bodycontact==1) | (headunder==1) | (swallwater==1)
+
+.         label values swimmer yesno
+
+.         label var swimmer "Individual is a swimmer"
+
+. 
+.         
+. *----------------------------------------
+. * Identify point source and non-point source
+. * conditions
+. *----------------------------------------
+. 
+. gen byte pointsource = 1
+
+.         replace pointsource = 0 if inlist(beach,"Doheny","Mission Bay","Malibu
+> ","Surfside")
+(38,827 real changes made)
+
+.         label values pointsource yesno
+
+.         label var pointsource "Point-source (vs. non-point source) conditions"
+
+.         order beach beachcode pointsource berm groundwater hhid indid
+
+. 
+. *----------------------------------------
+. * Identify marine vs. freshwater beaches
+. *----------------------------------------
+. gen byte marine = 1
+
+.         replace marine = 0 if inlist(beach,"Huntington","Silver","Washington P
+> ark","West")
+(21,015 real changes made)
+
+.         label var marine "Marine water"
+
+.         label values marine yesno
+
+. 
+. *----------------------------------------
+. * Merge the combined Epi and WQ datasets
+. *----------------------------------------
+. sort beach beachcode intdate
+
+. tempfile epi
+
+. save `epi'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03132.000001 saved
+
+. 
+. use "~/dropbox/13beaches/data/final/13beaches-wq.dta", clear
+(13 beaches water quality data, created by 9-avg-wq-data.do)
+
+. rename coldate intdate
+
+. drop marine
+
+. sort beach beachcode intdate
+
+. tempfile wq
+
+. save `wq'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03132.000002 saved
+
+. 
+. use `epi', clear
+(13 beaches epi data, created by 4-append-epi-data.do)
+
+. merge m:1 beach beachcode intdate using `wq'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                         1,412
+        from master                     1,356  (_merge==1)
+        from using                         56  (_merge==2)
+
+    matched                            86,727  (_merge==3)
+    -----------------------------------------
+
+. 
+. tab beach if _merge==1
+
+          Beach |      Freq.     Percent        Cum.
+----------------+-----------------------------------
+         Avalon |         16        1.18        1.18
+         Doheny |        222       16.37       17.55
+    Mission Bay |      1,118       82.45      100.00
+----------------+-----------------------------------
+          Total |      1,356      100.00
+
+. tab beach if _merge==2
+
+          Beach |      Freq.     Percent        Cum.
+----------------+-----------------------------------
+       Boqueron |          8       14.29       14.29
+         Doheny |         19       33.93       48.21
+      Edgewater |          1        1.79       50.00
+     Huntington |          3        5.36       55.36
+         Malibu |         16       28.57       83.93
+    Mission Bay |          3        5.36       89.29
+         Silver |          1        1.79       91.07
+       Surfside |          2        3.57       94.64
+Washington Park |          2        3.57       98.21
+           West |          1        1.79      100.00
+----------------+-----------------------------------
+          Total |         56      100.00
+
+. 
+. * there are individuals in the Avalon, Doheny, and Mission Bay
+. * datasets that do not have matching wq data
+. * flag these individuals to exclude them
+. * from WQ - health analyses
+. gen nowq = _merge==1
+
+.         label var nowq "No water quality data available"
+
+. 
+. drop if _merge==2
+(56 observations deleted)
+
+. drop _merge
+
+. 
+. 
+. 
+. 
+. *---------------------------------------------
+. * save an analysis dataset
+. *---------------------------------------------
+. 
+. compress
+  variable fudays was float now byte
+  variable diarrheast was float now byte
+  variable diarrheaend was float now byte
+  variable nauseast was float now byte
+  variable nauseaend was float now byte
+  variable stomachst was float now byte
+  variable stomachend was float now byte
+  variable vomitingst was float now byte
+  variable vomitingend was float now byte
+  variable rashst was float now byte
+  variable rashend was float now byte
+  variable eyeinfectionst was float now byte
+  variable eyeinfectionend was float now byte
+  variable earachest was float now int
+  variable earacheend was float now byte
+  variable feverst was float now byte
+  variable feverend was float now byte
+  variable urinarytractinfectionst was float now byte
+  variable urinarytractinfectionend was float now byte
+  variable coughst was float now byte
+  variable coughend was float now byte
+  variable sorethroatst was float now byte
+  variable sorethroatend was float now byte
+  variable runnynosest was float now byte
+  variable runnynoseend was float now byte
+  variable coldst was float now byte
+  variable coldend was float now byte
+  variable gist was float now byte
+  variable giend was float now byte
+  variable gidays was float now byte
+  variable urist was float now byte
+  variable uriend was float now byte
+  variable uridays was float now byte
+  variable agestrat was float now byte
+  variable agecat was float now byte
+  variable swimmer was float now byte
+  variable nowq was float now byte
+  (9,689,130 bytes saved)
+
+. label data "13 Beaches NIH-R03 analysis dataset, created by 10-make-analysis.d
+> ataset.do"
+
+. saveold "~/dropbox/13beaches/data/final/13beaches-analysis.dta", replace versi
+> on(12)
+(saving in Stata 12 format, which can be read by Stata 11 or 12)
+file ~/dropbox/13beaches/data/final/13beaches-analysis.dta saved
+
+. outsheet using "~/dropbox/13beaches/data/final/13beaches-analysis.csv", comma 
+> replace
+
+. 
+. desc, s
+
+Contains data from ~/dropbox/13beaches/data/final/13beaches-analysis.dta
+  obs:        88,083                          13 Beaches NIH-R03 analysis
+                                                dataset, created by
+                                                10-make-analysis.dataset.do
+ vars:         1,152                          17 Dec 2015 14:18
+ size:   149,300,685                          
+Sorted by: 
+
+. notes
+
+_dta:
+  1.  17 Dec 2015 13:56 13-Beaches Epidemiology Data, created by
+      4-append-epi-data.do
+  2.  Please contact Ben Arnold (benarnold@berkeley.edu) and Tim Wade
+      (wade.tim@epa.gov) if you have specific questions about the dataset
+  3.  Some variables were not collected at all beaches. See
+      13beaches-epi-varlist.dta for a summary table of variable inclusion by
+      beach group (NEEAR, Avalon/Doheny/Malibu, Mision Bay).
+  4.  Doheny and Malibu have a -berm- variable that indicates when a sand berm
+      was open to allow freshwater to flow into the ocean. See Colford et al
+      (Water Res, 2012, 46, 2176-2186) and Arnold et al (Epidemiology, 2013, 24,
+      845-853) for details.
+  5.  Avalon has a -groundwater- variable that indicates that groundwater flow
+      was above median. See Yau et al (Water Res, 2014, 59, 23-36) for details.
+  6.  13-Beaches Individual Sample Water Quality Data, created by
+      8-append-wq-data.do
+  7.  Values below the detection limit for all indictors are set to 0
+  8.  Values are missing if a sample was not tested for a particular indicator
+  9.  All non-detect values are set to 0 and flagged with _nd indicators
+ 10.  sampleid numbers are separate by type of indicator in the NEEAR studies
+      and that is why there are multiple sampleid variables in this dataset
+ 11.  13-Beaches Averaged Water Quality Data, created by 9-avg-wq-data.do
+ 12.  samples below detection were imputed with 0.1 before calculating log10
+      averages
+ 13.  All indicators are means of log10 values, summarized daily over all
+      samples, or separately for AM, Mid-Day, PM, shin-depth, or waist-depth
+      samples
+ 14.  The enteropcr2-4 variables are alternative Enterococcus qPCR calculations
+      at Avalon/Doheny/Malibu beaches only
+ 15.  The Mission Bay water quality data are separate for 6 beaches within the
+      area and need to merge to individuals separately by beachcode
+ 16.  Avalon water quality data are summarized separately for sites A/B/C and D;
+      site D is very different. See Yau et al 2014 Figs 1 and 2.
+ 17.  Doheny and Malibu water quality data are summarized separately for sites
+      C; at both beaches site C was located in a lagoon. At Doheny, site E is
+      also summarized separately, since it was nearly 1 mile from the other
+      sampling sites (See Fig 1 of Arnold et al. 2013 and SI Fig 1 of Colford et
+      al. 2012)
+ 18.  Quartile categories for Entero 1600 and qPCR exclude water quality
+      measurements from Doheny and Malibu sites C in the lagoons because they
+      are not representative of the broader swimmer exposure. The Entero 1600
+      quartiles were calculated using Enterolert data from Mission Bay
+ 19.  AM/Mid-Day/PM and shin/waist disaggregations were not available for
+      Mission Bay due to different sampling methods at that beach
+
+sunhr:
+  1.  "sunhr and sunmin not calculable for Mission Bay -- only collected as
+      categorical data, stored as sunhr_cat"
+
+race:
+  1.  "In the NEEAR beaches, hispanic individuals were all coded as non-white,
+      which is different from Avalon/Doheney/Malibu/Mission Bay, where some
+      people identified as white, hispanic"
+
+hhinc:
+  1.  "Household income categories collected at Avalon/Doheny/Malibu"
+
+stmatch:
+  1.  "Site- and Time-specific match code only created for Avalon/Doheny/Malibu
+      beaches for merge to site- and time-specific water quality data"
+
+sunhr_cat:
+  1.  "Mission Bay only collected categorical information about exposure to
+      direct sunlight"
+
+hhinc_mb:
+  1.  "Household income categories collected at Mission Bay, different from
+      Av/Do/Ma beaches"
+
+. 
+. * write a codebook to separate file
+. log close
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/10-make-analysis-dataset.
+> log
+  log type:  text
+ closed on:  17 Dec 2015, 14:20:53
+--------------------------------------------------------------------------------

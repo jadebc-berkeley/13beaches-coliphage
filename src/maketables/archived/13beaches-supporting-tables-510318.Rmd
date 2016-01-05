@@ -1,0 +1,181 @@
+---
+title: "Supporting Information Tables"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+    includes:
+      in_header: 13beaches-tables-header.tex
+mainfont: Helvetica Light
+fontsize: 12pt
+geometry: margin=0.5in
+fig_height: 4
+fig_width: 4
+
+---
+
+
+```{r R preamble, echo=FALSE}
+# --------------------------------------
+# R preamble
+# --------------------------------------
+
+rm(list=ls())
+library(xtable)
+
+# --------------------------------------
+# function to strip row/colnames from 
+# table and output contents only
+# for formatting in latex
+# --------------------------------------
+cleantable <- function(x,digits) {
+ print( xtable(x,digits=digits),
+        sanitize.text.function=function(y){y},
+        floating=FALSE,
+        include.rownames=FALSE,
+        include.colnames=FALSE,
+        only.contents=TRUE,
+        hline.after=NULL
+ )
+}
+
+
+# --------------------------------------
+# clean table output, including rownames
+# --------------------------------------
+rowtable <- function(x,digits) {
+ print( xtable(x,digits=digits),
+        sanitize.text.function=function(y){y},
+        floating=FALSE,
+        include.rownames=TRUE,
+        include.colnames=FALSE,
+        only.contents=TRUE,
+        hline.after=NULL
+ )
+}
+```
+\renewcommand{\thetable}{S\arabic{table}}
+\blandscape
+\begin{table}[h!tb]
+\begin{center}
+\caption{Participant Characteristics by Age Category \label{tab:ptable}}
+\begin{tabular}{l rrr rrr rrr rrr}
+ & \\
+  & \multicolumn{3}{c}{All Ages} & \multicolumn{3}{c}{Age 0 to 4 Years} & \multicolumn{3}{c}{Age 5 to 10 Years} & \multicolumn{3}{c}{Age >10 Years}   \\
+ % & N & \% & Median (IQR) &  N & \% & Median (IQR) & N & \% & Median (IQR) & N & \% & Median (IQR) \\
+    & N & \% & Median &  N & \% & Median & N & \% & Median  & N & \% & Median \\
+  &  &  & (IQR) &  &  &  (IQR) &  &  &  (IQR) &  &  &  (IQR) \\
+\hline
+```{r descriptive table,echo=FALSE,results='asis'}
+load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-descriptive-stat-tables.Rdata")
+cleantable(tab.res,0)
+```
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+\elandscape
+
+
+```{r Entero qPCR quartile water quality labels,echo=FALSE}
+# --------------------------------------
+# get the mid-points of the Entero QPCR
+# concentrations by each quartile
+# --------------------------------------
+wq <- read.csv("~/dropbox/13beaches/data/final/13beaches-wq.csv")
+minQs <- tapply(wq$avgdyenteropcr,wq$qavgdyenteropcr,function(x) min(x,na.rm=T))
+maxQs <- tapply(wq$avgdyenteropcr,wq$qavgdyenteropcr,function(x) max(x,na.rm=T))
+labQs <-  paste(sprintf("%1.0f",10^minQs)," to ",sprintf("%1.0f",10^maxQs),sep="")
+labQs <- paste("Q",1:4," (",labQs,")",sep="")
+
+midQs <- minQs + (maxQs-minQs)/2
+
+```
+
+```{r Entero qPCR quartile format results,echo=FALSE}
+# --------------------------------------
+# Load Entero QPCR Body Immersion 
+# regression output
+# --------------------------------------
+load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-enteroQPCR-regs-body.Rdata")
+
+# --------------------------------------
+# Format CIRs as text and print a table
+# --------------------------------------
+cirformat <- function(x) {
+  # x : a vector of length 3 with CIR, lb, ub
+  paste(sprintf("%1.2f",x[1]), " (",sprintf("%1.2f",x[2]),", ",sprintf("%1.2f",x[3]),")",sep="")
+}
+
+fcir.all <- c("ref",apply(cir.all,2,cirformat))
+fcir.age0to4 <- c("ref",apply(cir.age0to4,2,cirformat))
+fcir.age5to10 <- c("ref",apply(cir.age5to10,2,cirformat))
+fcir.age11plus <- c("ref",apply(cir.age11plus,2,cirformat))
+
+fci.all <- sprintf("%1.0f",ci.all)
+fci.age0to4 <- sprintf("%1.0f",ci.age0to4)
+fci.age5to10 <- sprintf("%1.0f",ci.age5to10)
+fci.age11plus <- sprintf("%1.0f",ci.age11plus)
+
+# --------------------------------------
+# Summarize 
+# the number of swimmers and number
+# of cumulative incident episodes by
+# qunitile of Entero QPCR and age category
+# (calcNs and Nformat functions above
+# in an earlier code chunk)
+# --------------------------------------
+N.all <- calcNs(ad$diarrheaci3[ad$bodycontact=="Yes" & ad$agestrat!=""],ad$qenteroQPCR[ad$bodycontact=="Yes"& ad$agestrat!=""])
+
+N.age0to4 <- calcNs(ad$diarrheaci3[ad$bodycontact=="Yes" & ad$agestrat=="(0, 4]"],ad$qenteroQPCR[ad$bodycontact=="Yes" & ad$agestrat=="(0, 4]"] )
+
+N.age5to10 <- calcNs(ad$diarrheaci3[ad$bodycontact=="Yes" & ad$agestrat=="(4, 10]"],ad$qenteroQPCR[ad$bodycontact=="Yes" & ad$agestrat=="(4, 10]"] )
+
+N.age11plus <- calcNs(ad$diarrheaci3[ad$bodycontact=="Yes" & ad$agestrat==">10"],ad$qenteroQPCR[ad$bodycontact=="Yes" & ad$agestrat==">10"] )
+
+# format them to a single text string
+fN.all <- Nformat(N.all)
+fN.age0to4 <- Nformat(N.age0to4)
+fN.age5to10 <- Nformat(N.age5to10)
+fN.age11plus <- Nformat(N.age11plus)
+
+# --------------------------------------
+# Put all of the Ns and CIRs into
+# a single table
+# --------------------------------------
+cirtab <- cbind(fN.all,fcir.all,
+               fN.age0to4,fcir.age0to4,
+               fN.age5to10,fcir.age5to10,
+               fN.age11plus,fcir.age11plus)
+rownames(cirtab) <- labQs 
+
+
+```
+
+\clearpage
+\blandscape
+\begin{table}[h!tb]
+\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\caption{Cumlative Incidence of Diarrhea Among Body Immersion Swimmers by Quartiles of \textit{Enterococcus} qPCR Concentration and Age}
+\begin{tabular}{l rc rc rc rc}
+& \\
+\textit{Enterococcus} & \multicolumn{2}{c}{All Ages} & \multicolumn{2}{c}{Ages 0 to 4} & \multicolumn{2}{c}{Ages 5 to 10} & \multicolumn{2}{c}{Ages >10} \\
+Quartile & Cases$^*$/ & aCIR$^{**}$ & Cases$^*$/  & aCIR$^{**}$ & Cases$^*$/  & aCIR$^{**}$ & Cases$^*$/ & aCIR$^{**}$ \\
+(range CCE) & At Risk & & At Risk & & At Risk & & At Risk \\
+\hline
+```{r Entero qPCR Quartile CIR table,echo=FALSE,results='asis'}
+   rowtable(cirtab,digits=0)
+```
+\hline
+\end{tabular}
+\end{center}
+
+$^*$ 3-day Cumulative incident cases of diarrhea \\
+$^{**}$ Adjusted Cumulative Incidence Ratio (aCIR)
+\end{table}
+\elandscape
+
+
+
+
+

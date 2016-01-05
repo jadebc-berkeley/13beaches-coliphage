@@ -1,0 +1,341 @@
+--------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/1-format-neear-epi.log
+  log type:  text
+ opened on:  17 Dec 2015, 13:54:25
+
+. 
+. *----------------------------------------
+. * 1-format-neear-epi.do
+. * ben arnold
+. *
+. * format the NEEAR epi data from
+. * Tim Wade.
+. *
+. * subset the data to the most 
+. * relevant variables.
+. *
+. * label variables
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * input files:
+. *       healthfinalUCB.dta
+. *
+. * output files:
+. *       neear-epi.dta
+. *
+. *----------------------------------------
+. 
+. 
+. *----------------------------------------
+. * read in the dataset
+. *----------------------------------------
+. use "~/dropbox/13beaches/data/untouched/neear/healthfinalUCB.dta", clear
+(SAVASTATA created this dataset on 24JUN2009)
+
+. 
+. *----------------------------------------
+. * rename and if necessary label 
+. * variables of interest
+. *----------------------------------------
+. 
+. label var indid "Individual ID"
+
+. rename hh hhid
+
+. label var hhid "Household ID"
+
+. 
+. label var beach "Beach"
+
+. label var race "Racial category"
+
+. 
+. 
+. * rename some variables to be consistent with ADM
+. 
+. label define sex 1 "Male" 2 "Female"
+
+. label values sex sex
+
+. 
+. gen watertime = (total*60 + water)/60
+(27,542 missing values generated)
+
+.         label var watertime "Time in water (hrs)"
+
+. 
+. local symps "stomach diarrhea nausea vomiting urinarytractinfection fever head
+> ache sorethroat cough cold runnynose earache wateryeyes eyeinfection cut rash"
+
+. foreach symp of local symps {
+  2.         rename `symp'startdate `symp'stdt
+  3.         label var `symp'stdt "Start date for `symp'"
+  4. }
+
+. 
+. * rename some of the impact variables from "uri" to "uti"
+. local vlist "stayhome stayhomedays stopdaily stopdailydays othersmiss othersmi
+> ssdays phonedoc visitdoc visitdoctimes diagnosis emergencyroom visitertimes ho
+> spitalized hospitaldays anyprescrdrug ownmoneyfordrugs anyotcmeds ownmoneyforo
+> tc"
+
+. foreach var of local vlist {
+  2.         rename `var'_uri `var'_uti
+  3. }
+
+. 
+. 
+. label var swimloc "Swim location"
+
+. 
+. rename awash algaewash
+
+. rename amouth algaemouth
+
+. rename aller allergy
+
+. rename nose noseplugs
+
+. rename plug earplugs
+
+. rename swetdry sanddry
+
+. rename smouth sandmouth
+
+. rename swash sandwash
+
+. 
+. rename dsun sunmin
+
+. 
+. rename eyeinfect eyeinfection
+
+. rename stomachache stomach
+
+. rename vomit vomiting
+
+. rename uti urinarytractinfection
+
+. rename cuts cut
+
+. drop earachelist
+
+. 
+. * make rawfood variable to be consistent w/ ADM
+. gen byte rawfood = (eggs_any==1)|(fish_any==1)|(rawmeat_any==1)
+
+.         label var rawfood "Ate undercooked eggs/meat/fish"
+
+. 
+. 
+. * label sex variable
+. label values sex sex
+
+. 
+. label var venfest "Silver Beach festival day with 1000s of food vendors"
+
+. 
+. label define beachtype 1 "Lake" 2 "River" 3 "Ocean" 6 "Other" 7 "Refused" 8 "D
+> on't know" 9 "N/A"
+
+. label values beachtype beachtype
+
+. 
+. 
+. *----------------------------------------
+. * fix a few coding inconsistencies
+. * identified during variable reconciliation
+. * after appending all of the datasets together
+. *----------------------------------------
+. * affects huntington + west beaches
+. recode racewhite raceblack raceasian raceindian racehaw hisp (2=0)
+(racewhite: 373 changes made)
+(raceblack: 5210 changes made)
+(raceasian: 5271 changes made)
+(raceindian: 5378 changes made)
+(racehaw: 5392 changes made)
+(hisp: 5015 changes made)
+
+. 
+. * recode blockface
+. recode blockface (2=0)
+(blockface: 16733 changes made)
+
+. 
+. * affects edgewater, fairhope, goddard beaches
+. recode pool (2=0) (8=0) (9=0)
+(pool: 3396 changes made)
+
+. 
+. * affects Huntington and west beachs
+. recode coldallergy (2=0) (9=0)
+(coldallergy: 239 changes made)
+
+. recode othersmiss_* (2=0)
+(othersmiss_gas: 674 changes made)
+(othersmiss_eye: 203 changes made)
+(othersmiss_res: 888 changes made)
+(othersmiss_ear: 91 changes made)
+(othersmiss_uti: 42 changes made)
+(othersmiss_skn: 896 changes made)
+
+. 
+. 
+. * label define yesno 0 "No" 1 "Yes"
+. local vlist "sandmouth seatdr sandwash algae algaemouth blockface wave *still 
+> *allergy stayhome_* stopdaily_* phonedoc_* visitdoc_* emergencyroom_* hospital
+> ized_* anyprescrdrug_* anyotcmeds_* prot sunburn sunburn1-sunburn7 blockface"
+
+. foreach var of varlist `vlist' {
+  2.         label values `var' yesno
+  3. }
+
+. 
+. * add-back some code labels that are in the NEEAR codebook 
+. * but for some reason didn't come through with the dataset
+. 
+. 
+. label var tanning "What happens when in sun repeatedly without sunscreen durin
+> g the summer?"
+
+. label define tanning 1 "Dark Tan" 2 "Some Tanning" 3 "No Tan, Some Freckles" 4
+>  "Repeated Sunburns" 5 "Other (specify)" 6 "Never Go Out in the Sun"
+
+. label values tanning tanning
+
+. 
+. * label define beachtype 1 "Lake" 2 "River" 3 "Ocean" 6 "Other"
+. label values beachtype beachtype
+
+. 
+. * standardize race categories to be consistent with the ADM data
+. gen byte race2 = .
+(54,250 missing values generated)
+
+. replace race2 = 1 if race==1 & hisp!=1
+(32,265 real changes made)
+
+. replace race2 = 2 if race==1 & hisp==1
+(0 real changes made)
+
+. replace race2 = 3 if race!=1 & hisp==1
+(18,739 real changes made)
+
+. replace race2 = 4 if race==2 & hisp!=1
+(1,919 real changes made)
+
+. replace race2 = 5 if race==3 & hisp!=1
+(461 real changes made)
+
+. replace race2 = 6 if race==4 & hisp!=1
+(95 real changes made)
+
+. replace race2 = 7 if race==6 & hisp!=1
+(286 real changes made)
+
+. replace race2 = 8 if race==7 & hisp!=1
+(349 real changes made)
+
+. replace race2 = 9 if race==.
+(136 real changes made)
+
+. drop race
+
+. label drop race
+
+. label define race 1 "white" 2 "white, hispanic" 3 "non-white, hispanic" 4 "bla
+> ck" 5 "asian" 6 "american indian" 7 "multiple races" 8 "other" 9 "missing"
+
+. rename race2 race
+
+. label values race race
+
+. label var race "Racial category"
+
+. 
+. 
+. 
+. *----------------------------------------
+. * restrict to variables of interest
+. *----------------------------------------
+. 
+. 
+. * variables to check on:
+. * did NEEAR collect info on income?
+. 
+. # delimit ;
+delimiter now ;
+. drop racecat agecat1 milescat body3 swall3 wave3 
+> e1 e2 hcgi hcresp eye swim1face chronany gag3
+> comecat flag head3 mouth3 kindan* 
+> racewhite raceblack raceasian raceindian racehaw
+> 
+> /* variables dropped after cross-check with ADM -- not collected in ADM */
+> aeatdr airmat
+> animunk*
+> anycuts
+> arr_time
+> bodyph
+> bsurf canoe surf wrun wski wsurf wtube jski waveb
+> ksurf pboat raft sail scuba snorkel
+> *startday
+> cond
+> dmach drink drinks dvend
+> enrolled
+> faceph gagph gagwater getfacewet
+> missingperson
+> mouthph
+> privatepool
+> shell specifybeachtype
+> swallph swim1base swim2base swimface
+> totalph
+> total water timeinwaterin
+> wadeph wadingpool waterpark waterph
+> hadcontact
+> mach vend
+> otherswimlocation anyotherswimming
+> tanos
+> statusc
+> transect
+> ;
+
+. # delimit cr
+delimiter now cr
+. 
+. 
+. *---------------------------------------------
+. * output variable information for harmonization
+. *---------------------------------------------
+. preserve
+
+. desc, replace clear
+
+. label data "variables for neear-epi.dta"
+
+. save "~/dropbox/13beaches/data/temp/neear-epi-vars.dta", replace
+file ~/dropbox/13beaches/data/temp/neear-epi-vars.dta saved
+
+. restore
+
+. 
+. 
+. *---------------------------------------------
+. * Save a dataset to combine with other beaches
+. *---------------------------------------------
+. order beach indid hhid intdate teledate
+
+. 
+. label data "NEEAR epi data, created by 1-format-neear-epi.do"
+
+. save "~/dropbox/13beaches/data/final/neear-epi.dta", replace
+file ~/dropbox/13beaches/data/final/neear-epi.dta saved
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/1-format-neear-epi.log
+  log type:  text
+ closed on:  17 Dec 2015, 13:54:29
+--------------------------------------------------------------------------------

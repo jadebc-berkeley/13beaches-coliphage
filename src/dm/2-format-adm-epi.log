@@ -1,0 +1,2544 @@
+--------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/2-format-adm-epi.log
+  log type:  text
+ opened on:  17 Dec 2015, 13:55:29
+
+. 
+. *----------------------------------------
+. * 2-format-adm-epi.do
+. * ben arnold
+. *
+. * append and format the Avalon, Doheny, 
+. * & Malibu datasets so that they can be 
+. * appended to the other beaches datasets 
+. * (NEEAR, Mission Bay). 
+. *
+. * some variables need to be renamed to
+. * be consistent with the NEEAR data.
+. * use the NEEAR data as the name template
+. *
+. * version 3 (23 apr 2015)
+. * updated doheny beach codes to separate out site E
+. *
+. * version 2 (21 feb 2015)
+. * retained beachcode to merge to water quality data
+. * 
+. * version 1 (20 Feb 2014)
+. *
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * input files:
+. *       avalon2.dta
+. *   doheny2.dta
+. *       malibu2.dta
+. *
+. * output files:
+. *       adm-epi.dta
+. *
+. *----------------------------------------
+. 
+. 
+. *----------------------------------------
+. * read in the dataset for each beach
+. * restrict to completed interviews
+. * label the beach
+. *----------------------------------------
+. 
+. 
+. use "~/dropbox/beaches/avalon/data/final/avalon2.dta", clear
+(avalon analysis w/ water indicators, created by 5-merge-indicator-data.do)
+
+. keep if pout==1
+(1,128 observations deleted)
+
+. capture drop beach
+
+. gen beach = "AV"
+
+.         label var beach "Study beach"
+
+. tempfile avalon
+
+. save `avalon'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03086.000001 saved
+
+. 
+. 
+. use "~/dropbox/beaches/doheny/data/final/doheny2.dta", clear
+(doheny analysis w/ water indicators, created by 5-merge-indicator-data.do)
+
+. keep if pout==1
+(2,194 observations deleted)
+
+. capture drop beach
+
+. gen beach = "DO"
+
+.         label var beach "Study beach"
+
+. drop psid
+
+. rename personid psid
+
+. tempfile doheny
+
+. save `doheny'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03086.000002 saved
+
+. 
+. use "~/dropbox/beaches/malibu/data/final/malibu2.dta", clear
+(malibu analysis w/ water indicators, created by 5-merge-indicator-data.do)
+
+. keep if pout==1
+(1,580 observations deleted)
+
+. capture drop beach
+
+. gen beach = "MA"
+
+.         label var beach "Study beach"
+
+.         
+.         drop recrdt
+
+. 
+. append using `avalon'
+(label hhinclab already defined)
+(label racecat already defined)
+(label OwnMoneyForOTC_6 already defined)
+(label AnyOTCMeds_6 already defined)
+(label OwnMoneyForDrugs_6 already defined)
+(label AnyPrescrDrug_6 already defined)
+(label AnyIVFluids_6 already defined)
+(label HospitalizedDays_6 already defined)
+(label Hospitalized_6 already defined)
+(label VisitERTimes_6 already defined)
+(label EmergencyRoom_6 already defined)
+(label VisitDocTimes_6 already defined)
+(label VisitDoc_6 already defined)
+(label PhoneDoc_6 already defined)
+(label OtherMissDays_6 already defined)
+(label OtherMiss_6 already defined)
+(label StopDailyDays_6 already defined)
+(label StopDaily_6 already defined)
+(label StayHomeDays_6 already defined)
+(label StayHome_6 already defined)
+(label hassyn_6 already defined)
+(label synd_no_6 already defined)
+(label OwnMoneyForOTC_5 already defined)
+(label AnyOTCMeds_5 already defined)
+(label OwnMoneyForDrugs_5 already defined)
+(label AnyPrescrDrug_5 already defined)
+(label AnyIVFluids_5 already defined)
+(label HospitalizedDays_5 already defined)
+(label Hospitalized_5 already defined)
+(label VisitERTimes_5 already defined)
+(label EmergencyRoom_5 already defined)
+(label VisitDocTimes_5 already defined)
+(label VisitDoc_5 already defined)
+(label PhoneDoc_5 already defined)
+(label OtherMissDays_5 already defined)
+(label OtherMiss_5 already defined)
+(label StopDailyDays_5 already defined)
+(label StopDaily_5 already defined)
+(label StayHomeDays_5 already defined)
+(label StayHome_5 already defined)
+(label hassyn_5 already defined)
+(label synd_no_5 already defined)
+(label OwnMoneyForOTC_4 already defined)
+(label AnyOTCMeds_4 already defined)
+(label OwnMoneyForDrugs_4 already defined)
+(label AnyPrescrDrug_4 already defined)
+(label AnyIVFluids_4 already defined)
+(label HospitalizedDays_4 already defined)
+(label Hospitalized_4 already defined)
+(label VisitERTimes_4 already defined)
+(label EmergencyRoom_4 already defined)
+(label VisitDocTimes_4 already defined)
+(label VisitDoc_4 already defined)
+(label PhoneDoc_4 already defined)
+(label OtherMissDays_4 already defined)
+(label OtherMiss_4 already defined)
+(label StopDailyDays_4 already defined)
+(label StopDaily_4 already defined)
+(label StayHomeDays_4 already defined)
+(label StayHome_4 already defined)
+(label hassyn_4 already defined)
+(label synd_no_4 already defined)
+(label OwnMoneyForOTC_3 already defined)
+(label AnyOTCMeds_3 already defined)
+(label OwnMoneyForDrugs_3 already defined)
+(label AnyPrescrDrug_3 already defined)
+(label AnyIVFluids_3 already defined)
+(label HospitalizedDays_3 already defined)
+(label Hospitalized_3 already defined)
+(label VisitERTimes_3 already defined)
+(label EmergencyRoom_3 already defined)
+(label VisitDocTimes_3 already defined)
+(label VisitDoc_3 already defined)
+(label PhoneDoc_3 already defined)
+(label OtherMissDays_3 already defined)
+(label OtherMiss_3 already defined)
+(label StopDailyDays_3 already defined)
+(label StopDaily_3 already defined)
+(label StayHomeDays_3 already defined)
+(label StayHome_3 already defined)
+(label hassyn_3 already defined)
+(label synd_no_3 already defined)
+(label OwnMoneyForOTC_2 already defined)
+(label AnyOTCMeds_2 already defined)
+(label OwnMoneyForDrugs_2 already defined)
+(label AnyPrescrDrug_2 already defined)
+(label AnyIVFluids_2 already defined)
+(label HospitalizedDays_2 already defined)
+(label Hospitalized_2 already defined)
+(label VisitERTimes_2 already defined)
+(label EmergencyRoom_2 already defined)
+(label VisitDocTimes_2 already defined)
+(label VisitDoc_2 already defined)
+(label PhoneDoc_2 already defined)
+(label OtherMissDays_2 already defined)
+(label OtherMiss_2 already defined)
+(label StopDailyDays_2 already defined)
+(label StopDaily_2 already defined)
+(label StayHomeDays_2 already defined)
+(label StayHome_2 already defined)
+(label hassyn_2 already defined)
+(label synd_no_2 already defined)
+(label OwnMoneyForOTC_1 already defined)
+(label AnyOTCMeds_1 already defined)
+(label OwnMoneyForDrugs_1 already defined)
+(label AnyPrescrDrug_1 already defined)
+(label AnyIVFluids_1 already defined)
+(label HospitalizedDays_1 already defined)
+(label Hospitalized_1 already defined)
+(label VisitERTimes_1 already defined)
+(label EmergencyRoom_1 already defined)
+(label VisitDocTimes_1 already defined)
+(label VisitDoc_1 already defined)
+(label PhoneDoc_1 already defined)
+(label OtherMissDays_1 already defined)
+(label OtherMiss_1 already defined)
+(label StopDailyDays_1 already defined)
+(label StopDaily_1 already defined)
+(label StayHomeDays_1 already defined)
+(label StayHome_1 already defined)
+(label hassyn_1 already defined)
+(label synd_no_1 already defined)
+(label RACEOTH already defined)
+(label RACEHAW already defined)
+(label RACEASIAN already defined)
+(label RACEINDIAN already defined)
+(label RACEBLACK already defined)
+(label RACEWHITE already defined)
+(label HISP already defined)
+(label DifferentBeachY already defined)
+(label dobER already defined)
+(label agediff already defined)
+(label BirthDateX already defined)
+(label rac1 already defined)
+(label dem1a already defined)
+(label TripNoWaterListX already defined)
+(label TripOutListX already defined)
+(label TripListX already defined)
+(label EggsList already defined)
+(label RawMeatList already defined)
+(label ShellfishList already defined)
+(label AnyPeopleContactListY already defined)
+(label AnimalContactListY already defined)
+(label GetFaceWet already defined)
+(label OtherBeachX already defined)
+(label PrivatePoolY already defined)
+(label WadingPoolY already defined)
+(label PublicPoolY already defined)
+(label RiverBeachX already defined)
+(label LakeBeachX already defined)
+(label OceanBeachX already defined)
+(label SameBeach already defined)
+(label WhoSwam already defined)
+(label PREG already defined)
+(label ALLER already defined)
+(label ASTH already defined)
+(label GAST already defined)
+(label AnyOTC_F already defined)
+(label AnyPrescr_F already defined)
+(label AnyIV_F already defined)
+(label HospitalTotalX already defined)
+(label Hospital_F already defined)
+(label ERTotalX already defined)
+(label ER_F already defined)
+(label VisitTotalX already defined)
+(label Visit_F already defined)
+(label Phone_F already defined)
+(label OtherTotalX already defined)
+(label Other_F already defined)
+(label StopTotalX already defined)
+(label Stop_F already defined)
+(label MissTotalX already defined)
+(label Miss_F already defined)
+(label Working already defined)
+(label SunburnDaysX already defined)
+(label SunburnStillX already defined)
+(label AnySunburnList already defined)
+(label RashDays already defined)
+(label RashStill already defined)
+(label RashList already defined)
+(label CutDays already defined)
+(label CutStill already defined)
+(label Cutlist already defined)
+(label EyeInfectionDays already defined)
+(label EyeInfectionStill already defined)
+(label EyeList already defined)
+(label WateryEyesAllergy already defined)
+(label WateryEyesDays already defined)
+(label WateryEyesStill already defined)
+(label WateryEyesList already defined)
+(label EaracheAllergy already defined)
+(label EaracheDays already defined)
+(label EaracheStill already defined)
+(label EaracheList already defined)
+(label RunnyNoseAllergy already defined)
+(label RunnyNoseDays already defined)
+(label RunnyNoseStill already defined)
+(label RunnyNoseList already defined)
+(label ColdAllergy already defined)
+(label ColdDays already defined)
+(label ColdStill already defined)
+(label ColdList already defined)
+(label CoughAllergy already defined)
+(label CoughDays already defined)
+(label CoughStill already defined)
+(label CoughList already defined)
+(label SoreThroatAllergy already defined)
+(label SoreThroatDays already defined)
+(label SoreThroatStill already defined)
+(label SoreThroatList already defined)
+(label HeadacheDays already defined)
+(label HeadacheStill already defined)
+(label HeadacheList already defined)
+(label FeverTemp already defined)
+(label FeverTempTaken already defined)
+(label FeverDays already defined)
+(label FeverStill already defined)
+(label FeverList already defined)
+(label UrinaryTractInfectionDays already defined)
+(label UrinaryTractInfectionStill already defined)
+(label UTIList already defined)
+(label VomitingNumber already defined)
+(label VomitingDays already defined)
+(label VomitingStill already defined)
+(label VomitingList already defined)
+(label NauseaDays already defined)
+(label NauseaStill already defined)
+(label NauseaList already defined)
+(label DiarrheaNumber already defined)
+(label DiarrheaDays already defined)
+(label DiarrheaStill already defined)
+(label DiarrheaList already defined)
+(label StomachDays already defined)
+(label StomachStill already defined)
+(label StomachList already defined)
+(label wloc already defined)
+(label swm already defined)
+(label dpr already defined)
+(label prac already defined)
+(label pssx already defined)
+(label cati already defined)
+(label SUN already defined)
+(label RASH already defined)
+(label EYE already defined)
+(label EAR already defined)
+(label SORE already defined)
+(label VOMT already defined)
+(label TRACT already defined)
+(label ILL already defined)
+(label EGGS already defined)
+(label RAW already defined)
+(label FISH already defined)
+(label SICK already defined)
+(label ANIMY already defined)
+(label FACE already defined)
+(label POOL already defined)
+(label COME already defined)
+(label DRINKSY already defined)
+(label VEND already defined)
+(label MACH already defined)
+(label FOOD already defined)
+(label EATFOOD already defined)
+(label BATHRX already defined)
+(label SHOWERX already defined)
+(label REPEL already defined)
+(label SHADE already defined)
+(label PROTHAT already defined)
+(label BLOCK already defined)
+(label CUT already defined)
+(label ALGAEWASHX already defined)
+(label ALGAEMOUTHX already defined)
+(label ALGAE already defined)
+(label SANDMOUTHX already defined)
+(label SANDDRYX already defined)
+(label SANDWASHX already defined)
+(label BSAND already defined)
+(label DIG already defined)
+(label DSUN already defined)
+(label SUNHR already defined)
+(label WETSUITX already defined)
+(label WearEyeGoggles already defined)
+(label WearNosePlugs already defined)
+(label WearEarPlugs already defined)
+(label POOLY already defined)
+(label WINDY already defined)
+(label SWIM already defined)
+(label ROWX already defined)
+(label SURFY already defined)
+(label WATER already defined)
+(label TOTAL already defined)
+(label TIM5 already defined)
+(label TIM4 already defined)
+(label TIM3 already defined)
+(label TIM2 already defined)
+(label TIM1 already defined)
+(label SWALL already defined)
+(label MOUTH already defined)
+(label SUBM already defined)
+(label BODY already defined)
+(label AREAAX already defined)
+(label WADE already defined)
+(label MINX already defined)
+(label HOURX already defined)
+(label LOCX already defined)
+(label DIAP already defined)
+(label ETHNX already defined)
+(label SEX already defined)
+(label AGEYRX already defined)
+(label ALTRESP already defined)
+(label CONSENTX already defined)
+(label ADAY already defined)
+(label TIMEX already defined)
+(label AMPMX already defined)
+(label RECRUITX already defined)
+(label NoAmerX already defined)
+(label ZIP already defined)
+(label ilang already defined)
+(label covr_biid already defined)
+(label covr_sam already defined)
+(label covr_spm already defined)
+(label tQ2 already defined)
+(label tQ6a already defined)
+(label t15a already defined)
+(label t17a already defined)
+(label t25a already defined)
+(label t28a already defined)
+(label NPRES already defined)
+(label LOOSE already defined)
+(label INFECT already defined)
+(label THROW already defined)
+(label COUGH already defined)
+(label RUNY already defined)
+(label EYES already defined)
+(label SKIN already defined)
+(label Q33_eam already defined)
+(label Q33_epm already defined)
+(label tung already defined)
+(label bdow already defined)
+(label bampm already defined)
+(label lang already defined)
+(label dow already defined)
+(label AnyStomachAche already defined)
+(label AnyDiarrhea already defined)
+(label AnyNausea already defined)
+(label AnyVomiting already defined)
+(label AnyUTI already defined)
+(label AnyFever already defined)
+(label AnyHeadache already defined)
+(label AnySoreThroat already defined)
+(label AnyCough already defined)
+(label AnyCold already defined)
+(label AnyRunnyNose already defined)
+(label AnyEarache already defined)
+(label AnyWateryEyes already defined)
+(label AnyEyeInfection already defined)
+(label AnyCuts already defined)
+(label AnyRash already defined)
+(label AnySunburn already defined)
+(label mh1a1 already defined)
+(label mh1b1 already defined)
+(label mh1c1 already defined)
+(label mh1d1 already defined)
+(label mh1e1 already defined)
+(label AnyoneSwim already defined)
+(label AnyContactAniY already defined)
+(label AnyPeopleContact already defined)
+(label AnyShellFish already defined)
+(label AnyRawMeat already defined)
+(label AnyEggs already defined)
+(label TripX already defined)
+(label TripNoWaterX already defined)
+(label IncomeX already defined)
+(label E1 already defined)
+(label E2 already defined)
+(label pout already defined)
+
+. append using `doheny'
+(note: variable ilang_cati was byte, now int to accommodate using data's
+       values)
+(note: variable pdel was byte, now int to accommodate using data's values)
+(note: variable psid2 was byte, now int to accommodate using data's values)
+(label lberm already defined)
+(label hhinclab already defined)
+(label racecat already defined)
+(label lagecat1 already defined)
+(label OwnMoneyForOTC_6 already defined)
+(label AnyOTCMeds_6 already defined)
+(label OwnMoneyForDrugs_6 already defined)
+(label AnyPrescrDrug_6 already defined)
+(label AnyIVFluids_6 already defined)
+(label HospitalizedDays_6 already defined)
+(label Hospitalized_6 already defined)
+(label VisitERTimes_6 already defined)
+(label EmergencyRoom_6 already defined)
+(label VisitDocTimes_6 already defined)
+(label VisitDoc_6 already defined)
+(label PhoneDoc_6 already defined)
+(label OtherMissDays_6 already defined)
+(label OtherMiss_6 already defined)
+(label StopDailyDays_6 already defined)
+(label StopDaily_6 already defined)
+(label StayHomeDays_6 already defined)
+(label StayHome_6 already defined)
+(label hassyn_6 already defined)
+(label synd_no_6 already defined)
+(label OwnMoneyForOTC_5 already defined)
+(label AnyOTCMeds_5 already defined)
+(label OwnMoneyForDrugs_5 already defined)
+(label AnyPrescrDrug_5 already defined)
+(label AnyIVFluids_5 already defined)
+(label HospitalizedDays_5 already defined)
+(label Hospitalized_5 already defined)
+(label VisitERTimes_5 already defined)
+(label EmergencyRoom_5 already defined)
+(label VisitDocTimes_5 already defined)
+(label VisitDoc_5 already defined)
+(label PhoneDoc_5 already defined)
+(label OtherMissDays_5 already defined)
+(label OtherMiss_5 already defined)
+(label StopDailyDays_5 already defined)
+(label StopDaily_5 already defined)
+(label StayHomeDays_5 already defined)
+(label StayHome_5 already defined)
+(label hassyn_5 already defined)
+(label synd_no_5 already defined)
+(label OwnMoneyForOTC_4 already defined)
+(label AnyOTCMeds_4 already defined)
+(label OwnMoneyForDrugs_4 already defined)
+(label AnyPrescrDrug_4 already defined)
+(label AnyIVFluids_4 already defined)
+(label HospitalizedDays_4 already defined)
+(label Hospitalized_4 already defined)
+(label VisitERTimes_4 already defined)
+(label EmergencyRoom_4 already defined)
+(label VisitDocTimes_4 already defined)
+(label VisitDoc_4 already defined)
+(label PhoneDoc_4 already defined)
+(label OtherMissDays_4 already defined)
+(label OtherMiss_4 already defined)
+(label StopDailyDays_4 already defined)
+(label StopDaily_4 already defined)
+(label StayHomeDays_4 already defined)
+(label StayHome_4 already defined)
+(label hassyn_4 already defined)
+(label synd_no_4 already defined)
+(label OwnMoneyForOTC_3 already defined)
+(label AnyOTCMeds_3 already defined)
+(label OwnMoneyForDrugs_3 already defined)
+(label AnyPrescrDrug_3 already defined)
+(label AnyIVFluids_3 already defined)
+(label HospitalizedDays_3 already defined)
+(label Hospitalized_3 already defined)
+(label VisitERTimes_3 already defined)
+(label EmergencyRoom_3 already defined)
+(label VisitDocTimes_3 already defined)
+(label VisitDoc_3 already defined)
+(label PhoneDoc_3 already defined)
+(label OtherMissDays_3 already defined)
+(label OtherMiss_3 already defined)
+(label StopDailyDays_3 already defined)
+(label StopDaily_3 already defined)
+(label StayHomeDays_3 already defined)
+(label StayHome_3 already defined)
+(label hassyn_3 already defined)
+(label synd_no_3 already defined)
+(label OwnMoneyForOTC_2 already defined)
+(label AnyOTCMeds_2 already defined)
+(label OwnMoneyForDrugs_2 already defined)
+(label AnyPrescrDrug_2 already defined)
+(label AnyIVFluids_2 already defined)
+(label HospitalizedDays_2 already defined)
+(label Hospitalized_2 already defined)
+(label VisitERTimes_2 already defined)
+(label EmergencyRoom_2 already defined)
+(label VisitDocTimes_2 already defined)
+(label VisitDoc_2 already defined)
+(label PhoneDoc_2 already defined)
+(label OtherMissDays_2 already defined)
+(label OtherMiss_2 already defined)
+(label StopDailyDays_2 already defined)
+(label StopDaily_2 already defined)
+(label StayHomeDays_2 already defined)
+(label StayHome_2 already defined)
+(label hassyn_2 already defined)
+(label synd_no_2 already defined)
+(label OwnMoneyForOTC_1 already defined)
+(label AnyOTCMeds_1 already defined)
+(label OwnMoneyForDrugs_1 already defined)
+(label AnyPrescrDrug_1 already defined)
+(label AnyIVFluids_1 already defined)
+(label HospitalizedDays_1 already defined)
+(label Hospitalized_1 already defined)
+(label VisitERTimes_1 already defined)
+(label EmergencyRoom_1 already defined)
+(label VisitDocTimes_1 already defined)
+(label VisitDoc_1 already defined)
+(label PhoneDoc_1 already defined)
+(label OtherMissDays_1 already defined)
+(label OtherMiss_1 already defined)
+(label StopDailyDays_1 already defined)
+(label StopDaily_1 already defined)
+(label StayHomeDays_1 already defined)
+(label StayHome_1 already defined)
+(label hassyn_1 already defined)
+(label synd_no_1 already defined)
+(label RACEOTH already defined)
+(label RACEHAW already defined)
+(label RACEASIAN already defined)
+(label RACEINDIAN already defined)
+(label RACEBLACK already defined)
+(label RACEWHITE already defined)
+(label HISP already defined)
+(label DifferentBeachY already defined)
+(label dobER already defined)
+(label agediff already defined)
+(label BirthDateX already defined)
+(label rac1 already defined)
+(label dem1a already defined)
+(label TripNoWaterListX already defined)
+(label TripOutListX already defined)
+(label TripListX already defined)
+(label EggsList already defined)
+(label RawMeatList already defined)
+(label ShellfishList already defined)
+(label AnyPeopleContactListY already defined)
+(label AnimalContactListY already defined)
+(label GetFaceWet already defined)
+(label OtherBeachX already defined)
+(label PrivatePoolY already defined)
+(label WadingPoolY already defined)
+(label PublicPoolY already defined)
+(label RiverBeachX already defined)
+(label LakeBeachX already defined)
+(label OceanBeachX already defined)
+(label SameBeach already defined)
+(label WhoSwam already defined)
+(label PREG already defined)
+(label ALLER already defined)
+(label ASTH already defined)
+(label GAST already defined)
+(label AnyOTC_F already defined)
+(label AnyPrescr_F already defined)
+(label AnyIV_F already defined)
+(label HospitalTotalX already defined)
+(label Hospital_F already defined)
+(label ERTotalX already defined)
+(label ER_F already defined)
+(label VisitTotalX already defined)
+(label Visit_F already defined)
+(label Phone_F already defined)
+(label OtherTotalX already defined)
+(label Other_F already defined)
+(label StopTotalX already defined)
+(label Stop_F already defined)
+(label MissTotalX already defined)
+(label Miss_F already defined)
+(label Working already defined)
+(label SunburnDaysX already defined)
+(label SunburnStillX already defined)
+(label AnySunburnList already defined)
+(label RashDays already defined)
+(label RashStill already defined)
+(label RashList already defined)
+(label CutDays already defined)
+(label CutStill already defined)
+(label Cutlist already defined)
+(label EyeInfectionDays already defined)
+(label EyeInfectionStill already defined)
+(label EyeList already defined)
+(label WateryEyesAllergy already defined)
+(label WateryEyesDays already defined)
+(label WateryEyesStill already defined)
+(label WateryEyesList already defined)
+(label EaracheAllergy already defined)
+(label EaracheDays already defined)
+(label EaracheStill already defined)
+(label EaracheList already defined)
+(label RunnyNoseAllergy already defined)
+(label RunnyNoseDays already defined)
+(label RunnyNoseStill already defined)
+(label RunnyNoseList already defined)
+(label ColdAllergy already defined)
+(label ColdDays already defined)
+(label ColdStill already defined)
+(label ColdList already defined)
+(label CoughAllergy already defined)
+(label CoughDays already defined)
+(label CoughStill already defined)
+(label CoughList already defined)
+(label SoreThroatAllergy already defined)
+(label SoreThroatDays already defined)
+(label SoreThroatStill already defined)
+(label SoreThroatList already defined)
+(label HeadacheDays already defined)
+(label HeadacheStill already defined)
+(label HeadacheList already defined)
+(label FeverTemp already defined)
+(label FeverTempTaken already defined)
+(label FeverDays already defined)
+(label FeverStill already defined)
+(label FeverList already defined)
+(label UrinaryTractInfectionDays already defined)
+(label UrinaryTractInfectionStill already defined)
+(label UTIList already defined)
+(label VomitingNumber already defined)
+(label VomitingDays already defined)
+(label VomitingStill already defined)
+(label VomitingList already defined)
+(label NauseaDays already defined)
+(label NauseaStill already defined)
+(label NauseaList already defined)
+(label DiarrheaNumber already defined)
+(label DiarrheaDays already defined)
+(label DiarrheaStill already defined)
+(label DiarrheaList already defined)
+(label StomachDays already defined)
+(label StomachStill already defined)
+(label StomachList already defined)
+(label wloc already defined)
+(label swm already defined)
+(label dpr already defined)
+(label prac already defined)
+(label pssx already defined)
+(label cati already defined)
+(label SUN already defined)
+(label RASH already defined)
+(label EYE already defined)
+(label EAR already defined)
+(label SORE already defined)
+(label VOMT already defined)
+(label TRACT already defined)
+(label ILL already defined)
+(label EGGS already defined)
+(label RAW already defined)
+(label FISH already defined)
+(label SICK already defined)
+(label ANIMY already defined)
+(label FACE already defined)
+(label POOL already defined)
+(label COME already defined)
+(label DRINKSY already defined)
+(label VEND already defined)
+(label MACH already defined)
+(label FOOD already defined)
+(label EATFOOD already defined)
+(label BATHRX already defined)
+(label SHOWERX already defined)
+(label REPEL already defined)
+(label SHADE already defined)
+(label PROTHAT already defined)
+(label BLOCK already defined)
+(label CUT already defined)
+(label ALGAEWASHX already defined)
+(label ALGAEMOUTHX already defined)
+(label ALGAE already defined)
+(label SANDMOUTHX already defined)
+(label SANDDRYX already defined)
+(label SANDWASHX already defined)
+(label BSAND already defined)
+(label DIG already defined)
+(label DSUN already defined)
+(label SUNHR already defined)
+(label WETSUITX already defined)
+(label WearEyeGoggles already defined)
+(label WearNosePlugs already defined)
+(label WearEarPlugs already defined)
+(label POOLY already defined)
+(label WINDY already defined)
+(label SWIM already defined)
+(label ROWX already defined)
+(label SURFY already defined)
+(label WATER already defined)
+(label TOTAL already defined)
+(label TIM5 already defined)
+(label TIM4 already defined)
+(label TIM3 already defined)
+(label TIM2 already defined)
+(label TIM1 already defined)
+(label SWALL already defined)
+(label MOUTH already defined)
+(label SUBM already defined)
+(label BODY already defined)
+(label AREAAX already defined)
+(label WADE already defined)
+(label MINX already defined)
+(label HOURX already defined)
+(label pdel already defined)
+(label LOCX already defined)
+(label DIAP already defined)
+(label ETHNX already defined)
+(label SEX already defined)
+(label AGEYRX already defined)
+(label ALTRESP already defined)
+(label CONSENTX already defined)
+(label ADAY already defined)
+(label TIMEX already defined)
+(label AMPMX already defined)
+(label RECRUITX already defined)
+(label NoAmerX already defined)
+(label ZIP already defined)
+(label ilang already defined)
+(label covr_biid already defined)
+(label covr_sam already defined)
+(label covr_spm already defined)
+(label tQ2 already defined)
+(label tQ6a already defined)
+(label t15a already defined)
+(label t17a already defined)
+(label t25a already defined)
+(label t28a already defined)
+(label NPRES already defined)
+(label LOOSE already defined)
+(label INFECT already defined)
+(label THROW already defined)
+(label COUGH already defined)
+(label RUNY already defined)
+(label EYES already defined)
+(label SKIN already defined)
+(label Q33_eam already defined)
+(label Q33_epm already defined)
+(label tung already defined)
+(label bdow already defined)
+(label bampm already defined)
+(label lang already defined)
+(label dow already defined)
+(label ILANG already defined)
+(label AnyStomachAche already defined)
+(label AnyDiarrhea already defined)
+(label AnyNausea already defined)
+(label AnyVomiting already defined)
+(label AnyUTI already defined)
+(label AnyFever already defined)
+(label AnyHeadache already defined)
+(label AnySoreThroat already defined)
+(label AnyCough already defined)
+(label AnyCold already defined)
+(label AnyRunnyNose already defined)
+(label AnyEarache already defined)
+(label AnyWateryEyes already defined)
+(label AnyEyeInfection already defined)
+(label AnyCuts already defined)
+(label AnyRash already defined)
+(label AnySunburn already defined)
+(label mh1a1 already defined)
+(label mh1b1 already defined)
+(label mh1c1 already defined)
+(label mh1d1 already defined)
+(label mh1e1 already defined)
+(label AnyoneSwim already defined)
+(label AnyContactAniY already defined)
+(label AnyPeopleContact already defined)
+(label AnyShellFish already defined)
+(label AnyRawMeat already defined)
+(label AnyEggs already defined)
+(label TripX already defined)
+(label TripNoWaterX already defined)
+(label IncomeX already defined)
+(label E1 already defined)
+(label E2 already defined)
+(label pout already defined)
+
+. 
+. 
+. *----------------------------------------
+. * Create a standard beach code for Avalon
+. * to differentiate sites A/B/C from site D
+. * In Doheny and Malibu, differentiate site C
+. * (in the lagoon) from the other sites
+. * And in Doheny differentiate site E from
+. * the others because it was nearly 1 mile
+. * south on the beach
+. *----------------------------------------
+. gen str beachcode = ""
+(21,364 missing values generated)
+
+.         replace beachcode = "Avalon-ABC" if beach=="AV" & siteid!=4
+variable beachcode was str1 now str10
+(4,877 real changes made)
+
+.         replace beachcode = "Avalon-D" if beach=="AV" & siteid==4
+(1,288 real changes made)
+
+.         replace beachcode = "Doheny-ABD" if beach=="DO" & (siteid!=3 & siteid!
+> =5)
+(7,263 real changes made)
+
+.         replace beachcode = "Doheny-C" if beach=="DO" & siteid==3
+(54 real changes made)
+
+.         replace beachcode = "Doheny-E" if beach=="DO" & siteid==5
+(2,208 real changes made)
+
+.         replace beachcode= "Malibu-ABDE" if beach=="MA" & siteid!=3
+variable beachcode was str10 now str11
+(5,606 real changes made)
+
+.         replace beachcode= "Malibu-C" if beach=="MA" & siteid==3
+(68 real changes made)
+
+.         label var beachcode "Water quality sampling location beach code"
+
+. order beach beachcode
+
+. 
+. 
+. *----------------------------------------
+. * rename variables and subset to be
+. * consistent with the NEEAR data
+. *----------------------------------------
+. 
+. * make unique household and individual IDs
+. replace hhid = beach + hhid
+variable hhid was str6 now str8
+(21,364 real changes made)
+
+.         label var hhid "Household ID"
+
+. 
+. gen indid = beach + string(psid,"%12.0g")
+
+.         label var indid "Individual ID"
+
+. 
+. order beach hhid indid
+
+. 
+. rename coldate intdate
+
+.         label var intdate "Beach interview date"
+
+. rename catidt teledate
+
+.         label var teledate "Phone interview date"
+
+. 
+. drop gast
+
+. label var gichron "Chronic GI problems/Crohn's/IBS"
+
+. 
+. rename ageyrx age
+
+. label var age "age in years"
+
+. 
+. gen watertime = (total*60 + water)/60
+(7,287 missing values generated)
+
+.         label var watertime "Time in water (hrs)"
+
+.         
+. label var asth "chronic resp prob"
+
+. 
+. rename windy wsurf
+
+. rename cut cutbase
+
+. rename eggs eggs_base
+
+. rename fish fish_base
+
+. rename shellfishlist fish_int
+
+. rename raw rawmeat_base
+
+. rename rawmeatlist rawmeat_int
+
+. rename eggslist eggs_int
+
+. 
+. rename sick gicontact_base
+
+. rename sun sunbase
+
+. rename wearnoseplugs noseplugs
+
+. rename weareyegoggles mask
+
+. rename wearearplugs earplugs
+
+. drop pool
+
+. rename pooly pool
+
+. rename publicpooly publicpool
+
+. rename differentbeachy differentbeach
+
+. rename prob skinchron
+
+. 
+. rename whoswam swam
+
+. 
+. rename racecat1 race
+
+. 
+. label var samebeach "Swim/wade: same beach"
+
+. 
+. replace sex = 2 if sex==7
+(1 real change made)
+
+. 
+. rename animy anim_base
+
+. rename animalcontactlisty anim_int
+
+. gen anim_any = (anim_base==1)|(anim_int==1)
+
+.         label var anim_any "Any animal contact"
+
+. 
+. gen eggs_any = (eggs_base==1)|(eggs_int==1)
+
+.         label var eggs_any "Any undercooked eggs"
+
+.         
+. gen fish_any = (fish_base==1)|(fish_int==1)
+
+.         label var fish_any "Any raw fish"
+
+.         
+. gen rawmeat_any = (rawmeat_base==1)|(rawmeat_int==1)
+
+.         label var rawmeat_any "Any raw meat"
+
+. 
+. 
+. drop nausea cough diarrhea earache
+
+. rename anysunburnlist sunburnlist
+
+. 
+. rename siteid swimloc
+
+. 
+. * minor data cleaning
+. replace vomitingstill = 0 if inlist(vomitingstill,6,9)
+(3 real changes made)
+
+. 
+. * standardize direct sunlight in minutes
+. rename dsun sunmin
+
+. replace sunmin = sunhr / 60
+variable sunmin was int now float
+(21,010 real changes made)
+
+. 
+. 
+. * remove "x" recode suffixes on variables
+. local recodes "algaewash algaemouth wetsuit sandwash sunburndays sanddry sandm
+> outh sunburnstill"
+
+. foreach var of local recodes {
+  2.         rename `var'x `var'
+  3. }
+
+. 
+. 
+. * recode variables from 2=0
+. local vlist "block bsand fevertemptaken food pool preg *still *list *allergy *
+> _int stayhome_* stopdaily_* othermiss_* phonedoc_* visitdoc_* emergencyroom_* 
+> hospitalized_* anyprescrdrug_* anyotcmeds_* earplugs noseplugs mask wetsuit di
+> g sandwash sandmouth algae algaemouth algaewash cutbase prothat shade repel ea
+> tfood drinksy anim_base gicontact_base fish_base rawmeat_base eggs_base workin
+> g asth skinchron swam samebeach publicpool differentbeach"
+
+. label define yesno 0 "No" 1 "Yes"
+
+. foreach var of varlist `vlist' {
+  2.         recode `var' 2=0
+  3.         label values `var' yesno
+  4. }
+(block: 4394 changes made)
+(bsand: 7123 changes made)
+(fevertemptaken: 194 changes made)
+(food: 4125 changes made)
+(pool: 13178 changes made)
+(preg: 8016 changes made)
+(stomachstill: 994 changes made)
+(diarrheastill: 941 changes made)
+(nauseastill: 489 changes made)
+(vomitingstill: 85 changes made)
+(urinarytractinfectionstill: 92 changes made)
+(feverstill: 424 changes made)
+(headachestill: 922 changes made)
+(sorethroatstill: 729 changes made)
+(coughstill: 217 changes made)
+(coldstill: 367 changes made)
+(runnynosestill: 736 changes made)
+(earachestill: 229 changes made)
+(wateryeyesstill: 240 changes made)
+(eyeinfectionstill: 67 changes made)
+(cutstill: 83 changes made)
+(rashstill: 392 changes made)
+(sunburnstill: 3103 changes made)
+(stomachlist: 1411 changes made)
+(diarrhealist: 1453 changes made)
+(nausealist: 764 changes made)
+(vomitinglist: 616 changes made)
+(urinarytractinfectionlist: 259 changes made)
+(feverlist: 835 changes made)
+(headachelist: 1497 changes made)
+(sorethroatlist: 1248 changes made)
+(coughlist: 823 changes made)
+(coldlist: 994 changes made)
+(runnynoselist: 1727 changes made)
+(earachelist: 698 changes made)
+(wateryeyeslist: 493 changes made)
+(eyeinfectionlist: 201 changes made)
+(cutlist: 240 changes made)
+(rashlist: 1086 changes made)
+(sunburnlist: 2885 changes made)
+(sorethroatallergy: 861 changes made)
+(coughallergy: 451 changes made)
+(coldallergy: 689 changes made)
+(runnynoseallergy: 926 changes made)
+(earacheallergy: 337 changes made)
+(wateryeyesallergy: 210 changes made)
+(allergy: 0 changes made)
+(anim_int: 603 changes made)
+(fish_int: 478 changes made)
+(rawmeat_int: 1350 changes made)
+(eggs_int: 518 changes made)
+(stayhome_1: 21 changes made)
+(stayhome_2: 34 changes made)
+(stayhome_3: 19 changes made)
+(stayhome_4: 4 changes made)
+(stayhome_5: 1 changes made)
+(stayhome_6: 0 changes made)
+(stopdaily_1: 94 changes made)
+(stopdaily_2: 1 changes made)
+(stopdaily_3: 49 changes made)
+(stopdaily_4: 11 changes made)
+(stopdaily_5: 2 changes made)
+(stopdaily_6: 0 changes made)
+(stopdaily_gas: 0 changes made)
+(othermiss_1: 12 changes made)
+(othermiss_2: 21 changes made)
+(othermiss_3: 6 changes made)
+(othermiss_4: 4 changes made)
+(othermiss_5: 1 changes made)
+(othermiss_6: 0 changes made)
+(phonedoc_1: 41 changes made)
+(phonedoc_2: 32 changes made)
+(phonedoc_3: 12 changes made)
+(phonedoc_4: 3 changes made)
+(phonedoc_5: 2 changes made)
+(phonedoc_6: 0 changes made)
+(visitdoc_1: 67 changes made)
+(visitdoc_2: 42 changes made)
+(visitdoc_3: 19 changes made)
+(visitdoc_4: 7 changes made)
+(visitdoc_5: 0 changes made)
+(visitdoc_6: 0 changes made)
+(emergencyroom_1: 7 changes made)
+(emergencyroom_2: 5 changes made)
+(emergencyroom_3: 1 changes made)
+(emergencyroom_4: 1 changes made)
+(emergencyroom_5: 0 changes made)
+(emergencyroom_6: 0 changes made)
+(hospitalized_1: 1 changes made)
+(hospitalized_2: 1 changes made)
+(hospitalized_3: 0 changes made)
+(hospitalized_4: 0 changes made)
+(hospitalized_5: 0 changes made)
+(hospitalized_6: 0 changes made)
+(anyprescrdrug_1: 37 changes made)
+(anyprescrdrug_2: 19 changes made)
+(anyprescrdrug_3: 8 changes made)
+(anyprescrdrug_4: 1 changes made)
+(anyprescrdrug_5: 2 changes made)
+(anyprescrdrug_6: 1 changes made)
+(anyotcmeds_1: 258 changes made)
+(anyotcmeds_2: 162 changes made)
+(anyotcmeds_3: 62 changes made)
+(anyotcmeds_4: 15 changes made)
+(anyotcmeds_5: 4 changes made)
+(anyotcmeds_6: 0 changes made)
+(earplugs: 13913 changes made)
+(noseplugs: 14041 changes made)
+(mask: 12647 changes made)
+(wetsuit: 12625 changes made)
+(dig: 13003 changes made)
+(sandwash: 4588 changes made)
+(sandmouth: 17840 changes made)
+(algae: 17263 changes made)
+(algaemouth: 3706 changes made)
+(algaewash: 2551 changes made)
+(cutbase: 18928 changes made)
+(prothat: 13989 changes made)
+(shade: 13387 changes made)
+(repel: 21137 changes made)
+(eatfood: 6751 changes made)
+(drinksy: 18931 changes made)
+(anim_base: 18661 changes made)
+(gicontact_base: 19914 changes made)
+(fish_base: 20641 changes made)
+(rawmeat_base: 19723 changes made)
+(eggs_base: 20648 changes made)
+(working: 1669 changes made)
+(asth: 1659 changes made)
+(skinchron: 1966 changes made)
+(swam: 2350 changes made)
+(samebeach: 8710 changes made)
+(publicpool: 7544 changes made)
+(differentbeach: 6530 changes made)
+
+. 
+. * remove "list" suffixes from symptoms
+. local symps "cold cough cut diarrhea earache eyeinfection fever headache nause
+> a rash runnynose sorethroat stomach sunburn urinarytractinfection vomiting wat
+> eryeyes"
+
+. foreach var of local symps {
+  2.         capture drop `var'
+  3.         rename `var'list `var'
+  4. }
+
+. 
+. *----------------------------------------
+. * process the medical information into
+. * the format used in NEEAR
+. *----------------------------------------
+. * create variable shells for each symptom
+. drop *_gas
+
+. local stubs "gas eye res ear uti skn"
+
+. local slabs "GI_illness EYE_infec Respiratory Ear_infec UTI Skin_rash"
+
+. local vlist "stayhome stayhomedays stopdaily stopdailydays othermiss othermiss
+> days phonedoc visitdoc visitdoctimes emergencyroom visitertimes hospitalized h
+> ospitalizeddays anyprescrdrug ownmoneyfordrugs anyotcmeds ownmoneyforotc"
+
+. local i = 1
+
+. foreach stub of local stubs {
+  2.         local slab = word("`slabs'",`i')
+  3.         foreach var of local vlist {
+  4.                 qui gen byte `var'_`stub' = .
+  5.                         local vlab : var label `var'_1
+  6.                         local vlab2 = substr("`vlab'",strpos("`vlab'",":")+
+> 1,.)
+  7.                         local vlab3 = "`vlab2'" + " (`slab')"
+  8.                         di as res "`var'_`stub': `vlab3'"
+  9.                         label var `var'_`stub' "`vlab3'"
+ 10.                         local vallab : value label `var'_1
+ 11.                         label values `var'_`stub' `vallab'
+ 12.         }
+ 13.         local i = `i'+1
+ 14. }
+stayhome_gas:  Missed work for syndrome (GI_illness)
+stayhomedays_gas:  Number of days missed from work (GI_illness)
+stopdaily_gas:  Missed other activities (GI_illness)
+stopdailydays_gas:  Days missed from other activities (GI_illness)
+othermiss_gas:  Other HH members missed work/etc (GI_illness)
+othermissdays_gas:  Days missed by other HH members (GI_illness)
+phonedoc_gas:  Consulted doctor/nurse/clinic by phone (GI_illness)
+visitdoc_gas:  Visited doctor/nurse/clinic (GI_illness)
+visitdoctimes_gas:  Number of visits to dr/nurse/clinic (GI_illness)
+emergencyroom_gas:  Visited emergency room for syndrome (GI_illness)
+visitertimes_gas:  Number of ER admissions for syndrome (GI_illness)
+hospitalized_gas:  Admitted to hospital for syndrome (GI_illness)
+hospitalizeddays_gas:  Number of hospital admissions for syndrome (GI_illness)
+anyprescrdrug_gas:  Given prescription drugs for syndrome (GI_illness)
+ownmoneyfordrugs_gas:  Amount spent on prescription (GI_illness)
+anyotcmeds_gas:  Used OTC medications for syndrome (GI_illness)
+ownmoneyforotc_gas:  Amount spent on OTC medications (GI_illness)
+stayhome_eye:  Missed work for syndrome (EYE_infec)
+stayhomedays_eye:  Number of days missed from work (EYE_infec)
+stopdaily_eye:  Missed other activities (EYE_infec)
+stopdailydays_eye:  Days missed from other activities (EYE_infec)
+othermiss_eye:  Other HH members missed work/etc (EYE_infec)
+othermissdays_eye:  Days missed by other HH members (EYE_infec)
+phonedoc_eye:  Consulted doctor/nurse/clinic by phone (EYE_infec)
+visitdoc_eye:  Visited doctor/nurse/clinic (EYE_infec)
+visitdoctimes_eye:  Number of visits to dr/nurse/clinic (EYE_infec)
+emergencyroom_eye:  Visited emergency room for syndrome (EYE_infec)
+visitertimes_eye:  Number of ER admissions for syndrome (EYE_infec)
+hospitalized_eye:  Admitted to hospital for syndrome (EYE_infec)
+hospitalizeddays_eye:  Number of hospital admissions for syndrome (EYE_infec)
+anyprescrdrug_eye:  Given prescription drugs for syndrome (EYE_infec)
+ownmoneyfordrugs_eye:  Amount spent on prescription (EYE_infec)
+anyotcmeds_eye:  Used OTC medications for syndrome (EYE_infec)
+ownmoneyforotc_eye:  Amount spent on OTC medications (EYE_infec)
+stayhome_res:  Missed work for syndrome (Respiratory)
+stayhomedays_res:  Number of days missed from work (Respiratory)
+stopdaily_res:  Missed other activities (Respiratory)
+stopdailydays_res:  Days missed from other activities (Respiratory)
+othermiss_res:  Other HH members missed work/etc (Respiratory)
+othermissdays_res:  Days missed by other HH members (Respiratory)
+phonedoc_res:  Consulted doctor/nurse/clinic by phone (Respiratory)
+visitdoc_res:  Visited doctor/nurse/clinic (Respiratory)
+visitdoctimes_res:  Number of visits to dr/nurse/clinic (Respiratory)
+emergencyroom_res:  Visited emergency room for syndrome (Respiratory)
+visitertimes_res:  Number of ER admissions for syndrome (Respiratory)
+hospitalized_res:  Admitted to hospital for syndrome (Respiratory)
+hospitalizeddays_res:  Number of hospital admissions for syndrome (Respiratory)
+anyprescrdrug_res:  Given prescription drugs for syndrome (Respiratory)
+ownmoneyfordrugs_res:  Amount spent on prescription (Respiratory)
+anyotcmeds_res:  Used OTC medications for syndrome (Respiratory)
+ownmoneyforotc_res:  Amount spent on OTC medications (Respiratory)
+stayhome_ear:  Missed work for syndrome (Ear_infec)
+stayhomedays_ear:  Number of days missed from work (Ear_infec)
+stopdaily_ear:  Missed other activities (Ear_infec)
+stopdailydays_ear:  Days missed from other activities (Ear_infec)
+othermiss_ear:  Other HH members missed work/etc (Ear_infec)
+othermissdays_ear:  Days missed by other HH members (Ear_infec)
+phonedoc_ear:  Consulted doctor/nurse/clinic by phone (Ear_infec)
+visitdoc_ear:  Visited doctor/nurse/clinic (Ear_infec)
+visitdoctimes_ear:  Number of visits to dr/nurse/clinic (Ear_infec)
+emergencyroom_ear:  Visited emergency room for syndrome (Ear_infec)
+visitertimes_ear:  Number of ER admissions for syndrome (Ear_infec)
+hospitalized_ear:  Admitted to hospital for syndrome (Ear_infec)
+hospitalizeddays_ear:  Number of hospital admissions for syndrome (Ear_infec)
+anyprescrdrug_ear:  Given prescription drugs for syndrome (Ear_infec)
+ownmoneyfordrugs_ear:  Amount spent on prescription (Ear_infec)
+anyotcmeds_ear:  Used OTC medications for syndrome (Ear_infec)
+ownmoneyforotc_ear:  Amount spent on OTC medications (Ear_infec)
+stayhome_uti:  Missed work for syndrome (UTI)
+stayhomedays_uti:  Number of days missed from work (UTI)
+stopdaily_uti:  Missed other activities (UTI)
+stopdailydays_uti:  Days missed from other activities (UTI)
+othermiss_uti:  Other HH members missed work/etc (UTI)
+othermissdays_uti:  Days missed by other HH members (UTI)
+phonedoc_uti:  Consulted doctor/nurse/clinic by phone (UTI)
+visitdoc_uti:  Visited doctor/nurse/clinic (UTI)
+visitdoctimes_uti:  Number of visits to dr/nurse/clinic (UTI)
+emergencyroom_uti:  Visited emergency room for syndrome (UTI)
+visitertimes_uti:  Number of ER admissions for syndrome (UTI)
+hospitalized_uti:  Admitted to hospital for syndrome (UTI)
+hospitalizeddays_uti:  Number of hospital admissions for syndrome (UTI)
+anyprescrdrug_uti:  Given prescription drugs for syndrome (UTI)
+ownmoneyfordrugs_uti:  Amount spent on prescription (UTI)
+anyotcmeds_uti:  Used OTC medications for syndrome (UTI)
+ownmoneyforotc_uti:  Amount spent on OTC medications (UTI)
+stayhome_skn:  Missed work for syndrome (Skin_rash)
+stayhomedays_skn:  Number of days missed from work (Skin_rash)
+stopdaily_skn:  Missed other activities (Skin_rash)
+stopdailydays_skn:  Days missed from other activities (Skin_rash)
+othermiss_skn:  Other HH members missed work/etc (Skin_rash)
+othermissdays_skn:  Days missed by other HH members (Skin_rash)
+phonedoc_skn:  Consulted doctor/nurse/clinic by phone (Skin_rash)
+visitdoc_skn:  Visited doctor/nurse/clinic (Skin_rash)
+visitdoctimes_skn:  Number of visits to dr/nurse/clinic (Skin_rash)
+emergencyroom_skn:  Visited emergency room for syndrome (Skin_rash)
+visitertimes_skn:  Number of ER admissions for syndrome (Skin_rash)
+hospitalized_skn:  Admitted to hospital for syndrome (Skin_rash)
+hospitalizeddays_skn:  Number of hospital admissions for syndrome (Skin_rash)
+anyprescrdrug_skn:  Given prescription drugs for syndrome (Skin_rash)
+ownmoneyfordrugs_skn:  Amount spent on prescription (Skin_rash)
+anyotcmeds_skn:  Used OTC medications for syndrome (Skin_rash)
+ownmoneyforotc_skn:  Amount spent on OTC medications (Skin_rash)
+
+. 
+. * fill in the variables using data in the 6 symptom bins
+. * loop over the 6 symptom bins
+. forvalues i = 1/6 {
+  2.         di as res "----------------"_n "syndrome bin `i'" _n "-------------
+> ---" _n
+  3.         * loop over the different stubs
+.         forvalues j = 1/6 {
+  4.                 local stub = word("`stubs'",`j')
+  5.                 di as res "----------------" _n "syndrome type: `stub'" _n 
+> "----------------" _n
+  6.                 * replace across all relevant variables
+.                 foreach var of local vlist {
+  7.                         replace `var'_`stub' = `var'_`i' if (synd_no_`i' ==
+>  `j')
+  8.                 }
+  9.         }
+ 10. }
+----------------
+syndrome bin 1
+----------------
+
+----------------
+syndrome type: gas
+----------------
+
+(122 real changes made)
+(105 real changes made)
+(668 real changes made)
+(614 real changes made)
+(76 real changes made)
+(69 real changes made)
+(147 real changes made)
+(162 real changes made)
+(120 real changes made)
+(23 real changes made)
+(18 real changes made)
+(5 real changes made)
+(4 real changes made)
+(59 real changes made)
+variable ownmoneyfordrugs_gas was byte now int
+(34 real changes made)
+(756 real changes made)
+(560 real changes made)
+----------------
+syndrome type: eye
+----------------
+
+(23 real changes made)
+(20 real changes made)
+(79 real changes made)
+(44 real changes made)
+(10 real changes made)
+(5 real changes made)
+(32 real changes made)
+(56 real changes made)
+(44 real changes made)
+(2 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(33 real changes made)
+variable ownmoneyfordrugs_eye was byte now int
+(27 real changes made)
+(169 real changes made)
+(112 real changes made)
+----------------
+syndrome type: res
+----------------
+
+(67 real changes made)
+(66 real changes made)
+(330 real changes made)
+(323 real changes made)
+(49 real changes made)
+(49 real changes made)
+(87 real changes made)
+(145 real changes made)
+(132 real changes made)
+(6 real changes made)
+(6 real changes made)
+(0 real changes made)
+(0 real changes made)
+(97 real changes made)
+variable ownmoneyfordrugs_res was byte now int
+(86 real changes made)
+(832 real changes made)
+(792 real changes made)
+----------------
+syndrome type: ear
+----------------
+
+(5 real changes made)
+(5 real changes made)
+(22 real changes made)
+(22 real changes made)
+(2 real changes made)
+(2 real changes made)
+(21 real changes made)
+(42 real changes made)
+(42 real changes made)
+(7 real changes made)
+(7 real changes made)
+(0 real changes made)
+(0 real changes made)
+(36 real changes made)
+variable ownmoneyfordrugs_ear was byte now int
+(36 real changes made)
+(76 real changes made)
+(70 real changes made)
+----------------
+syndrome type: uti
+----------------
+
+(4 real changes made)
+(4 real changes made)
+(18 real changes made)
+(18 real changes made)
+(2 real changes made)
+(2 real changes made)
+(23 real changes made)
+(31 real changes made)
+(31 real changes made)
+(3 real changes made)
+(3 real changes made)
+(1 real change made)
+(1 real change made)
+(35 real changes made)
+variable ownmoneyfordrugs_uti was byte now int
+(35 real changes made)
+(23 real changes made)
+(22 real changes made)
+----------------
+syndrome type: skn
+----------------
+
+(7 real changes made)
+(7 real changes made)
+(39 real changes made)
+(39 real changes made)
+(4 real changes made)
+(4 real changes made)
+(40 real changes made)
+(55 real changes made)
+(55 real changes made)
+(5 real changes made)
+(5 real changes made)
+(0 real changes made)
+(0 real changes made)
+(33 real changes made)
+variable ownmoneyfordrugs_skn was byte now int
+(33 real changes made)
+(215 real changes made)
+variable ownmoneyforotc_skn was byte now int
+(213 real changes made)
+----------------
+syndrome bin 2
+----------------
+
+----------------
+syndrome type: gas
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: eye
+----------------
+
+(17 real changes made)
+(8 real changes made)
+(30 real changes made)
+(24 real changes made)
+(14 real changes made)
+(5 real changes made)
+(17 real changes made)
+(25 real changes made)
+(15 real changes made)
+(3 real changes made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(11 real changes made)
+(6 real changes made)
+(60 real changes made)
+(21 real changes made)
+----------------
+syndrome type: res
+----------------
+
+(56 real changes made)
+(40 real changes made)
+(153 real changes made)
+(163 real changes made)
+(22 real changes made)
+(16 real changes made)
+(59 real changes made)
+(86 real changes made)
+(66 real changes made)
+(8 real changes made)
+(6 real changes made)
+(1 real change made)
+(0 real changes made)
+(44 real changes made)
+(37 real changes made)
+(314 real changes made)
+(248 real changes made)
+----------------
+syndrome type: ear
+----------------
+
+(11 real changes made)
+(9 real changes made)
+(67 real changes made)
+(40 real changes made)
+(12 real changes made)
+(8 real changes made)
+(17 real changes made)
+(38 real changes made)
+(33 real changes made)
+(2 real changes made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(32 real changes made)
+(27 real changes made)
+(81 real changes made)
+(46 real changes made)
+----------------
+syndrome type: uti
+----------------
+
+(5 real changes made)
+(3 real changes made)
+(13 real changes made)
+(14 real changes made)
+(2 real changes made)
+(2 real changes made)
+(8 real changes made)
+(20 real changes made)
+(18 real changes made)
+(5 real changes made)
+(5 real changes made)
+(1 real change made)
+(1 real change made)
+(19 real changes made)
+(17 real changes made)
+(18 real changes made)
+(10 real changes made)
+----------------
+syndrome type: skn
+----------------
+
+(7 real changes made)
+(2 real changes made)
+(71 real changes made)
+(18 real changes made)
+(5 real changes made)
+(3 real changes made)
+(20 real changes made)
+(14 real changes made)
+(9 real changes made)
+(2 real changes made)
+(2 real changes made)
+(0 real changes made)
+(0 real changes made)
+(7 real changes made)
+(5 real changes made)
+(120 real changes made)
+(90 real changes made)
+----------------
+syndrome bin 3
+----------------
+
+----------------
+syndrome type: gas
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: eye
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: res
+----------------
+
+(11 real changes made)
+(6 real changes made)
+(36 real changes made)
+(21 real changes made)
+(11 real changes made)
+(8 real changes made)
+(12 real changes made)
+(17 real changes made)
+(12 real changes made)
+(2 real changes made)
+(2 real changes made)
+(0 real changes made)
+(0 real changes made)
+(9 real changes made)
+(5 real changes made)
+(41 real changes made)
+(23 real changes made)
+----------------
+syndrome type: ear
+----------------
+
+(15 real changes made)
+(6 real changes made)
+(32 real changes made)
+(19 real changes made)
+(5 real changes made)
+(3 real changes made)
+(14 real changes made)
+(27 real changes made)
+(17 real changes made)
+(2 real changes made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(16 real changes made)
+(15 real changes made)
+(38 real changes made)
+(15 real changes made)
+----------------
+syndrome type: uti
+----------------
+
+(3 real changes made)
+(2 real changes made)
+(5 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(3 real changes made)
+(5 real changes made)
+(4 real changes made)
+(1 real change made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(5 real changes made)
+(4 real changes made)
+(8 real changes made)
+(2 real changes made)
+----------------
+syndrome type: skn
+----------------
+
+(6 real changes made)
+(2 real changes made)
+(29 real changes made)
+(13 real changes made)
+(4 real changes made)
+(3 real changes made)
+(12 real changes made)
+(14 real changes made)
+(11 real changes made)
+(1 real change made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(5 real changes made)
+(3 real changes made)
+(50 real changes made)
+(31 real changes made)
+----------------
+syndrome bin 4
+----------------
+
+----------------
+syndrome type: gas
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: eye
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: res
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: ear
+----------------
+
+(2 real changes made)
+(1 real change made)
+(8 real changes made)
+(6 real changes made)
+(4 real changes made)
+(2 real changes made)
+(3 real changes made)
+(6 real changes made)
+(4 real changes made)
+(2 real changes made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(4 real changes made)
+(3 real changes made)
+(9 real changes made)
+(5 real changes made)
+----------------
+syndrome type: uti
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(2 real changes made)
+(1 real change made)
+(1 real change made)
+(0 real changes made)
+(3 real changes made)
+(2 real changes made)
+(2 real changes made)
+(1 real change made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(3 real changes made)
+(2 real changes made)
+(2 real changes made)
+(1 real change made)
+----------------
+syndrome type: skn
+----------------
+
+(5 real changes made)
+(2 real changes made)
+(13 real changes made)
+(5 real changes made)
+(2 real changes made)
+(1 real change made)
+(5 real changes made)
+(8 real changes made)
+(3 real changes made)
+(1 real change made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(3 real changes made)
+(3 real changes made)
+(20 real changes made)
+(10 real changes made)
+----------------
+syndrome bin 5
+----------------
+
+----------------
+syndrome type: gas
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: eye
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: res
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: ear
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: uti
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 real changes made)
+----------------
+syndrome type: skn
+----------------
+
+(1 real change made)
+(0 real changes made)
+(3 real changes made)
+(1 real change made)
+(1 real change made)
+(0 real changes made)
+(2 real changes made)
+(2 real changes made)
+(2 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(2 real changes made)
+(0 real changes made)
+(4 real changes made)
+(1 real change made)
+----------------
+syndrome bin 6
+----------------
+
+----------------
+syndrome type: gas
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: eye
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: res
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: ear
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: uti
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+----------------
+syndrome type: skn
+----------------
+
+(0 real changes made)
+(0 real changes made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(1 real change made)
+(0 real changes made)
+(1 real change made)
+(1 real change made)
+
+. 
+. * rename hospitalizeddays hospitaldays for comparability to NEEAR
+. * rename othermiss and othermissdays for comparability to NEEAR
+. foreach stub of local stubs {
+  2.         rename hospitalizeddays_`stub' hospitaldays_`stub'
+  3.         rename othermiss_`stub' othersmiss_`stub'
+  4.         rename othermissdays_`stub' othersmissdays_`stub'
+  5. }
+
+. 
+. 
+. * minor data cleaning
+. replace stopdaily_eye = 0 if stopdaily_eye==9
+(1 real change made)
+
+. replace stopdaily_res = 0 if stopdaily_res==9
+(6 real changes made)
+
+. replace stopdaily_ear = 0 if stopdaily_ear==9
+(3 real changes made)
+
+. replace stopdaily_uti = 0 if stopdaily_uti==9
+(1 real change made)
+
+. replace stopdaily_skn = 0 if stopdaily_skn==9
+(1 real change made)
+
+. 
+. *----------------------------------------
+. * subset the dataset to relevant variables
+. *----------------------------------------
+. # delimit ;
+delimiter now ;
+. keep beach beachcode indid hhid intdate teledate hhmem age sex 
+> watertime 
+> earplugs noseplugs mask wetsuit
+> sunbase sunhr sunmin dig bsand sanddry sandmouth sandwash algae algaemouth alg
+> aewash
+> block prothat shade repel  
+> eatfood food drinksy come pool publicpool
+> anim_base anim_int anim_any 
+> gicontact_base 
+> fish_base fish_int fish_any
+> rawmeat_base rawmeat_int rawmeat_any
+> eggs_base eggs_int eggs_any
+> rawfood
+> asth gichron skinchron allergy preg 
+> anycontact bodycontact headunder mouthwater swallwater wave
+> diarrhea diarrheanumber nausea vomiting vomitingnumber urinarytractinfection f
+> ever feverstill feverdays fevertemp* headache sorethroat cough cold runnynose 
+> earache wateryeyes eyeinfection cut rash sunburn stomach
+> *still *days *allergy
+> working 
+> hisp race
+> hhinc
+> *_gas *_eye *_res *_ear *_uti *_skn
+> *stdt
+> stopdaily_gas
+> gibase cutbase utibase vomitbase sorebase earbase eyebase rashbase
+> watertime
+> siteid stmatch
+> swam samebeach differentbeach
+> groundwater berm
+> ;
+
+. # delimit cr
+delimiter now cr
+. 
+. * drop variables not contained in NEEAR
+. drop hcgi3* uridays befdays aftdays fudays siteid2
+
+. 
+. 
+. 
+. *---------------------------------------------
+. * output variable information for harmonization
+. *---------------------------------------------
+. preserve
+
+. desc, replace clear
+
+. label data "variables for adm-epi.dta"
+
+. save "~/dropbox/13beaches/data/temp/adm-epi-vars.dta", replace
+file ~/dropbox/13beaches/data/temp/adm-epi-vars.dta saved
+
+. restore
+
+. 
+. 
+. 
+. *----------------------------------------
+. * save the data for combining it with
+. * other beaches
+. *----------------------------------------
+. label data "Avalon, Doheny, Malibu epi data, created by 2-format-adm-epi.do"
+
+. save "~/dropbox/13beaches/data/final/adm-epi.dta", replace
+file ~/dropbox/13beaches/data/final/adm-epi.dta saved
+
+. 
+. codebook, c
+
+Variable        Obs Unique      Mean    Min    Max  Label
+--------------------------------------------------------------------------------
+beach         21364      3         .      .      .  Study beach
+hhid          21364   8886         .      .      .  Household ID
+indid         21364  21364         .      .      .  Individual ID
+beachcode     21364      7         .      .      .  Water quality sampling lo...
+hhmem         21364      9  3.186763      1      9  # HH members
+age           21306     92   29.0919      0     95  age in years
+sex           21317      2  1.539382      1      2  Gender (R)
+pool          13529      2  .0259443      0      1  Play in stream or the lag...
+earplugs      14062      2  .0105959      0      1  Wear ear plugs in water t...
+noseplugs     14074      2  .0023447      0      1  Wear nose plugs in water ...
+mask          14074      2  .1013926      0      1  Wear eye goggles/mask in ...
+wetsuit       14085      2  .1036564      0      1  Wear wet suit in water to...
+sunhr         21270     16   3.10489      0     15  Total hours in direct sun...
+sunmin        21270     16  .0517482      0    .25  Total minutes in direct s...
+dig           21280      2  .3889568      0      1  Dig in sand, build sand c...
+bsand          8266      2  .1382773      0      1  Had body buried in sand  (R)
+sandwash       8096      2  .4333004      0      1  Wash hands after playing ...
+sanddry        8148      4  2.501718      1      4  How dry-wet was sand  (R)
+sandmouth     20747      2  .1401166      0      1  Get any sand in mouth  (R)
+algae         21137      2  .1832805      0      1  Play with algae or seawee...
+algaemouth     3823      2  .0306042      0      1  Get any algae or seaweed ...
+algaewash      3773      2  .3238802      0      1  Wash hands after playing ...
+cutbase       21240      2  .1088512      0      1  Cut self or have open cut...
+block         21317      2  .7938734      0      1  Wear sunscreen-block toda...
+prothat       21311      2  .3435784      0      1  Wear hat today (R)
+shade         21325      2  .3722392      0      1  Use protective equipment (R)
+repel         21320      2  .0085835      0      1  Wear insect repellant tod...
+eatfood       21324      2  .6834084      0      1  Eat any food at beach tod...
+food          14546      2  .7164169      0      1  Food brought from home (R)
+drinksy       21264      2   .109716      0      1  Drink any alcoholic bever...
+come          21318     60  6.081152      0    997  Times come to this beach (R)
+anim_base     21301      2  .1239378      0      1  LAST 48HRS: Contact with ...
+gicontact_~e  21186      2  .0600396      0      1  LAST 48HRS: Contact with ...
+fish_base     21284      2  .0302105      0      1  LAST 48HRS: Eat raw shell...
+rawmeat_base  21276      2   .072993      0      1  LAST 48HRS: Eat raw meat-...
+eggs_base     21267      2  .0291061      0      1  LAST 48HRS: Eat raw-runny...
+sunbase       21265      2   1.90134      1      2  LAST 3 DAYS: Sunburn (R)
+stomach        2621      2  .4616559      0      1  Person had stomachache/cr...
+stomachstill   1205      2  .1751037      0      1  Still have stomachache/cr...
+stomachdays    1196     17  2.847826      1     17  Duration of stomachache/c...
+diarrhea       2592      2   .439429      0      1  Person had diarrhea/loose...
+diarrheast~l   1134      2   .170194      0      1  Still have diarrhea/loose...
+diarrheadays   1126     15  2.753108      1     16  Duration of diarrhea/loos...
+diarrheanu~r   1060     16   3.80283      1     30  Maximum number of bouts d...
+nausea         1356      2  .4365782      0      1  Person had nausea
+nauseastill     591      2  .1725888      0      1  Still have any nausea
+nauseadays      586     15  2.662116      1     16  Duration of nausea
+vomiting        963      2  .3603323      0      1  Person had throwing up/vo...
+vomitingst~l    433      2  .0138568      0      1  Still have throwing up/vo...
+vomitingdays    333      8   1.54955      1     10  Duration of throwing up/v...
+vomitingnu~r    340     17  3.458824      1     30  Maximum number of times t...
+urinarytra~n    405      2  .3604938      0      1  Person had UTI/burning se...
+urinarytra~l    146      2   .369863      0      1  Still have UTI/burning se...
+urinarytra~s    146     14  4.205479      1     14  Duration of UTI/burning s...
+fever          1337      2  .3754675      0      1  Person had fever
+feverstill      500      2      .152      0      1  Still have fever
+feverdays       498     13   2.47992      1     13  Duration of fever (days)
+fevertempt~n    499      2  .6112224      0      1  Temperature taken using a...
+fevertemp       305     44  160.0967   98.9  999.8  Highest temperature since...
+headache       2607      2  .4257768      0      1  Person had headache
+headachest~l   1107      2  .1671183      0      1  Still have a headache
+headachedays    916     12  1.706332      0     14  Duration of headache (days)
+sorethroat     2320      2   .462069      0      1  Person had sore throat
+sorethroat~l   1069      2  .3180543      0      1  Still have a sore throat
+sorethroat~s   1063     15  3.643462      1     16  Duration of sore throat (...
+sorethroat~y    985      2  .1258883      0      1  Sore throat related to al...
+cough          1387      2   .406633      0      1  Person had cough
+coughstill      562      2   .613879      0      1  Still have a bad cough
+coughdays       555     16  5.762162      1     16  Duration of cough (days)
+coughallergy    517      2  .1276596      0      1  Cough related to allergies
+cold           1840      2  .4597826      0      1  Person had a cold
+coldstill       844      2  .5651659      0      1  Still have a cold
+colddays        839     16  5.212157      1     16  Duration of cold (days)
+coldallergy     790      2  .1278481      0      1  Was cold related to aller...
+runnynose      3249      2  .4684518      0      1  Person had runny/stuffy nose
+runnynoses~l   1515      2  .5141914      0      1  Still have a runny/stuffy...
+runnynosed~s   1497     17  4.843687      1     17  Duration of runny/stuffy ...
+runnynosea~y   1399      2  .3380986      0      1  Was runny/stuffy nose rel...
+earache        1090      2   .359633      0      1  Person had earache/infection
+earachestill    385      2  .4051948      0      1  Still have earache/infection
+earachedays     377     17  4.679045      1     17  Duration of earache/infec...
+earacheall~y    373      2  .0965147      0      1  Was earache/infection rel...
+wateryeyes      875      2  .4365714      0      1  Person had watery eyes
+wateryeyes~l    378      2  .3650794      0      1  Still have watery eyes
+wateryeyes~s    240     11    2.3875      0     14  Duration of watery eyes (...
+wateryeyes~y    342      2  .3859649      0      1  Were watery eyes related ...
+eyeinfection    312      2  .3557692      0      1  Person had eye infection
+eyeinfecti~l    111      2  .3963964      0      1  Still have eye infection
+eyeinfecti~s    110     13  4.545455      1     15  Duration of eye infection...
+cut             381      2  .3700787      0      1  Person had infected cut
+cutstill        141      2  .4113475      0      1  Still have infected cut
+cutdays          83     10   4.26506      1     14  Duration of infected cut ...
+rash           1803      2  .3976705      0      1  Person had rash/itchy ski...
+rashstill       714      2  .4509804      0      1  Still have rash/itchy ski...
+rashdays        705     16  5.388652      1     16  Duration of rash/itchy sk...
+sunburn        6685      2  .5684368      0      1  Person had sunburn
+sunburnstill   3792      2  .1816983      0      1  Still have sunburn
+sunburndays    3092     17  2.775226      0     16  Duration of sunburn (days)
+working        3378      2  .5059207      0      1  Person working for pay
+asth           2878      2   .423558      0      1  chronic resp prob
+skinchron      3268      2  .3984088      0      1  Person has skin problems
+preg           9431      2  .1500371      0      1  Person was pregnant/on pe...
+swam          13343      2  .8238777      0      1  Person went swimming/wading
+samebeach     10992      2  .2076055      0      1  Swim/wade: same beach
+publicpool    10992      2  .3136827      0      1  Swim/wade: public pool/wa...
+anim_int       2743      2  .7801677      0      1  Person: contact with animals
+fish_int       1340      2  .6432836      0      1  Person: eaten raw shellfish
+rawmeat_int    4700      2   .712766      0      1  Person: eaten rare or raw...
+eggs_int       1378      2  .6240929      0      1  Person: eaten runny/raw eggs
+differentb~h  10993      2  .4059856      0      1  Summary variable: swam at...
+hisp          21364      2  .2049242      0      1  Recode: Ethnic origin is ...
+intdate       21364    123  17741.42  17313  18160  Beach interview date
+race          21364      9  2.240404      1      9  Race category
+hhinc         18670      6  4.130102      1      6  Household income
+allergy       21364      2  .1119641      0      1  Has allergies
+gichron       21364      2  .0242464      0      1  Chronic GI problems/Crohn...
+rawfood       21364      2  .1993541      0      1  Ate undercooked eggs/meat...
+anycontact    21364      2  .6615802      0      1  Any contact with water
+bodycontact   21364      2  .5048212      0      1  Body contact with water
+headunder     21364      2  .3817637      0      1  Head under water
+mouthwater    21364      2  .2976503      0      1  Mouth in water
+swallwater    21364      2  .1257255      0      1  Swallowed water
+wave          21364      2  .1815203      0      1  boog board/wave rid/surf/...
+stomachstdt    1189    302  17750.01  17314  18170  stomach start date
+diarrheastdt   1118    304  17746.23  17314  18170  diarrhea start date
+nauseastdt      584    241  17758.84  17316  18168  nausea start date
+vomitingstdt    346    195  17741.91  17315  18167  vomiting start date
+urinarytra~t    144    117  17769.35  17316  18167  urinarytractinfection sta...
+feverstdt       499    242  17780.74  17314  18170  fever start date
+headachestdt   1068    311  17757.82  17313  18170  headache start date
+sorethroat~t   1055    308  17763.03  17313  18170  sorethroat start date
+coughstdt       556    246  17781.32  17314  18168  cough start date
+coldstdt        837    271  17758.08  17315  18169  cold start date
+runnynoses~t   1484    322  17765.47  17314  18170  runnynose start date
+earachestdt     378    207  17746.49  17313  18169  earache start date
+wateryeyes~t    371    211  17749.08  17313  18164  wateryeyes start date
+eyeinfecti~t    108     82  17716.99  17314  18153  eyeinfection start date
+cutstdt         132    103  17756.89  17317  18169  cut start date
+rashstdt        699    262  17747.68  17313  18169  rash start date
+sunburnstdt    3774    280  17741.21  17313  18167  sunburn start date
+totdays       21364     16  2.566607      1     16  Total swim days
+gibase        21364      2  .0289272      0      1  GI illness at baseline
+utibase       21364      2  .0039787      0      1  UTI at baseline
+vomitbase     21364      2   .011187      0      1  Vomiting at baseline
+sorebase      21364      2  .0597266      0      1  Sore throat at baseline
+earbase       21364      2   .013387      0      1  Ear infection at baseline
+eyebase       21364      2   .004868      0      1  Eye infection at baseline
+rashbase      21364      2  .0336547      0      1  Skin rash at baseline
+berm          15199      2  .2644253      0      1  Berm status (1=open,0=clo...
+teledate      21364    298  17752.85  17324  18175  Phone interview date
+stmatch       14020      7  3.493795      1      7  Site/Time Specific Avg Ma...
+groundwater    6165      2  .4898621      0      1  Groundwater flow level
+watertime     14077     72  1.278792      0   10.5  Time in water (hrs)
+anim_any      21364      2  .1943456      0      1  Any animal contact
+eggs_any      21364      2   .059399      0      1  Any undercooked eggs
+fish_any      21364      2  .0635649      0      1  Any raw fish
+rawmeat_any   21364      2  .1999157      0      1  Any raw meat
+stayhome_gas    122      2  .8606557      0      1  Missed work for syndrome... 
+stayhomed~as    105      7   1.52381      0      7  Number of days missed fr... 
+stopda~y_gas    668      2  .9221557      0      1  Missed other activities ... 
+stopda~s_gas    614     12  1.928339      0     15  Days missed from other a... 
+other~ss_gas     76      2  .9078947      0      1  Other HH members missed ... 
+other~ys_gas     69      5  1.318841      0      4  Days missed by other HH ... 
+phonedoc_gas    147      2  .7823129      0      1  Consulted doctor/nurse/c... 
+visitdoc_gas    162      2  .7407407      0      1  Visited doctor/nurse/cli... 
+visitdoct~as    120      3  1.241667      1      3  Number of visits to dr/n... 
+emergency~as     23      2  .7826087      0      1  Visited emergency room f... 
+visiterti~as     18      1         1      1      1  Number of ER admissions ... 
+hospitali~as      5      2        .8      0      1  Admitted to hospital for... 
+hospitald~as      4      2       .75      0      1  Number of hospital admis... 
+anyprescr~as     59      2  .6101695      0      1  Given prescription drugs... 
+ownmon~s_gas     34     17  33.91176      0    260  Amount spent on prescrip... 
+anyotcmed~as    756      2  .7645503      0      1  Used OTC medications for... 
+ownmon~c_gas    560     29    6.9375      0    100  Amount spent on OTC medi... 
+stayhome_eye     40      2        .7      0      1  Missed work for syndrome... 
+stayhomeda~e     28      5       1.5      0      4  Number of days missed fr... 
+stopdaily_~e    109      2   .412844      0      1  Missed other activities ... 
+stopdailyd~e     68     12  3.338235      0     15  Days missed from other a... 
+other~ss_eye     24      2  .4166667      0      1  Other HH members missed ... 
+other~ys_eye     10      3       1.5      1      3  Days missed by other HH ... 
+phonedoc_eye     49      2  .7959184      0      1  Consulted doctor/nurse/c... 
+visitdoc_eye     81      2  .7283951      0      1  Visited doctor/nurse/cli... 
+visitdocti~e     59      4  1.237288      1     10  Number of visits to dr/n... 
+emergencyr~e      5      2        .2      0      1  Visited emergency room f... 
+visitertim~e      1      1         1      1      1  Number of ER admissions ... 
+hospitaliz~e      0      0         .      .      .  Admitted to hospital for... 
+hospitalda~e      0      0         .      .      .  Number of hospital admis... 
+anyprescrd~e     44      2       .75      0      1  Given prescription drugs... 
+ownmon~s_eye     33     15  25.54545      0    150  Amount spent on prescrip... 
+anyotcmeds~e    229      2  .5938865      0      1  Used OTC medications for... 
+ownmon~c_eye    133     19  7.458647      0    100  Amount spent on OTC medi... 
+stayhome_res    134      2  .8358209      0      1  Missed work for syndrome... 
+stayhomed~es    112      6  1.696429      1      7  Number of days missed fr... 
+stopda~y_res    519      2  .6628131      0      1  Missed other activities ... 
+stopda~s_res    507     14  2.571992      0     15  Days missed from other a... 
+other~ss_res     82      2  .8902439      0      1  Other HH members missed ... 
+other~ys_res     73      7  1.534247      0      7  Days missed by other HH ... 
+phonedoc_res    158      2   .835443      0      1  Consulted doctor/nurse/c... 
+visitdoc_res    248      2  .8467742      0      1  Visited doctor/nurse/cli... 
+visitdoct~es    210      3  1.095238      1      3  Number of visits to dr/n... 
+emergency~es     16      2      .875      0      1  Visited emergency room f... 
+visiterti~es     14      1         1      1      1  Number of ER admissions ... 
+hospitali~es      1      1         0      0      0  Admitted to hospital for... 
+hospitald~es      0      0         .      .      .  Number of hospital admis... 
+anyprescr~es    150      2  .8733333      0      1  Given prescription drugs... 
+ownmon~s_res    128     35  26.15625      0    275  Amount spent on prescrip... 
+anyotcmed~es   1187      2  .9216512      0      1  Used OTC medications for... 
+ownmon~c_res   1063     34  8.583255      0     80  Amount spent on OTC medi... 
+stayhome_ear     33      2  .6363636      0      1  Missed work for syndrome... 
+stayhomeda~r     21      5  1.809524      1      7  Number of days missed fr... 
+stopdaily_~r    129      2  .3643411      0      1  Missed other activities ... 
+stopdailyd~r     87      8  2.954023      1     15  Days missed from other a... 
+other~ss_ear     23      2  .6521739      0      1  Other HH members missed ... 
+other~ys_ear     15      3  1.266667      0      7  Days missed by other HH ... 
+phonedoc_ear     55      2  .8727273      0      1  Consulted doctor/nurse/c... 
+visitdoc_ear    113      2  .8495575      0      1  Visited doctor/nurse/cli... 
+visitdocti~r     96      2  1.083333      1      2  Number of visits to dr/n... 
+emergencyr~r     13      2  .7692308      0      1  Visited emergency room f... 
+visitertim~r     10      2       1.1      1      2  Number of ER admissions ... 
+hospitaliz~r      0      0         .      .      .  Admitted to hospital for... 
+hospitalda~r      0      0         .      .      .  Number of hospital admis... 
+anyprescrd~r     88      2  .9204545      0      1  Given prescription drugs... 
+ownmon~s_ear     81     25  25.83951      0    250  Amount spent on prescrip... 
+anyotcmeds~r    204      2  .7009804      0      1  Used OTC medications for... 
+ownmon~c_ear    136     18  7.036765      0     90  Amount spent on OTC medi... 
+stayhome_uti     12      2       .75      0      1  Missed work for syndrome... 
+stayhomeda~i      9      3         1      0      2  Number of days missed fr... 
+stopdaily_~i     39      2  .5128205      0      1  Missed other activities ... 
+stopdailyd~i     34      5  2.558824      1     15  Days missed from other a... 
+other~ss_uti      6      2  .8333333      0      1  Other HH members missed ... 
+other~ys_uti      5      3       1.8      1      4  Days missed by other HH ... 
+phonedoc_uti     38      2  .9473684      0      1  Consulted doctor/nurse/c... 
+visitdoc_uti     59      2  .9491525      0      1  Visited doctor/nurse/cli... 
+visitdocti~i     56      3  1.142857      1      3  Number of visits to dr/n... 
+emergencyr~i     11      1         1      1      1  Visited emergency room f... 
+visitertim~i     11      1         1      1      1  Number of ER admissions ... 
+hospitaliz~i      2      1         1      1      1  Admitted to hospital for... 
+hospitalda~i      2      1         1      1      1  Number of hospital admis... 
+anyprescrd~i     63      2   .984127      0      1  Given prescription drugs... 
+ownmon~s_uti     59     23   21.9322      0    180  Amount spent on prescrip... 
+anyotcmeds~i     52      2  .6730769      0      1  Used OTC medications for... 
+ownmon~c_uti     35     15  12.02857      0     70  Amount spent on OTC medi... 
+stayhome_skn     26      2        .5      0      1  Missed work for syndrome... 
+stayhomeda~n     13      3  1.384615      1      3  Number of days missed fr... 
+stopdaily_~n    156      2  .3782051      0      1  Missed other activities ... 
+stopdailyd~n     77     13   3.25974      0     15  Days missed from other a... 
+other~ss_skn     17      2  .7058824      0      1  Other HH members missed ... 
+other~ys_skn     12      2  1.166667      1      2  Days missed by other HH ... 
+phonedoc_skn     80      2     .8375      0      1  Consulted doctor/nurse/c... 
+visitdoc_skn     94      2  .8617021      0      1  Visited doctor/nurse/cli... 
+visitdocti~n     81      4  1.160494      1      4  Number of visits to dr/n... 
+emergencyr~n     10      1         1      1      1  Visited emergency room f... 
+visitertim~n     10      1         1      1      1  Number of ER admissions ... 
+hospitaliz~n      0      0         .      .      .  Admitted to hospital for... 
+hospitalda~n      0      0         .      .      .  Number of hospital admis... 
+anyprescrd~n     51      2  .8627451      0      1  Given prescription drugs... 
+ownmon~s_skn     44     19        38      0    400  Amount spent on prescrip... 
+anyotcmeds~n    410      2  .8560976      0      1  Used OTC medications for... 
+ownmon~c_skn    346     26   7.17052      0    200  Amount spent on OTC medi... 
+--------------------------------------------------------------------------------
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/2-format-adm-epi.log
+  log type:  text
+ closed on:  17 Dec 2015, 13:55:49
+--------------------------------------------------------------------------------

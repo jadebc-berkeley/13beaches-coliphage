@@ -1,0 +1,2972 @@
+
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> 
+> 
+> 
+> 
+> # --------------------------------------
+> # 2-aim1-entero1600-Quartile-regs-body.R
+> # ben arnold (benarnold@berkeley.edu)
+> #
+> # description:
+> # estimate the association between water
+> # quality indicator concentrations and
+> # the risk of Diarrhea among swimmers
+> # for the 13 beaches study
+> #
+> # Analyses are conducted for EPA 1600
+> # Among Swimmers with Body Immmersion
+> #
+> # version 7 (12 aug 2015)
+> # cleaned up code by cutting extra lines
+> #
+> # version 6 (31 jul 2015)
+> # added point source / non point source CI output (accidental omission)
+> #
+> # version 5 (10 apr 2015)
+> # confirm 10-day follow-up
+> #
+> # version 4 (20 mar 2015)
+> #   (note: previously named 4-aim1-entero1600-regs-body.R)
+> # calculate CIRs from stratified models 
+> # rather than from linear combinations out of 3-way interaction models
+> # (after confirming identical results to 3 decimals, it's just cleaner)
+> # added saturated models to calculate robust
+> # 95% CIs for the cumulative incidence of diarrhea
+> #
+> #
+> # version 3 (9 mar 2015)
+> # updated to estimate analysis for quartiles of Entero
+> #
+> # version 2 (21 feb 2015)
+> #
+> # version 1 (28 feb 2014)
+> #
+> # --------------------------------------
+> 
+> # --------------------------------------
+> # preamble
+> # --------------------------------------
+> 
+> rm(list=ls())
+> library(sandwich)
+> library(lmtest)
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+> 
+> # source the base functions
+> source("~/dropbox/13beaches/src/aim1/0-aim1-base-functions.R")
+> 
+> # --------------------------------------
+> # load the and pre-preprocess the 
+> # analysis dataset
+> # (refer to the base functions script
+> # for details on the pre-processing)
+> # --------------------------------------
+> 
+> ad <- preprocess.13beaches("~/dropbox/13beaches/data/final/13beaches-analysis.csv")
+
+Successfully loaded the data
+ Total sample size = 88083 
+
+Dropping individuals with GI illness at enrollment
+ N = 2025 
+
+Final sample size = 86058 
+
+Subsetting the data to relevant variables and completing final variable pre-processing> 
+> # drop individuals with no water quality information
+> table(ad$nowq)
+
+    0     1 
+84737  1321 
+> ad <- subset(ad,nowq==0)
+> dim(ad)
+[1] 84737    50
+> 
+> 
+> # subset to non-missing exposure categories
+> # to make the robust CI calcs work
+> table(ad$bodycontact)
+
+   No   Yes 
+37496 47241 
+> ad <- subset(ad,ad$bodycontact=="Yes")
+> 	dim(ad)
+[1] 47241    50
+> table(ad$qentero1600)
+
+    1     2     3     4 
+ 9199 14615 13491  9936 
+> ad <- subset(ad,is.na(ad$qentero1600)==FALSE)
+> 	dim(ad)
+[1] 47241    50
+> 
+> 
+> # --------------------------------------
+> # Calculate the actual Ns for each cell
+> # and store them for plotting and tables
+> # --------------------------------------
+> 
+> # --------------------------------------
+> # Summarize 
+> # the number of swimmers and number
+> # of cumulative incident episodes by
+> # quartile of Entero 1600
+> # --------------------------------------
+> calcNs <- function(outcome,exposurecat) {
++   n <- tapply(outcome,exposurecat,sum)
++   N <- tapply(outcome,exposurecat,function(x) length(x))
++   cbind(n,N)
++ }
+> 
+> # overall
+> N.all <- calcNs(ad$diarrheaci10,ad$qentero1600)
+> # age stratified
+> N.age0to4   <- calcNs(ad$diarrheaci10[ad$agestrat=="(0, 4]"],ad$qentero1600[ad$agestrat=="(0, 4]"] )
+> N.age5to10  <- calcNs(ad$diarrheaci10[ad$agestrat=="(4, 10]"],ad$qentero1600[ad$agestrat=="(4, 10]"] )
+> N.age11plus <- calcNs(ad$diarrheaci10[ad$agestrat==">10"],ad$qentero1600[ad$agestrat==">10"] )
+> # point source vs. non-point source stratified
+> N.nps <- calcNs(ad$diarrheaci10[ad$pointsource=="No"], ad$qentero1600[ad$pointsource=="No"])
+> N.ps  <- calcNs(ad$diarrheaci10[ad$pointsource=="Yes"],ad$qentero1600[ad$pointsource=="Yes"])
+> # age and point source stratified
+> N.nps0to4   <- calcNs(ad$diarrheaci10[ad$agestrat=="(0, 4]" & ad$pointsource=="No"],ad$qentero1600[ad$agestrat=="(0, 4]" & ad$pointsource=="No"] )
+> N.nps5to10  <- calcNs(ad$diarrheaci10[ad$agestrat=="(4, 10]" & ad$pointsource=="No"],ad$qentero1600[ad$agestrat=="(4, 10]" & ad$pointsource=="No"] )
+> N.nps11plus <- calcNs(ad$diarrheaci10[ad$agestrat==">10" & ad$pointsource=="No"],ad$qentero1600[ad$agestrat==">10" & ad$pointsource=="No"] )
+> 
+> N.ps0to4   <- calcNs(ad$diarrheaci10[ad$agestrat=="(0, 4]" & ad$pointsource=="Yes"],ad$qentero1600[ad$agestrat=="(0, 4]" & ad$pointsource=="Yes"] )
+> N.ps5to10  <- calcNs(ad$diarrheaci10[ad$agestrat=="(4, 10]" & ad$pointsource=="Yes"],ad$qentero1600[ad$agestrat=="(4, 10]" & ad$pointsource=="Yes"] )
+> N.ps11plus <- calcNs(ad$diarrheaci10[ad$agestrat==">10" & ad$pointsource=="Yes"],ad$qentero1600[ad$agestrat==">10" & ad$pointsource=="Yes"] )
+> 
+> 
+> # --------------------------------------
+> # Calculate unadjusted 
+> # Cumulative Incidence Rates
+> # and robust 95% CIs using a saturated, 
+> # unadjusted model
+> # (just using the models to get the robust
+> # SEs that account for HH clustering)
+> # --------------------------------------
+> 
+> # fit the saturated models
+> # for now, only doing this for the overall results
+> # (not stratified by point/nonpoint because the
+> #  sample sizes are really small with the double stratification)
+> 
+> # All Ages
+> allci <- mpreg(diarrheaci10~qentero1600,dat=ad,vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3235  -0.2977  -0.2871  -0.2728   2.1578  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.18931    0.05137 -62.089  < 2e-16 ***
+qentero16002 -0.10154    0.06691  -1.518 0.129115    
+qentero16003  0.07313    0.06566   1.114 0.265375    
+qentero16004  0.23922    0.06754   3.542 0.000397 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 12825  on 47240  degrees of freedom
+Residual deviance: 12793  on 47237  degrees of freedom
+AIC: 16883
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)  -3.189314   0.057919 -55.0648 < 2.2e-16 ***
+qentero16002 -0.101541   0.076138  -1.3336  0.182322    
+qentero16003  0.073127   0.074715   0.9787  0.327709    
+qentero16004  0.239223   0.076546   3.1252  0.001777 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Ages 0 - 4
+> age0to4ci <- mpreg(diarrheaci10~qentero1600,dat=ad[ad$agestrat=="(0, 4]",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.4067  -0.3691  -0.3678  -0.3341   1.9707  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -2.68649    0.14142 -18.996   <2e-16 ***
+qentero16002 -0.00724    0.18257  -0.040    0.968    
+qentero16003 -0.19947    0.18940  -1.053    0.292    
+qentero16004  0.19413    0.18116   1.072    0.284    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 1430.6  on 3914  degrees of freedom
+Residual deviance: 1425.1  on 3911  degrees of freedom
+AIC: 1965.1
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+               Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)  -2.6864860  0.1456816 -18.4408   <2e-16 ***
+qentero16002 -0.0072399  0.1884031  -0.0384   0.9693    
+qentero16003 -0.1994668  0.1968179  -1.0135   0.3108    
+qentero16004  0.1941286  0.1854554   1.0468   0.2952    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Ages 5 - 10
+> age5to10ci <- mpreg(diarrheaci10~qentero1600,dat=ad[ad$agestrat=="(4, 10]",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3135  -0.2842  -0.2842  -0.2334   2.2938  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.3791     0.1280 -26.392   <2e-16 ***
+qentero16002  -0.2244     0.1776  -1.264   0.2064    
+qentero16003   0.1698     0.1634   1.039   0.2989    
+qentero16004   0.3659     0.1594   2.296   0.0217 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 2195.5  on 8874  degrees of freedom
+Residual deviance: 2179.4  on 8871  degrees of freedom
+AIC: 2857.4
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+             Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)  -3.37910    0.13149 -25.6981  < 2e-16 ***
+qentero16002 -0.22442    0.19140  -1.1726  0.24097    
+qentero16003  0.16975    0.17075   0.9942  0.32014    
+qentero16004  0.36595    0.16627   2.2010  0.02774 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Ages >10
+> age11plusci <- mpreg(diarrheaci10~qentero1600,dat=ad[ad$agestrat==">10",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3172  -0.2976  -0.2848  -0.2673   2.1759  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.20505    0.06108 -52.469  < 2e-16 ***
+qentero16002 -0.12651    0.07934  -1.595  0.11082    
+qentero16003  0.08761    0.07783   1.126  0.26026    
+qentero16004  0.21545    0.08240   2.615  0.00893 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 8975.0  on 33733  degrees of freedom
+Residual deviance: 8952.7  on 33730  degrees of freedom
+AIC: 11791
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)  -3.205049   0.063983 -50.0920  < 2e-16 ***
+qentero16002 -0.126514   0.083734  -1.5109  0.13081    
+qentero16003  0.087614   0.082328   1.0642  0.28724    
+qentero16004  0.215452   0.086944   2.4781  0.01321 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Point source
+> psci <- mpreg(diarrheaci10~qentero1600,dat=ad[ad$pointsource=="Yes",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3350  -0.3350  -0.2960  -0.2554   2.2160  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.11425    0.10483 -29.708   <2e-16 ***
+qentero16002 -0.30854    0.12230  -2.523   0.0116 *  
+qentero16003 -0.01375    0.11485  -0.120   0.9047    
+qentero16004  0.23404    0.11459   2.042   0.0411 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 7872.7  on 28458  degrees of freedom
+Residual deviance: 7822.2  on 28455  degrees of freedom
+AIC: 10358
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)  -3.114248   0.112914 -27.5807  < 2e-16 ***
+qentero16002 -0.308540   0.134404  -2.2956  0.02170 *  
+qentero16003 -0.013749   0.124744  -0.1102  0.91224    
+qentero16004  0.234039   0.124662   1.8774  0.06046 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Non-point source
+> npsci <- mpreg(diarrheaci10~qentero1600,dat=ad[ad$pointsource=="No",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3035  -0.2911  -0.2911  -0.2838   2.2134  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.21191    0.05893 -54.508   <2e-16 ***
+qentero16002  0.05083    0.08305   0.612     0.54    
+qentero16003  0.13389    0.10206   1.312     0.19    
+qentero16004 -0.20489    0.14947  -1.371     0.17    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 4949.8  on 18781  degrees of freedom
+Residual deviance: 4944.8  on 18778  degrees of freedom
+AIC: 6506.8
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)  -3.211907   0.067371 -47.6752   <2e-16 ***
+qentero16002  0.050835   0.095126   0.5344   0.5931    
+qentero16003  0.133891   0.122524   1.0928   0.2745    
+qentero16004 -0.204891   0.167044  -1.2266   0.2200    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> 
+> 
+> # function to get Estimates and CIs from a linear combination of regression coefficients
+> lccalc <- function(lc,x,vcv) {
++ 	# lc : linear combination of coefficients
++ 	# x : log-linear model object returned from coeftest (class=coeftest)
++ 	# vcv : variance-covariance matrix of coefficients for robust SEs
++ 	est <- exp(t(lc)%*%x[,1])
++ 	se  <- sqrt( t(lc)%*%vcv%*%lc )
++ 	lb <- exp(log(est)-1.96*se)
++ 	ub <- exp(log(est)+1.96*se)
++ 	res <- c(est,lb,ub)
++ 	return(res)
++ }
+> getCI <- function(fit,vcv) {
++ 	# fit : an object returned from coeftest w/ 4 parameters corresponding to Q1-Q4 cumulative incidence
++ 	# vcv : variance-covariance matrix for coefficients in the fit object
++ 	lc1 <- lc2 <- lc3 <- lc4 <- rep(0,nrow(fit))
++ 	lc1[c(1)  ] <- 1
++ 	lc2[c(1,2)] <- 1
++ 	lc3[c(1,3)] <- 1
++ 	lc4[c(1,4)] <- 1
++ 	lcs <- list(lc1,lc2,lc3,lc4)
++ 	res <- t(sapply(lcs,lccalc,x=fit,vcv=vcv))
++ 	colnames(res) <- c("CI","CIlb","CIub")
++ 	rownames(res) <- paste("Q",1:4,sep="")
++ 	return(res)
++ }
+> 
+> 
+> 
+> ci.all    <- getCI(allci$fit,allci$vcovCL)
+> ci.0to4   <- getCI(age0to4ci$fit,age0to4ci$vcovCL)
+> ci.5to10  <- getCI(age5to10ci$fit,age5to10ci$vcovCL)
+> ci.11plus <- getCI(age11plusci$fit,age11plusci$vcovCL)
+> 
+> ci.ps  <- getCI(psci$fit,psci$vcovCL)
+> ci.nps <- getCI(npsci$fit,npsci$vcovCL)
+> 
+> 
+> # --------------------------------------
+> # Test for interaction (effect modification)
+> # by environmental conditions at
+> # Avalon and Doheny beaches
+> # --------------------------------------
+> 
+> # Avalon
+> # Above versus below median groundwater flow
+> # See Yau et al. 2014 Wat Res for details
+> av.h.noint <-glm(diarrheaci10~ qentero1600+groundwater +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,family=poisson(link="log"),data=ad[ad$beach=="Avalon",])
+> av.h <-glm(diarrheaci10~ qentero1600*groundwater +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,family=poisson(link="log"),data=ad[ad$beach=="Avalon",])
+> 	lrtest(av.h.noint,av.h)
+Likelihood ratio test
+
+Model 1: diarrheaci10 ~ qentero1600 + groundwater + agecat + female + 
+    racewhite + gichron + anim_any + gicontactbase + rawfood
+Model 2: diarrheaci10 ~ qentero1600 * groundwater + agecat + female + 
+    racewhite + gichron + anim_any + gicontactbase + rawfood
+  #Df  LogLik Df  Chisq Pr(>Chisq)  
+1  22 -776.85                       
+2  25 -773.45  3 6.7859    0.07905 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> # Doheny
+> # Sand berm open vs. closed
+> # See Colford et al. 2012 Wat Res for details
+> dh.h.noint <-glm(diarrheaci10~qentero1600+berm +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,family=poisson(link="log"),data=ad[ad$beach=="Doheny",])
+> dh.h <-glm(diarrheaci10~ qentero1600*berm +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,family=poisson(link="log"),data=ad[ad$beach=="Doheny",])
+> 	lrtest(dh.h.noint,dh.h)
+Likelihood ratio test
+
+Model 1: diarrheaci10 ~ qentero1600 + berm + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood
+Model 2: diarrheaci10 ~ qentero1600 * berm + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood
+  #Df  LogLik Df  Chisq Pr(>Chisq)  
+1  21 -720.83                       
+2  24 -716.13  3 9.3999    0.02442 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> # --------------------------------------
+> # Beach Specific Stratified Estimates
+> # --------------------------------------
+> 
+> # --------------------------------------
+> # Freshwater beaches
+> 
+> # Huntington
+> hufit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Huntington",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.8730  -0.4916  -0.4305  -0.3088   2.2614  
+
+Coefficients:
+                   Estimate Std. Error z value Pr(>|z|)    
+(Intercept)        -3.25212    0.64905  -5.011 5.43e-07 ***
+qentero16003        0.23287    0.33137   0.703   0.4822    
+qentero16004        0.42121    0.32616   1.291   0.1966    
+agecat5-14         -0.02508    0.38431  -0.065   0.9480    
+agecat15-24        -1.14391    0.66800  -1.712   0.0868 .  
+agecat25-34        -0.16597    0.47262  -0.351   0.7255    
+agecat35-44         0.34497    0.42147   0.818   0.4131    
+agecat45-54        -0.30116    0.56097  -0.537   0.5914    
+agecat55-64        -0.82512    1.05717  -0.781   0.4351    
+agecat65-74       -15.32973 1291.98277  -0.012   0.9905    
+agecat75+         -14.98168 3467.85856  -0.004   0.9966    
+agecatMissing       0.93490    0.78792   1.187   0.2354    
+female              0.17730    0.23426   0.757   0.4491    
+racewhiteYes        0.45840    0.47002   0.975   0.3294    
+racewhiteMissing  -14.41289 3467.85859  -0.004   0.9967    
+gichronYes        -15.14030  928.48797  -0.016   0.9870    
+anim_anyYes         0.29553    0.34628   0.853   0.3934    
+gicontactbaseYes    0.11381    0.72276   0.157   0.8749    
+rawfood             0.38152    0.36212   1.054   0.2921    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 340.98  on 740  degrees of freedom
+Residual deviance: 321.00  on 722  degrees of freedom
+AIC: 507
+
+Number of Fisher Scoring iterations: 15
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                   Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)       -3.252124   0.679478  -4.7862  1.7e-06 ***
+qentero16003       0.232868   0.338800   0.6873  0.49187    
+qentero16004       0.421210   0.341900   1.2320  0.21796    
+agecat5-14        -0.025081   0.369215  -0.0679  0.94584    
+agecat15-24       -1.143908   0.677577  -1.6882  0.09137 .  
+agecat25-34       -0.165967   0.487629  -0.3404  0.73359    
+agecat35-44        0.344970   0.401458   0.8593  0.39018    
+agecat45-54       -0.301164   0.568361  -0.5299  0.59619    
+agecat55-64       -0.825123   1.064532  -0.7751  0.43828    
+agecat65-74      -15.329731   0.606738 -25.2658  < 2e-16 ***
+agecat75+        -14.981682   1.111324 -13.4809  < 2e-16 ***
+agecatMissing      0.934904   0.922709   1.0132  0.31096    
+female             0.177300   0.216994   0.8171  0.41389    
+racewhiteYes       0.458396   0.561029   0.8171  0.41389    
+racewhiteMissing -14.412888   1.233008 -11.6892  < 2e-16 ***
+gichronYes       -15.140303   0.508427 -29.7787  < 2e-16 ***
+anim_anyYes        0.295526   0.436447   0.6771  0.49833    
+gicontactbaseYes   0.113809   0.694248   0.1639  0.86979    
+rawfood            0.381520   0.444302   0.8587  0.39051    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Silver
+> sifit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Silver",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7316  -0.3219  -0.2756  -0.2525   2.4524  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            -3.23766    0.47340  -6.839 7.96e-12 ***
+qentero16003           -0.12232    0.39561  -0.309   0.7572    
+qentero16004            0.04215    0.38747   0.109   0.9134    
+agecat5-14             -0.57919    0.21551  -2.688   0.0072 ** 
+agecat15-24            -0.71980    0.24573  -2.929   0.0034 ** 
+agecat25-34            -0.35933    0.25940  -1.385   0.1660    
+agecat35-44            -0.06000    0.22513  -0.266   0.7899    
+agecat45-54            -0.37191    0.28632  -1.299   0.1940    
+agecat55-64            -0.40035    0.41897  -0.956   0.3393    
+agecat65-74           -14.48199  541.74195  -0.027   0.9787    
+agecat75+             -14.84125 1955.76799  -0.008   0.9939    
+agecatMissing          -0.79308    0.44496  -1.782   0.0747 .  
+female                  0.16670    0.12989   1.283   0.1994    
+racewhiteYes            0.08991    0.20881   0.431   0.6668    
+racewhiteMissing        0.28043    1.02324   0.274   0.7840    
+gichronYes              0.56778    0.32919   1.725   0.0846 .  
+gichronMissing        -14.02304 1082.16328  -0.013   0.9897    
+anim_anyYes             0.37999    0.18421   2.063   0.0391 *  
+gicontactbaseYes        0.19822    0.26869   0.738   0.4607    
+gicontactbaseMissing    1.04481    1.01158   1.033   0.3017    
+rawfood                 0.13111    0.17272   0.759   0.4478    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 1520.8  on 5553  degrees of freedom
+Residual deviance: 1485.6  on 5533  degrees of freedom
+AIC: 2013.6
+
+Number of Fisher Scoring iterations: 15
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -3.237659   0.535752  -6.0432 1.511e-09 ***
+qentero16003          -0.122321   0.438618  -0.2789  0.780338    
+qentero16004           0.042148   0.428842   0.0983  0.921708    
+agecat5-14            -0.579194   0.221892  -2.6103  0.009047 ** 
+agecat15-24           -0.719798   0.250222  -2.8766  0.004019 ** 
+agecat25-34           -0.359326   0.272955  -1.3164  0.188031    
+agecat35-44           -0.059997   0.227348  -0.2639  0.791858    
+agecat45-54           -0.371906   0.288207  -1.2904  0.196907    
+agecat55-64           -0.400354   0.417552  -0.9588  0.337653    
+agecat65-74          -14.481988   0.270250 -53.5874 < 2.2e-16 ***
+agecat75+            -14.841248   0.692617 -21.4278 < 2.2e-16 ***
+agecatMissing         -0.793076   0.559022  -1.4187  0.155991    
+female                 0.166701   0.129900   1.2833  0.199385    
+racewhiteYes           0.089912   0.247989   0.3626  0.716931    
+racewhiteMissing       0.280430   0.864514   0.3244  0.745651    
+gichronYes             0.567784   0.325474   1.7445  0.081074 .  
+gichronMissing       -14.023042   0.591149 -23.7217 < 2.2e-16 ***
+anim_anyYes            0.379990   0.210728   1.8032  0.071352 .  
+gicontactbaseYes       0.198216   0.267244   0.7417  0.458267    
+gicontactbaseMissing   1.044805   0.692965   1.5077  0.131623    
+rawfood                0.131107   0.175737   0.7460  0.455644    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Washington Park
+> wpfit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Washington Park",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.8516  -0.3541  -0.3003  -0.2535   2.5947  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            -3.1394     0.3868  -8.116 4.84e-16 ***
+qentero16004            0.1283     0.1889   0.679   0.4970    
+agecat5-14             -0.5165     0.3111  -1.660   0.0968 .  
+agecat15-24            -1.2844     0.4850  -2.648   0.0081 ** 
+agecat25-34             0.2309     0.3294   0.701   0.4834    
+agecat35-44            -0.2083     0.3407  -0.611   0.5409    
+agecat45-54            -0.2962     0.3903  -0.759   0.4479    
+agecat55-64             0.5483     0.4020   1.364   0.1726    
+agecat65-74            -0.2801     1.0347  -0.271   0.7866    
+agecat75+             -14.4675  1411.5179  -0.010   0.9918    
+agecatMissing          -1.7515     1.0338  -1.694   0.0902 .  
+female                  0.1091     0.1804   0.605   0.5452    
+racewhiteYes            0.1086     0.2486   0.437   0.6621    
+racewhiteMissing      -11.8055  1352.3687  -0.009   0.9930    
+gichronYes              0.5059     0.4625   1.094   0.2740    
+gichronMissing        -13.1158  3467.8586  -0.004   0.9970    
+anim_anyYes             0.3197     0.2578   1.240   0.2149    
+gicontactbaseYes        0.7223     0.2903   2.489   0.0128 *  
+gicontactbaseMissing  -13.6731  1061.9471  -0.013   0.9897    
+rawfood                -0.2214     0.2819  -0.785   0.4322    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 733.22  on 2311  degrees of freedom
+Residual deviance: 692.58  on 2292  degrees of freedom
+AIC: 984.58
+
+Number of Fisher Scoring iterations: 15
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                      Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -3.13936    0.37320  -8.4119 < 2.2e-16 ***
+qentero16004           0.12832    0.22381   0.5734  0.566403    
+agecat5-14            -0.51648    0.30531  -1.6917  0.090705 .  
+agecat15-24           -1.28443    0.47591  -2.6989  0.006957 ** 
+agecat25-34            0.23089    0.30822   0.7491  0.453802    
+agecat35-44           -0.20829    0.33267  -0.6261  0.531238    
+agecat45-54           -0.29615    0.37120  -0.7978  0.424971    
+agecat55-64            0.54830    0.37039   1.4803  0.138784    
+agecat65-74           -0.28009    1.01932  -0.2748  0.783487    
+agecat75+            -14.46753    0.57731 -25.0604 < 2.2e-16 ***
+agecatMissing         -1.75154    1.00459  -1.7435  0.081238 .  
+female                 0.10914    0.16600   0.6575  0.510880    
+racewhiteYes           0.10864    0.26345   0.4124  0.680070    
+racewhiteMissing     -11.80555    0.88602 -13.3242 < 2.2e-16 ***
+gichronYes             0.50593    0.51771   0.9772  0.328447    
+gichronMissing       -13.11576    1.10985 -11.8176 < 2.2e-16 ***
+anim_anyYes            0.31973    0.26580   1.2029  0.229016    
+gicontactbaseYes       0.72233    0.29732   2.4295  0.015121 *  
+gicontactbaseMissing -13.67313    0.71959 -19.0012 < 2.2e-16 ***
+rawfood               -0.22144    0.27091  -0.8174  0.413693    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # West
+> wefit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="West",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.1108  -0.4149  -0.3295  -0.2595   2.4808  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            -3.4411     0.4390  -7.838 4.57e-15 ***
+qentero16002           -0.1383     0.3280  -0.422  0.67326    
+qentero16003            0.3697     0.2652   1.394  0.16343    
+qentero16004            0.3452     0.2803   1.232  0.21809    
+agecat5-14             -0.5960     0.3330  -1.790  0.07352 .  
+agecat15-24            -0.7990     0.3306  -2.417  0.01565 *  
+agecat25-34            -0.1073     0.3305  -0.325  0.74541    
+agecat35-44            -0.2391     0.3481  -0.687  0.49220    
+agecat45-54            -1.4433     0.5370  -2.688  0.00720 ** 
+agecat55-64           -15.0383   591.6405  -0.025  0.97972    
+agecat65-74            -0.1069     1.0429  -0.103  0.91835    
+agecat75+             -15.4013  2450.3603  -0.006  0.99499    
+agecatMissing         -14.5972  1657.6362  -0.009  0.99297    
+female                  0.1154     0.1826   0.632  0.52740    
+racewhiteYes            0.3397     0.2446   1.389  0.16497    
+racewhiteMissing        0.8422     0.7517   1.120  0.26255    
+gichronYes              1.1408     0.4731   2.412  0.01588 *  
+gichronMissing        -15.1605  3467.8586  -0.004  0.99651    
+anim_anyYes             0.7841     0.2616   2.998  0.00272 ** 
+gicontactbaseYes        1.3494     0.3386   3.986 6.73e-05 ***
+gicontactbaseMissing    1.6393     0.6287   2.607  0.00912 ** 
+rawfood                 0.6559     0.2389   2.745  0.00605 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 645.05  on 1649  degrees of freedom
+Residual deviance: 580.62  on 1628  degrees of freedom
+AIC: 874.62
+
+Number of Fisher Scoring iterations: 15
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                      Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -3.44113    0.47348  -7.2677 3.657e-13 ***
+qentero16002          -0.13831    0.36162  -0.3825 0.7021092    
+qentero16003           0.36966    0.28648   1.2904 0.1969281    
+qentero16004           0.34522    0.30572   1.1292 0.2588098    
+agecat5-14            -0.59595    0.34189  -1.7431 0.0813159 .  
+agecat15-24           -0.79899    0.33338  -2.3966 0.0165473 *  
+agecat25-34           -0.10731    0.31561  -0.3400 0.7338598    
+agecat35-44           -0.23911    0.33355  -0.7169 0.4734545    
+agecat45-54           -1.44329    0.52015  -2.7748 0.0055240 ** 
+agecat55-64          -15.03826    0.41691 -36.0704 < 2.2e-16 ***
+agecat65-74           -0.10692    0.83568  -0.1279 0.8981949    
+agecat75+            -15.40132    0.77397 -19.8990 < 2.2e-16 ***
+agecatMissing        -14.59716    0.64613 -22.5918 < 2.2e-16 ***
+female                 0.11539    0.16604   0.6950 0.4870847    
+racewhiteYes           0.33967    0.24207   1.4032 0.1605589    
+racewhiteMissing       0.84219    0.78650   1.0708 0.2842578    
+gichronYes             1.14080    0.34263   3.3295 0.0008700 ***
+gichronMissing       -15.16048    1.07900 -14.0505 < 2.2e-16 ***
+anim_anyYes            0.78407    0.26793   2.9264 0.0034290 ** 
+gicontactbaseYes       1.34943    0.35841   3.7651 0.0001665 ***
+gicontactbaseMissing   1.63931    0.45464   3.6057 0.0003113 ***
+rawfood                0.65585    0.25664   2.5555 0.0106022 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # --------------------------------------
+> # Marine beaches
+> 
+> # Avalon
+> avfit <- mpreg(diarrheaci10~qentero1600*groundwater +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Avalon",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9903  -0.3538  -0.2959  -0.2605   2.4738  
+
+Coefficients:
+                                           Estimate Std. Error z value Pr(>|z|)
+(Intercept)                                -2.29110    0.36570  -6.265 3.73e-10
+qentero16002                               -0.01880    0.75416  -0.025  0.98011
+qentero16003                                0.26770    0.30362   0.882  0.37793
+qentero16004                                0.10420    0.29227   0.357  0.72146
+groundwaterAbove median flow               -0.26437    0.35171  -0.752  0.45225
+agecat5-14                                 -1.07551    0.23621  -4.553 5.29e-06
+agecat15-24                                -1.20588    0.30599  -3.941 8.12e-05
+agecat25-34                                -0.76271    0.28703  -2.657  0.00788
+agecat35-44                                -0.42352    0.24613  -1.721  0.08531
+agecat45-54                                -0.77705    0.27286  -2.848  0.00440
+agecat55-64                                -1.26819    0.39009  -3.251  0.00115
+agecat65-74                                -1.13854    0.73561  -1.548  0.12168
+agecat75+                                 -14.16501  567.89877  -0.025  0.98010
+agecatMissing                             -14.20143  761.30107  -0.019  0.98512
+female                                     -0.07351    0.14029  -0.524  0.60026
+racewhiteYes                                0.01721    0.16764   0.103  0.91822
+racewhiteMissing                           -0.72608    0.72303  -1.004  0.31528
+gichronYes                                  0.81749    0.33115   2.469  0.01356
+anim_anyYes                                 0.11667    0.16179   0.721  0.47086
+gicontactbaseYes                            0.61863    0.22333   2.770  0.00561
+gicontactbaseMissing                       -0.47327    1.00622  -0.470  0.63811
+rawfood                                     0.32769    0.16655   1.968  0.04912
+qentero16002:groundwaterAbove median flow   0.10454    0.91024   0.115  0.90857
+qentero16003:groundwaterAbove median flow  -0.49242    0.45450  -1.083  0.27862
+qentero16004:groundwaterAbove median flow   0.39217    0.40167   0.976  0.32890
+                                             
+(Intercept)                               ***
+qentero16002                                 
+qentero16003                                 
+qentero16004                                 
+groundwaterAbove median flow                 
+agecat5-14                                ***
+agecat15-24                               ***
+agecat25-34                               ** 
+agecat35-44                               .  
+agecat45-54                               ** 
+agecat55-64                               ** 
+agecat65-74                                  
+agecat75+                                    
+agecatMissing                                
+female                                       
+racewhiteYes                                 
+racewhiteMissing                             
+gichronYes                                *  
+anim_anyYes                                  
+gicontactbaseYes                          ** 
+gicontactbaseMissing                         
+rawfood                                   *  
+qentero16002:groundwaterAbove median flow    
+qentero16003:groundwaterAbove median flow    
+qentero16004:groundwaterAbove median flow    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 1194.7  on 3742  degrees of freedom
+Residual deviance: 1134.9  on 3718  degrees of freedom
+AIC: 1596.9
+
+Number of Fisher Scoring iterations: 14
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                                            Estimate Std. Error  z value
+(Intercept)                                -2.291104   0.358062  -6.3986
+qentero16002                               -0.018802   0.769487  -0.0244
+qentero16003                                0.267704   0.309259   0.8656
+qentero16004                                0.104196   0.289233   0.3603
+groundwaterAbove median flow               -0.264371   0.357906  -0.7387
+agecat5-14                                 -1.075509   0.238175  -4.5156
+agecat15-24                                -1.205880   0.303252  -3.9765
+agecat25-34                                -0.762715   0.268137  -2.8445
+agecat35-44                                -0.423518   0.239381  -1.7692
+agecat45-54                                -0.777050   0.276108  -2.8143
+agecat55-64                                -1.268194   0.379262  -3.3438
+agecat65-74                                -1.138539   0.727988  -1.5640
+agecat75+                                 -14.165011   0.357485 -39.6241
+agecatMissing                             -14.201428   0.478138 -29.7015
+female                                     -0.073514   0.133686  -0.5499
+racewhiteYes                                0.017214   0.184938   0.0931
+racewhiteMissing                           -0.726077   0.684592  -1.0606
+gichronYes                                  0.817495   0.322924   2.5315
+anim_anyYes                                 0.116665   0.178465   0.6537
+gicontactbaseYes                            0.618634   0.244493   2.5303
+gicontactbaseMissing                       -0.473267   1.012447  -0.4674
+rawfood                                     0.327693   0.164820   1.9882
+qentero16002:groundwaterAbove median flow   0.104537   0.929066   0.1125
+qentero16003:groundwaterAbove median flow  -0.492418   0.479274  -1.0274
+qentero16004:groundwaterAbove median flow   0.392166   0.419497   0.9348
+                                           Pr(>|z|)    
+(Intercept)                               1.568e-10 ***
+qentero16002                              0.9805060    
+qentero16003                              0.3866929    
+qentero16004                              0.7186599    
+groundwaterAbove median flow              0.4601137    
+agecat5-14                                6.313e-06 ***
+agecat15-24                               6.994e-05 ***
+agecat25-34                               0.0044482 ** 
+agecat35-44                               0.0768568 .  
+agecat45-54                               0.0048884 ** 
+agecat55-64                               0.0008263 ***
+agecat65-74                               0.1178287    
+agecat75+                                 < 2.2e-16 ***
+agecatMissing                             < 2.2e-16 ***
+female                                    0.5823899    
+racewhiteYes                              0.9258420    
+racewhiteMissing                          0.2888728    
+gichronYes                                0.0113562 *  
+anim_anyYes                               0.5132966    
+gicontactbaseYes                          0.0113975 *  
+gicontactbaseMissing                      0.6401792    
+rawfood                                   0.0467904 *  
+qentero16002:groundwaterAbove median flow 0.9104126    
+qentero16003:groundwaterAbove median flow 0.3042201    
+qentero16004:groundwaterAbove median flow 0.3498664    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Boqueron
+> bofit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Boqueron",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.1514  -0.2496  -0.2210  -0.2030   2.5469  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            -3.11619    0.28035 -11.115  < 2e-16 ***
+qentero16002           -0.15092    0.23720  -0.636 0.524609    
+qentero16003            0.03349    0.23871   0.140 0.888413    
+qentero16004            0.17020    0.30959   0.550 0.582475    
+agecat5-14             -0.94556    0.21108  -4.480 7.48e-06 ***
+agecat15-24            -0.66860    0.20023  -3.339 0.000841 ***
+agecat25-34            -0.52708    0.19683  -2.678 0.007408 ** 
+agecat35-44            -0.76883    0.21242  -3.619 0.000295 ***
+agecat45-54            -0.75472    0.23182  -3.256 0.001131 ** 
+agecat55-64            -0.61492    0.28503  -2.157 0.030976 *  
+agecat65-74            -0.96171    0.47534  -2.023 0.043050 *  
+agecat75+             -13.35724  321.48238  -0.042 0.966858    
+agecatMissing          -0.71605    0.52488  -1.364 0.172494    
+female                  0.06612    0.10792   0.613 0.540100    
+racewhiteYes            0.83840    0.58208   1.440 0.149771    
+racewhiteMissing        2.40781    0.72087   3.340 0.000837 ***
+gichronYes              0.54781    0.20342   2.693 0.007081 ** 
+gichronMissing        -12.34687 2103.36254  -0.006 0.995316    
+anim_anyYes             0.21618    0.10966   1.971 0.048690 *  
+gicontactbaseYes        0.94797    0.17510   5.414 6.17e-08 ***
+gicontactbaseMissing  -12.81010 1202.07317  -0.011 0.991497    
+rawfood                 0.30908    0.13926   2.219 0.026457 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 2487.4  on 11878  degrees of freedom
+Residual deviance: 2398.7  on 11857  degrees of freedom
+AIC: 3150.7
+
+Number of Fisher Scoring iterations: 14
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -3.116194   0.296570 -10.5074 < 2.2e-16 ***
+qentero16002          -0.150917   0.254064  -0.5940  0.552504    
+qentero16003           0.033494   0.254494   0.1316  0.895291    
+qentero16004           0.170202   0.379254   0.4488  0.653590    
+agecat5-14            -0.945561   0.207934  -4.5474 5.431e-06 ***
+agecat15-24           -0.668601   0.206956  -3.2307  0.001235 ** 
+agecat25-34           -0.527082   0.188278  -2.7995  0.005118 ** 
+agecat35-44           -0.768833   0.210342  -3.6552  0.000257 ***
+agecat45-54           -0.754717   0.235852  -3.2000  0.001374 ** 
+agecat55-64           -0.614923   0.282285  -2.1784  0.029378 *  
+agecat65-74           -0.961714   0.470596  -2.0436  0.040992 *  
+agecat75+            -13.357241   0.232674 -57.4075 < 2.2e-16 ***
+agecatMissing         -0.716055   0.520644  -1.3753  0.169031    
+female                 0.066117   0.101734   0.6499  0.515756    
+racewhiteYes           0.838399   0.709768   1.1812  0.237511    
+racewhiteMissing       2.407814   0.614034   3.9213 8.807e-05 ***
+gichronYes             0.547811   0.202738   2.7021  0.006891 ** 
+gichronMissing       -12.346875   1.022059 -12.0804 < 2.2e-16 ***
+anim_anyYes            0.216178   0.123102   1.7561  0.079072 .  
+gicontactbaseYes       0.947968   0.182734   5.1877 2.129e-07 ***
+gicontactbaseMissing -12.810103   0.637479 -20.0950 < 2.2e-16 ***
+rawfood                0.309076   0.143300   2.1569  0.031017 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Doheny
+> dhfit <- mpreg(diarrheaci10~qentero1600*berm +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Doheny",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7161  -0.3218  -0.2676  -0.2278   2.6502  
+
+Coefficients:
+                        Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.839e+00  2.575e-01 -11.027  < 2e-16 ***
+qentero16002           1.458e-01  1.848e-01   0.789 0.430227    
+qentero16003           5.889e-01  2.401e-01   2.452 0.014201 *  
+qentero16004          -2.823e-01  5.914e-01  -0.477 0.633161    
+bermOpen              -5.972e-01  3.986e-01  -1.498 0.134107    
+agecat5-14            -8.932e-01  2.309e-01  -3.869 0.000109 ***
+agecat15-24           -8.555e-01  3.153e-01  -2.713 0.006669 ** 
+agecat25-34           -4.357e-01  2.948e-01  -1.478 0.139441    
+agecat35-44           -4.310e-01  2.647e-01  -1.628 0.103499    
+agecat45-54           -4.867e-01  3.000e-01  -1.622 0.104712    
+agecat55-64           -1.882e+00  7.358e-01  -2.558 0.010541 *  
+agecat65-74           -3.105e-01  1.020e+00  -0.304 0.760936    
+agecatMissing         -1.380e+01  5.507e+02  -0.025 0.980003    
+female                -9.385e-04  1.544e-01  -0.006 0.995150    
+racewhiteYes           2.201e-01  1.719e-01   1.280 0.200398    
+racewhiteMissing       9.166e-02  5.975e-01   0.153 0.878075    
+gichronYes             8.926e-01  3.933e-01   2.269 0.023248 *  
+anim_anyYes           -1.394e-01  1.954e-01  -0.713 0.475648    
+gicontactbaseYes       4.293e-01  3.025e-01   1.419 0.155836    
+gicontactbaseMissing   7.660e-01  4.579e-01   1.673 0.094354 .  
+rawfood                2.221e-01  1.895e-01   1.172 0.241137    
+qentero16002:bermOpen  9.078e-01  4.998e-01   1.816 0.069294 .  
+qentero16003:bermOpen -5.515e-01  7.310e-01  -0.754 0.450584    
+qentero16004:bermOpen  1.453e+00  7.874e-01   1.845 0.065070 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 1125.4  on 4149  degrees of freedom
+Residual deviance: 1074.3  on 4126  degrees of freedom
+AIC: 1480.3
+
+Number of Fisher Scoring iterations: 14
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                         Estimate  Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.8390e+00  2.5055e-01 -11.3309 < 2.2e-16 ***
+qentero16002           1.4575e-01  2.0138e-01   0.7238  0.469202    
+qentero16003           5.8888e-01  2.6694e-01   2.2061  0.027380 *  
+qentero16004          -2.8226e-01  5.8890e-01  -0.4793  0.631720    
+bermOpen              -5.9719e-01  4.4714e-01  -1.3356  0.181692    
+agecat5-14            -8.9320e-01  2.2609e-01  -3.9507 7.793e-05 ***
+agecat15-24           -8.5549e-01  3.0461e-01  -2.8085  0.004978 ** 
+agecat25-34           -4.3568e-01  2.7683e-01  -1.5738  0.115535    
+agecat35-44           -4.3098e-01  2.5216e-01  -1.7091  0.087427 .  
+agecat45-54           -4.8669e-01  2.8566e-01  -1.7037  0.088435 .  
+agecat55-64           -1.8817e+00  7.2460e-01  -2.5969  0.009407 ** 
+agecat65-74           -3.1048e-01  9.8650e-01  -0.3147  0.752968    
+agecatMissing         -1.3804e+01  3.8808e-01 -35.5701 < 2.2e-16 ***
+female                -9.3853e-04  1.5842e-01  -0.0059  0.995273    
+racewhiteYes           2.2007e-01  1.8758e-01   1.1732  0.240720    
+racewhiteMissing       9.1664e-02  5.7682e-01   0.1589  0.873739    
+gichronYes             8.9257e-01  3.6408e-01   2.4516  0.014222 *  
+anim_anyYes           -1.3941e-01  2.1058e-01  -0.6620  0.507969    
+gicontactbaseYes       4.2934e-01  3.0987e-01   1.3855  0.165888    
+gicontactbaseMissing   7.6596e-01  3.8170e-01   2.0067  0.044779 *  
+rawfood                2.2211e-01  1.9953e-01   1.1132  0.265619    
+qentero16002:bermOpen  9.0784e-01  6.0041e-01   1.5120  0.130528    
+qentero16003:bermOpen -5.5147e-01  7.6338e-01  -0.7224  0.470047    
+qentero16004:bermOpen  1.4526e+00  8.2389e-01   1.7632  0.077875 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Edgewater
+> edfit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Edgewater",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7820  -0.3799  -0.3063  -0.2416   2.3627  
+
+Coefficients:
+                   Estimate Std. Error z value Pr(>|z|)    
+(Intercept)        -3.36134    0.75130  -4.474 7.68e-06 ***
+qentero16002        0.54079    0.66779   0.810   0.4180    
+qentero16003        0.77468    0.61999   1.250   0.2115    
+qentero16004        1.33604    0.69949   1.910   0.0561 .  
+agecat5-14         -0.94746    0.60924  -1.555   0.1199    
+agecat15-24        -0.24649    0.54819  -0.450   0.6530    
+agecat25-34        -0.38224    0.56263  -0.679   0.4969    
+agecat35-44        -0.75672    0.64184  -1.179   0.2384    
+agecat45-54         0.25248    0.61871   0.408   0.6832    
+agecat55-64       -15.71949 1564.48127  -0.010   0.9920    
+agecat65-74         1.34277    1.14002   1.178   0.2389    
+agecat75+         -15.92030 5717.53216  -0.003   0.9978    
+agecatMissing     -15.82864 1297.37573  -0.012   0.9903    
+female             -0.09098    0.31183  -0.292   0.7705    
+racewhiteYes        0.31357    0.37979   0.826   0.4090    
+gichronYes          1.01922    0.74714   1.364   0.1725    
+gichronMissing    -16.27766 5717.53217  -0.003   0.9977    
+anim_anyYes         0.12470    0.37440   0.333   0.7391    
+gicontactbaseYes    0.73960    0.54118   1.367   0.1717    
+rawfood            -0.30450    0.43522  -0.700   0.4841    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 242.47  on 720  degrees of freedom
+Residual deviance: 222.36  on 701  degrees of freedom
+AIC: 348.36
+
+Number of Fisher Scoring iterations: 16
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                   Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)       -3.361336   0.789541  -4.2573 2.069e-05 ***
+qentero16002       0.540787   0.638108   0.8475   0.39673    
+qentero16003       0.774680   0.600158   1.2908   0.19678    
+qentero16004       1.336039   0.671482   1.9897   0.04663 *  
+agecat5-14        -0.947465   0.601065  -1.5763   0.11495    
+agecat15-24       -0.246493   0.538902  -0.4574   0.64738    
+agecat25-34       -0.382243   0.562036  -0.6801   0.49644    
+agecat35-44       -0.756722   0.636745  -1.1884   0.23467    
+agecat45-54        0.252482   0.587514   0.4297   0.66738    
+agecat55-64      -15.719490   0.535690 -29.3444 < 2.2e-16 ***
+agecat65-74        1.342766   0.921431   1.4573   0.14504    
+agecat75+        -15.920302   1.088184 -14.6302 < 2.2e-16 ***
+agecatMissing    -15.828643   0.597915 -26.4731 < 2.2e-16 ***
+female            -0.090984   0.304654  -0.2986   0.76521    
+racewhiteYes       0.313569   0.393588   0.7967   0.42563    
+gichronYes         1.019219   0.611413   1.6670   0.09552 .  
+gichronMissing   -16.277657   1.208806 -13.4659 < 2.2e-16 ***
+anim_anyYes        0.124698   0.383490   0.3252   0.74506    
+gicontactbaseYes   0.739598   0.513020   1.4417   0.14940    
+rawfood           -0.304502   0.427670  -0.7120   0.47646    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Fairhope
+> fafit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Fairhope",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9811  -0.3700  -0.3147  -0.2721   2.2200  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            -2.0816     0.5374  -3.873 0.000107 ***
+qentero16003           -0.7276     0.4143  -1.756 0.079026 .  
+qentero16004           -0.3211     0.4060  -0.791 0.429048    
+agecat5-14             -0.6148     0.3738  -1.645 0.100011    
+agecat15-24            -0.6496     0.5310  -1.223 0.221209    
+agecat25-34            -0.5059     0.4762  -1.062 0.288077    
+agecat35-44            -0.4843     0.5855  -0.827 0.408143    
+agecat45-54            -0.5098     0.6489  -0.786 0.432042    
+agecat55-64            -0.1952     1.0523  -0.185 0.852875    
+agecat65-74             0.4651     1.0493   0.443 0.657542    
+agecat75+             -12.6208   902.0943  -0.014 0.988838    
+female                  0.2834     0.2871   0.987 0.323576    
+racewhiteYes           -0.2914     0.3463  -0.842 0.400034    
+gichronYes              0.7715     1.0304   0.749 0.454008    
+anim_anyYes             0.1353     0.3524   0.384 0.700895    
+gicontactbaseYes        1.3548     0.4581   2.957 0.003104 ** 
+gicontactbaseMissing  -12.0068  1275.7543  -0.009 0.992491    
+rawfood                 0.1892     0.3863   0.490 0.624332    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 281.80  on 807  degrees of freedom
+Residual deviance: 266.31  on 790  degrees of freedom
+AIC: 404.31
+
+Number of Fisher Scoring iterations: 13
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                      Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.08156    0.53019  -3.9260 8.636e-05 ***
+qentero16003          -0.72758    0.41736  -1.7433   0.08128 .  
+qentero16004          -0.32107    0.42773  -0.7507   0.45286    
+agecat5-14            -0.61483    0.36808  -1.6704   0.09485 .  
+agecat15-24           -0.64955    0.51900  -1.2516   0.21073    
+agecat25-34           -0.50591    0.43032  -1.1757   0.23972    
+agecat35-44           -0.48432    0.53418  -0.9067   0.36458    
+agecat45-54           -0.50984    0.64526  -0.7901   0.42945    
+agecat55-64           -0.19516    1.12992  -0.1727   0.86287    
+agecat65-74            0.46514    0.94732   0.4910   0.62342    
+agecat75+            -12.62079    0.81239 -15.5354 < 2.2e-16 ***
+female                 0.28344    0.28961   0.9787   0.32773    
+racewhiteYes          -0.29144    0.34484  -0.8451   0.39803    
+gichronYes             0.77153    0.95856   0.8049   0.42089    
+anim_anyYes            0.13534    0.35828   0.3778   0.70561    
+gicontactbaseYes       1.35480    0.52994   2.5565   0.01057 *  
+gicontactbaseMissing -12.00685    1.60819  -7.4661 8.262e-14 ***
+rawfood                0.18918    0.44425   0.4258   0.67022    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Goddard
+> gdfit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Goddard",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.6356  -0.3243  -0.2586  -0.2186   2.7076  
+
+Coefficients:
+                   Estimate Std. Error z value Pr(>|z|)    
+(Intercept)      -2.790e+00  4.920e-01  -5.670 1.42e-08 ***
+qentero16002     -9.384e-03  3.699e-01  -0.025   0.9798    
+qentero16003     -6.106e-02  4.671e-01  -0.131   0.8960    
+qentero16004     -1.558e+01  4.283e+03  -0.004   0.9971    
+agecat5-14       -8.531e-01  4.736e-01  -1.801   0.0717 .  
+agecat15-24      -8.990e-01  6.099e-01  -1.474   0.1405    
+agecat25-34      -3.459e-01  4.870e-01  -0.710   0.4775    
+agecat35-44      -4.169e-01  4.937e-01  -0.844   0.3984    
+agecat45-54      -2.105e+00  1.062e+00  -1.983   0.0474 *  
+agecat55-64      -1.593e+00  1.064e+00  -1.498   0.1342    
+agecat65-74      -3.006e-01  1.077e+00  -0.279   0.7801    
+agecat75+        -1.677e+01  5.435e+03  -0.003   0.9975    
+agecatMissing    -1.669e+01  2.846e+03  -0.006   0.9953    
+female            2.001e-01  3.187e-01   0.628   0.5302    
+racewhiteYes      1.812e-01  3.535e-01   0.513   0.6082    
+racewhiteMissing  1.657e-01  7.239e+03   0.000   1.0000    
+gichronYes        9.162e-01  7.518e-01   1.219   0.2230    
+anim_anyYes      -8.145e-02  3.524e-01  -0.231   0.8172    
+gicontactbaseYes -1.609e+01  1.257e+03  -0.013   0.9898    
+rawfood           4.005e-01  3.607e-01   1.110   0.2669    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 270.47  on 1050  degrees of freedom
+Residual deviance: 251.93  on 1031  degrees of freedom
+AIC: 375.93
+
+Number of Fisher Scoring iterations: 17
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                    Estimate  Std. Error  z value  Pr(>|z|)    
+(Intercept)       -2.7898599   0.6061018  -4.6030 4.165e-06 ***
+qentero16002      -0.0093838   0.4627051  -0.0203   0.98382    
+qentero16003      -0.0610569   0.5426473  -0.1125   0.91041    
+qentero16004     -15.5795733   1.1212966 -13.8942 < 2.2e-16 ***
+agecat5-14        -0.8530916   0.4516647  -1.8888   0.05892 .  
+agecat15-24       -0.8989922   0.5985432  -1.5020   0.13311    
+agecat25-34       -0.3459324   0.4190867  -0.8254   0.40912    
+agecat35-44       -0.4169088   0.4640176  -0.8985   0.36893    
+agecat45-54       -2.1049927   1.0747080  -1.9587   0.05015 .  
+agecat55-64       -1.5931146   1.0788535  -1.4767   0.13976    
+agecat65-74       -0.3005835   1.0746016  -0.2797   0.77970    
+agecat75+        -16.7653554   0.7912954 -21.1872 < 2.2e-16 ***
+agecatMissing    -16.6897237   0.6163926 -27.0764 < 2.2e-16 ***
+female             0.2000789   0.2870325   0.6971   0.48577    
+racewhiteYes       0.1812301   0.3991168   0.4541   0.64977    
+racewhiteMissing   0.1657488   1.1751410   0.1410   0.88783    
+gichronYes         0.9162126   0.6959244   1.3165   0.18799    
+anim_anyYes       -0.0814473   0.4050799  -0.2011   0.84065    
+gicontactbaseYes -16.0859827   0.3051085 -52.7222 < 2.2e-16 ***
+rawfood            0.4004833   0.3928685   1.0194   0.30802    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Warning message:
+glm.fit: fitted rates numerically 0 occurred 
+> 
+> # Malibu
+> mafit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Malibu",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7629  -0.3341  -0.3029  -0.2649   2.6974  
+
+Coefficients:
+                   Estimate Std. Error z value Pr(>|z|)    
+(Intercept)        -2.91575    0.31123  -9.368  < 2e-16 ***
+qentero16002        0.27415    0.18840   1.455  0.14563    
+qentero16003        0.55634    0.40540   1.372  0.16996    
+qentero16004       -1.08146    1.01065  -1.070  0.28459    
+agecat5-14         -0.46900    0.31568  -1.486  0.13737    
+agecat15-24        -0.44319    0.35829  -1.237  0.21611    
+agecat25-34        -0.37171    0.34890  -1.065  0.28670    
+agecat35-44        -0.08907    0.33149  -0.269  0.78816    
+agecat45-54        -0.52816    0.40466  -1.305  0.19182    
+agecat55-64        -0.53436    0.57071  -0.936  0.34911    
+agecat65-74       -14.73321  716.05974  -0.021  0.98358    
+agecat75+         -14.66820 1545.04482  -0.009  0.99243    
+female              0.03372    0.18312   0.184  0.85390    
+racewhiteYes        0.09380    0.19391   0.484  0.62858    
+racewhiteMissing   -0.97346    0.72534  -1.342  0.17957    
+gichronYes          1.23388    0.42927   2.874  0.00405 ** 
+anim_anyYes        -0.16211    0.23556  -0.688  0.49134    
+gicontactbaseYes    0.10118    0.42115   0.240  0.81013    
+rawfood             0.26239    0.21430   1.224  0.22080    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 741.11  on 2501  degrees of freedom
+Residual deviance: 717.40  on 2483  degrees of freedom
+AIC: 1001.4
+
+Number of Fisher Scoring iterations: 15
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                   Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)       -2.915746   0.332840  -8.7602 < 2.2e-16 ***
+qentero16002       0.274150   0.210585   1.3019  0.192967    
+qentero16003       0.556336   0.400114   1.3904  0.164394    
+qentero16004      -1.081463   1.023140  -1.0570  0.290510    
+agecat5-14        -0.469000   0.321407  -1.4592  0.144508    
+agecat15-24       -0.443187   0.356132  -1.2444  0.213336    
+agecat25-34       -0.371713   0.343166  -1.0832  0.278724    
+agecat35-44       -0.089073   0.310736  -0.2867  0.774378    
+agecat45-54       -0.528163   0.400246  -1.3196  0.186971    
+agecat55-64       -0.534358   0.551082  -0.9697  0.332219    
+agecat65-74      -14.733214   0.439035 -33.5582 < 2.2e-16 ***
+agecat75+        -14.668203   0.789495 -18.5792 < 2.2e-16 ***
+female             0.033721   0.179213   0.1882  0.850752    
+racewhiteYes       0.093802   0.208319   0.4503  0.652507    
+racewhiteMissing  -0.973456   0.722900  -1.3466  0.178110    
+gichronYes         1.233884   0.418076   2.9513  0.003164 ** 
+anim_anyYes       -0.162109   0.234756  -0.6905  0.489854    
+gicontactbaseYes   0.101182   0.431560   0.2345  0.814631    
+rawfood            0.262389   0.221043   1.1870  0.235208    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Mission Bay
+> mbfit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Mission Bay",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+     Min        1Q    Median        3Q       Max  
+-0.72945  -0.29102  -0.24188  -0.00006   2.58377  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            -2.57135    0.29071  -8.845  < 2e-16 ***
+qentero16002           -0.23141    0.27516  -0.841 0.400333    
+qentero16003           -0.08246    0.25281  -0.326 0.744283    
+qentero16004           -0.18377    0.27646  -0.665 0.506226    
+agecat5-14             -0.63354    0.23338  -2.715 0.006636 ** 
+agecat15-24            -0.63932    0.35581  -1.797 0.072366 .  
+agecat25-34            -0.29666    0.29894  -0.992 0.321018    
+agecat35-44            -0.59050    0.34086  -1.732 0.083208 .  
+agecat45-54            -0.06296    0.39282  -0.160 0.872656    
+agecat55-64           -17.34238 2479.75309  -0.007 0.994420    
+agecat65-74           -17.24383 4164.96370  -0.004 0.996697    
+agecat75+             -17.39661 7727.34247  -0.002 0.998204    
+agecatMissing          -1.52194    1.01763  -1.496 0.134764    
+female                 -0.08551    0.17469  -0.490 0.624478    
+racewhiteYes            0.69123    0.20951   3.299 0.000969 ***
+racewhiteMissing      -16.99189  441.74706  -0.038 0.969317    
+gichronYes              0.70147    0.52137   1.345 0.178484    
+anim_anyYes             0.33400    0.20509   1.629 0.103409    
+gicontactbaseYes        0.29311    0.51263   0.572 0.567472    
+gicontactbaseMissing    0.37598    0.42407   0.887 0.375302    
+rawfood                -0.57846    0.20702  -2.794 0.005203 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 917.98  on 4193  degrees of freedom
+Residual deviance: 782.53  on 4173  degrees of freedom
+AIC: 1090.5
+
+Number of Fisher Scoring iterations: 18
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                       Estimate Std. Error   z value  Pr(>|z|)    
+(Intercept)           -2.571347   0.315469   -8.1509 3.613e-16 ***
+qentero16002          -0.231414   0.311768   -0.7423  0.457928    
+qentero16003          -0.082462   0.295959   -0.2786  0.780531    
+qentero16004          -0.183768   0.303228   -0.6060  0.544489    
+agecat5-14            -0.633536   0.271059   -2.3373  0.019425 *  
+agecat15-24           -0.639320   0.383319   -1.6679  0.095345 .  
+agecat25-34           -0.296656   0.293156   -1.0119  0.311568    
+agecat35-44           -0.590503   0.343254   -1.7203  0.085376 .  
+agecat45-54           -0.062963   0.439000   -0.1434  0.885956    
+agecat55-64          -17.342380   0.336044  -51.6075 < 2.2e-16 ***
+agecat65-74          -17.243829   0.472873  -36.4661 < 2.2e-16 ***
+agecat75+            -17.396614   0.568728  -30.5886 < 2.2e-16 ***
+agecatMissing         -1.521940   0.990088   -1.5372  0.124250    
+female                -0.085515   0.158997   -0.5378  0.590689    
+racewhiteYes           0.691227   0.247937    2.7879  0.005305 ** 
+racewhiteMissing     -16.991894   0.140015 -121.3581 < 2.2e-16 ***
+gichronYes             0.701475   0.544019    1.2894  0.197249    
+anim_anyYes            0.334001   0.242903    1.3750  0.169119    
+gicontactbaseYes       0.293110   0.426471    0.6873  0.491899    
+gicontactbaseMissing   0.375975   0.403659    0.9314  0.351637    
+rawfood               -0.578457   0.208126   -2.7794  0.005447 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Warning message:
+glm.fit: fitted rates numerically 0 occurred 
+> 
+> # Surfside
+> sufit <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood,dat=ad[ad$beach=="Surfside",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7332  -0.3155  -0.2715  -0.2323   2.5624  
+
+Coefficients:
+                  Estimate Std. Error z value Pr(>|z|)    
+(Intercept)       -3.47568    0.36628  -9.489  < 2e-16 ***
+qentero16002      -0.06174    0.12221  -0.505  0.61341    
+qentero16003       0.24480    0.15259   1.604  0.10865    
+qentero16004       0.23021    0.32834   0.701  0.48323    
+agecat5-14        -0.75766    0.23839  -3.178  0.00148 ** 
+agecat15-24       -0.71728    0.24230  -2.960  0.00307 ** 
+agecat25-34       -0.17118    0.23372  -0.732  0.46390    
+agecat35-44       -0.34759    0.23088  -1.506  0.13219    
+agecat45-54       -0.47208    0.23579  -2.002  0.04527 *  
+agecat55-64       -0.26831    0.26421  -1.016  0.30985    
+agecat65-74      -14.58885  284.91912  -0.051  0.95916    
+agecat75+         -0.57123    1.01940  -0.560  0.57523    
+agecatMissing      0.35742    0.42349   0.844  0.39867    
+female             0.08626    0.10983   0.785  0.43224    
+racewhiteYes       0.53444    0.30883   1.731  0.08353 .  
+racewhiteMissing -14.34811  835.16436  -0.017  0.98629    
+gichronYes         1.02207    0.21250   4.810 1.51e-06 ***
+anim_anyYes        0.02604    0.13585   0.192  0.84800    
+gicontactbaseYes   0.63371    0.19569   3.238  0.00120 ** 
+rawfood            0.35482    0.12054   2.944  0.00325 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 2150.7  on 7935  degrees of freedom
+Residual deviance: 2062.7  on 7916  degrees of freedom
+AIC: 2786.7
+
+Number of Fisher Scoring iterations: 15
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                   Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)       -3.475682   0.430857  -8.0669 7.211e-16 ***
+qentero16002      -0.061743   0.138459  -0.4459  0.655648    
+qentero16003       0.244802   0.181561   1.3483  0.177557    
+qentero16004       0.230207   0.319393   0.7208  0.471054    
+agecat5-14        -0.757656   0.256988  -2.9482  0.003196 ** 
+agecat15-24       -0.717283   0.243078  -2.9508  0.003169 ** 
+agecat25-34       -0.171181   0.224340  -0.7630  0.445437    
+agecat35-44       -0.347591   0.234581  -1.4818  0.138406    
+agecat45-54       -0.472083   0.233999  -2.0175  0.043648 *  
+agecat55-64       -0.268313   0.262989  -1.0202  0.307612    
+agecat65-74      -14.588854   0.223019 -65.4153 < 2.2e-16 ***
+agecat75+         -0.571230   0.997709  -0.5725  0.566955    
+agecatMissing      0.357422   0.630065   0.5673  0.570525    
+female             0.086257   0.104213   0.8277  0.407841    
+racewhiteYes       0.534438   0.373461   1.4310  0.152419    
+racewhiteMissing -14.348109   0.861288 -16.6589 < 2.2e-16 ***
+gichronYes         1.022075   0.195809   5.2198 1.792e-07 ***
+anim_anyYes        0.026040   0.155674   0.1673  0.867158    
+gicontactbaseYes   0.633711   0.224169   2.8269  0.004700 ** 
+rawfood            0.354823   0.123936   2.8630  0.004197 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # --------------------------------------
+> # Pooled estimates
+> # (can't use the mpreg fn because we 
+> # need the actual glm returned object 
+> # for the LR tests)
+> 
+> # all beaches
+> all.fit <- glm(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,family=poisson(link="log"),data=ad)
+> 	all.VC <- cl(ad,fm=all.fit,cluster=ad$hhid)
+> 	overall.fit <- coeftest(all.fit, all.VC)
+> 	summary(all.fit)
+
+Call:
+glm(formula = diarrheaci10 ~ qentero1600 + agecat + female + 
+    racewhite + gichron + anim_any + gicontactbase + rawfood + 
+    beach, family = poisson(link = "log"), data = ad)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9417  -0.3162  -0.2704  -0.2314   2.8845  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.94753    0.12456 -23.664  < 2e-16 ***
+qentero16002           0.03465    0.06993   0.496 0.620224    
+qentero16003           0.18499    0.07499   2.467 0.013629 *  
+qentero16004           0.27887    0.08417   3.313 0.000923 ***
+agecat5-14            -0.70765    0.07683  -9.210  < 2e-16 ***
+agecat15-24           -0.72068    0.08771  -8.217  < 2e-16 ***
+agecat25-34           -0.31429    0.08359  -3.760 0.000170 ***
+agecat35-44           -0.34115    0.08229  -4.146 3.38e-05 ***
+agecat45-54           -0.51666    0.09399  -5.497 3.86e-08 ***
+agecat55-64           -0.55147    0.12657  -4.357 1.32e-05 ***
+agecat65-74           -1.08084    0.28508  -3.791 0.000150 ***
+agecat75+             -1.99834    1.00220  -1.994 0.046156 *  
+agecatMissing         -0.56193    0.21020  -2.673 0.007510 ** 
+female                 0.05590    0.04458   1.254 0.209836    
+racewhiteYes           0.23620    0.06753   3.498 0.000469 ***
+racewhiteMissing      -1.43228    0.27704  -5.170 2.34e-07 ***
+gichronYes             0.73775    0.10239   7.205 5.81e-13 ***
+gichronMissing        -9.85384  115.98976  -0.085 0.932298    
+anim_anyYes            0.17649    0.05290   3.336 0.000849 ***
+gicontactbaseYes       0.62944    0.08187   7.689 1.49e-14 ***
+gicontactbaseMissing   0.50045    0.25408   1.970 0.048879 *  
+rawfood                0.19355    0.05546   3.490 0.000483 ***
+beachBoqueron         -0.42368    0.11095  -3.819 0.000134 ***
+beachDoheny           -0.05558    0.10967  -0.507 0.612300    
+beachEdgewater         0.09009    0.17175   0.525 0.599908    
+beachFairhope          0.04030    0.15976   0.252 0.800850    
+beachGoddard          -0.26158    0.17558  -1.490 0.136277    
+beachHuntington        0.48619    0.14030   3.465 0.000530 ***
+beachMalibu            0.10139    0.12282   0.825 0.409101    
+beachMission Bay      -0.16052    0.12251  -1.310 0.190105    
+beachSilver           -0.40286    0.10066  -4.002 6.28e-05 ***
+beachSurfside         -0.25707    0.10089  -2.548 0.010828 *  
+beachWashington Park  -0.17390    0.11822  -1.471 0.141283    
+beachWest              0.33238    0.11822   2.811 0.004932 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 12825  on 47240  degrees of freedom
+Residual deviance: 12311  on 47207  degrees of freedom
+AIC: 16461
+
+Number of Fisher Scoring iterations: 11
+
+> 	overall.fit
+
+z test of coefficients:
+
+                      Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)          -2.947530   0.136609 -21.5765 < 2.2e-16 ***
+qentero16002          0.034653   0.079253   0.4372 0.6619371    
+qentero16003          0.184995   0.085415   2.1658 0.0303238 *  
+qentero16004          0.278874   0.093862   2.9711 0.0029673 ** 
+agecat5-14           -0.707647   0.079379  -8.9148 < 2.2e-16 ***
+agecat15-24          -0.720680   0.088587  -8.1352 4.111e-16 ***
+agecat25-34          -0.314295   0.081245  -3.8685 0.0001095 ***
+agecat35-44          -0.341149   0.081388  -4.1916 2.770e-05 ***
+agecat45-54          -0.516661   0.094563  -5.4637 4.664e-08 ***
+agecat55-64          -0.551466   0.125495  -4.3943 1.111e-05 ***
+agecat65-74          -1.080835   0.282541  -3.8254 0.0001306 ***
+agecat75+            -1.998344   0.999051  -2.0002 0.0454741 *  
+agecatMissing        -0.561931   0.274987  -2.0435 0.0410047 *  
+female                0.055900   0.042484   1.3158 0.1882467    
+racewhiteYes          0.236196   0.077989   3.0286 0.0024570 ** 
+racewhiteMissing     -1.432275   0.312644  -4.5812 4.624e-06 ***
+gichronYes            0.737745   0.099749   7.3960 1.403e-13 ***
+gichronMissing       -9.853839   0.351899 -28.0019 < 2.2e-16 ***
+anim_anyYes           0.176493   0.058249   3.0300 0.0024456 ** 
+gicontactbaseYes      0.629442   0.088385   7.1216 1.067e-12 ***
+gicontactbaseMissing  0.500447   0.233929   2.1393 0.0324105 *  
+rawfood               0.193553   0.058773   3.2932 0.0009905 ***
+beachBoqueron        -0.423683   0.128646  -3.2934 0.0009898 ***
+beachDoheny          -0.055581   0.121918  -0.4559 0.6484697    
+beachEdgewater        0.090090   0.185149   0.4866 0.6265558    
+beachFairhope         0.040300   0.180266   0.2236 0.8230996    
+beachGoddard         -0.261583   0.207358  -1.2615 0.2071277    
+beachHuntington       0.486195   0.157513   3.0867 0.0020239 ** 
+beachMalibu           0.101388   0.133562   0.7591 0.4477895    
+beachMission Bay     -0.160523   0.154457  -1.0393 0.2986753    
+beachSilver          -0.402855   0.110532  -3.6447 0.0002677 ***
+beachSurfside        -0.257075   0.113231  -2.2704 0.0231858 *  
+beachWashington Park -0.173905   0.135341  -1.2849 0.1988133    
+beachWest             0.332375   0.133056   2.4980 0.0124896 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Interaction model with fresh v. marine beaches
+> mf.ref <- glm(diarrheaci10~qentero1600 +marine +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,family=poisson(link="log"),data=ad)
+> mf.fit <- glm(diarrheaci10~qentero1600*marine +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,family=poisson(link="log"),data=ad)
+> 	# commented out robust SE calcs b/c not used
+> 	# mf.VC <- cl(ad,fm=mf.fit,cluster=ad$hhid)
+> 	# mf.head <- coeftest(mf.fit, mf.VC)
+> 	summary(mf.fit) 
+
+Call:
+glm(formula = diarrheaci10 ~ qentero1600 * marine + agecat + 
+    female + racewhite + gichron + anim_any + gicontactbase + 
+    rawfood + beach, family = poisson(link = "log"), data = ad)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9444  -0.3169  -0.2713  -0.2322   2.8812  
+
+Coefficients: (1 not defined because of singularities)
+                        Estimate Std. Error z value Pr(>|z|)    
+(Intercept)             -2.55142    0.22351 -11.415  < 2e-16 ***
+qentero16002            -0.14839    0.27043  -0.549 0.583183    
+qentero16003             0.12467    0.23428   0.532 0.594632    
+qentero16004             0.23528    0.23498   1.001 0.316691    
+marineYes               -0.38614    0.22871  -1.688 0.091349 .  
+agecat5-14              -0.70835    0.07684  -9.219  < 2e-16 ***
+agecat15-24             -0.72108    0.08773  -8.220  < 2e-16 ***
+agecat25-34             -0.31486    0.08360  -3.766 0.000166 ***
+agecat35-44             -0.34215    0.08230  -4.157 3.22e-05 ***
+agecat45-54             -0.51779    0.09401  -5.508 3.63e-08 ***
+agecat55-64             -0.55225    0.12657  -4.363 1.28e-05 ***
+agecat65-74             -1.08044    0.28508  -3.790 0.000151 ***
+agecat75+               -1.99814    1.00220  -1.994 0.046180 *  
+agecatMissing           -0.56284    0.21020  -2.678 0.007415 ** 
+female                   0.05606    0.04458   1.258 0.208538    
+racewhiteYes             0.23519    0.06753   3.483 0.000496 ***
+racewhiteMissing        -1.43011    0.27706  -5.162 2.45e-07 ***
+gichronYes               0.73722    0.10242   7.198 6.12e-13 ***
+gichronMissing          -9.85934  115.84983  -0.085 0.932178    
+anim_anyYes              0.17710    0.05289   3.348 0.000813 ***
+gicontactbaseYes         0.62891    0.08187   7.681 1.57e-14 ***
+gicontactbaseMissing     0.49364    0.25465   1.939 0.052561 .  
+rawfood                  0.19366    0.05547   3.491 0.000481 ***
+beachBoqueron           -0.44086    0.11416  -3.862 0.000113 ***
+beachDoheny             -0.06845    0.11219  -0.610 0.541775    
+beachEdgewater           0.07720    0.17351   0.445 0.656373    
+beachFairhope            0.03645    0.15997   0.228 0.819759    
+beachGoddard            -0.27921    0.17779  -1.570 0.116312    
+beachHuntington          0.17069    0.15381   1.110 0.267093    
+beachMalibu              0.08635    0.12543   0.688 0.491146    
+beachMission Bay        -0.16859    0.12322  -1.368 0.171239    
+beachSilver             -0.74559    0.12347  -6.039 1.55e-09 ***
+beachSurfside           -0.27214    0.10412  -2.614 0.008954 ** 
+beachWashington Park    -0.51961    0.13885  -3.742 0.000182 ***
+beachWest                     NA         NA      NA       NA    
+qentero16002:marineYes   0.19791    0.28000   0.707 0.479666    
+qentero16003:marineYes   0.06412    0.24795   0.259 0.795929    
+qentero16004:marineYes   0.02314    0.25538   0.091 0.927791    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 12825  on 47240  degrees of freedom
+Residual deviance: 12310  on 47204  degrees of freedom
+AIC: 16466
+
+Number of Fisher Scoring iterations: 11
+
+> 	lrtest(mf.ref,mf.fit)
+Likelihood ratio test
+
+Model 1: diarrheaci10 ~ qentero1600 + marine + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach
+Model 2: diarrheaci10 ~ qentero1600 * marine + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach
+  #Df  LogLik Df  Chisq Pr(>Chisq)
+1  34 -8196.5                     
+2  37 -8196.1  3 0.8524     0.8369
+> 	
+> 
+> # Interaction model with point v. non-point source beaches
+> ps.ref <- glm(diarrheaci10~qentero1600 +pointsource +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,family=poisson(link="log"),data=ad)
+> ps.fit <- glm(diarrheaci10~qentero1600*pointsource +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,family=poisson(link="log"),data=ad)
+> 	# commented out robust SE calcs b/c not used
+> 	# ps.VC <- cl(ad,fm=ps.fit,cluster=ad$hhid)
+> 	# ps.head <- coeftest(ps.fit, ps.VC)
+> 	summary(ps.fit)
+
+Call:
+glm(formula = diarrheaci10 ~ qentero1600 * pointsource + agecat + 
+    female + racewhite + gichron + anim_any + gicontactbase + 
+    rawfood + beach, family = poisson(link = "log"), data = ad)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9524  -0.3159  -0.2715  -0.2319   2.8836  
+
+Coefficients: (1 not defined because of singularities)
+                             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                  -3.22490    0.11898 -27.104  < 2e-16 ***
+qentero16002                  0.06176    0.08338   0.741 0.458818    
+qentero16003                  0.27444    0.10741   2.555 0.010615 *  
+qentero16004                  0.06463    0.16011   0.404 0.686472    
+pointsourceYes                0.30474    0.14288   2.133 0.032937 *  
+agecat5-14                   -0.70817    0.07683  -9.217  < 2e-16 ***
+agecat15-24                  -0.72052    0.08772  -8.213  < 2e-16 ***
+agecat25-34                  -0.31223    0.08360  -3.735 0.000188 ***
+agecat35-44                  -0.34138    0.08229  -4.149 3.34e-05 ***
+agecat45-54                  -0.51732    0.09399  -5.504 3.72e-08 ***
+agecat55-64                  -0.55023    0.12657  -4.347 1.38e-05 ***
+agecat65-74                  -1.08142    0.28508  -3.793 0.000149 ***
+agecat75+                    -1.99020    1.00221  -1.986 0.047055 *  
+agecatMissing                -0.55873    0.21021  -2.658 0.007862 ** 
+female                        0.05619    0.04458   1.261 0.207471    
+racewhiteYes                  0.23436    0.06749   3.473 0.000515 ***
+racewhiteMissing             -1.42266    0.27706  -5.135 2.82e-07 ***
+gichronYes                    0.73801    0.10241   7.206 5.75e-13 ***
+gichronMissing               -9.83319  115.81481  -0.085 0.932337    
+anim_anyYes                   0.17710    0.05288   3.349 0.000810 ***
+gicontactbaseYes              0.63108    0.08187   7.708 1.28e-14 ***
+gicontactbaseMissing          0.48759    0.25421   1.918 0.055105 .  
+rawfood                       0.19250    0.05546   3.471 0.000519 ***
+beachBoqueron                -0.38671    0.11461  -3.374 0.000741 ***
+beachDoheny                   0.21458    0.09892   2.169 0.030068 *  
+beachEdgewater                0.11997    0.17262   0.695 0.487055    
+beachFairhope                 0.05622    0.16056   0.350 0.726210    
+beachGoddard                 -0.23307    0.17781  -1.311 0.189939    
+beachHuntington               0.50566    0.14154   3.573 0.000353 ***
+beachMalibu                   0.37016    0.11142   3.322 0.000893 ***
+beachMission Bay              0.13497    0.12707   1.062 0.288164    
+beachSilver                  -0.40036    0.10172  -3.936 8.28e-05 ***
+beachSurfside                      NA         NA      NA       NA    
+beachWashington Park         -0.17270    0.11912  -1.450 0.147115    
+beachWest                     0.34361    0.11847   2.901 0.003726 ** 
+qentero16002:pointsourceYes  -0.10250    0.15427  -0.664 0.506409    
+qentero16003:pointsourceYes  -0.15955    0.16094  -0.991 0.321523    
+qentero16004:pointsourceYes   0.20831    0.20205   1.031 0.302530    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 12825  on 47240  degrees of freedom
+Residual deviance: 12306  on 47204  degrees of freedom
+AIC: 16462
+
+Number of Fisher Scoring iterations: 11
+
+> 	lrtest(ps.ref,ps.fit)
+Likelihood ratio test
+
+Model 1: diarrheaci10 ~ qentero1600 + pointsource + agecat + female + 
+    racewhite + gichron + anim_any + gicontactbase + rawfood + 
+    beach
+Model 2: diarrheaci10 ~ qentero1600 * pointsource + agecat + female + 
+    racewhite + gichron + anim_any + gicontactbase + rawfood + 
+    beach
+  #Df  LogLik Df  Chisq Pr(>Chisq)
+1  34 -8196.5                     
+2  37 -8194.1  3 4.7935     0.1876
+> 	
+> 
+> # --------------------------------------
+> # Age-stratified estimates and LR tests of
+> # interaction
+> 
+> # reduced models for LR tests of indicator x age interactions
+> agestrat.ref <- glm(diarrheaci10~qentero1600 +agestrat+female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,family=poisson(link="log"),data=ad)
+> 
+> # Pooled estimate (Age 0-4, 5-10, >10)
+> agestrat.fit <- glm(diarrheaci10~ qentero1600*agestrat +female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,family=poisson(link="log"),data=ad)
+> 	# commented out robust SE calcs b/c not used
+> 	# agestrat.VC <- cl(ad,fm=agestrat.fit,cluster=ad$hhid)
+> 	# agestrat.body <- coeftest(agestrat.fit, agestrat.VC) 
+> 	lrtest(agestrat.ref,agestrat.fit)
+Likelihood ratio test
+
+Model 1: diarrheaci10 ~ qentero1600 + agestrat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach
+Model 2: diarrheaci10 ~ qentero1600 * agestrat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach
+  #Df  LogLik Df  Chisq Pr(>Chisq)   
+1  28 -8225.3                        
+2  37 -8212.9  9 24.767    0.00324 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> 
+> 
+> # --------------------------------------
+> # Stratified Models 
+> # based on tests of interaction (above)
+> # stratify the results by non-point and
+> # point source conditions
+> # --------------------------------------
+> 
+> # Non-point source and point-source
+> nps <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$pointsource=="No",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.8140  -0.3114  -0.2759  -0.2442   3.1301  
+
+Coefficients:
+                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -3.04976    0.15099 -20.198  < 2e-16 ***
+qentero16002          0.06246    0.08340   0.749 0.453910    
+qentero16003          0.27072    0.10741   2.520 0.011724 *  
+qentero16004          0.07100    0.16014   0.443 0.657476    
+agecat5-14           -0.70616    0.12415  -5.688 1.29e-08 ***
+agecat15-24          -0.68185    0.14742  -4.625 3.74e-06 ***
+agecat25-34          -0.27569    0.13839  -1.992 0.046360 *  
+agecat35-44          -0.34267    0.13528  -2.533 0.011311 *  
+agecat45-54          -0.45025    0.14760  -3.050 0.002285 ** 
+agecat55-64          -0.53081    0.19670  -2.699 0.006963 ** 
+agecat65-74          -2.62764    1.00622  -2.611 0.009017 ** 
+agecat75+            -0.95815    1.00614  -0.952 0.340943    
+agecatMissing        -0.31051    0.36853  -0.843 0.399478    
+female                0.01451    0.07250   0.200 0.841343    
+racewhiteYes          0.35518    0.10513   3.378 0.000729 ***
+racewhiteMissing     -2.36969    0.45475  -5.211 1.88e-07 ***
+gichronYes            1.01801    0.16162   6.299 3.00e-10 ***
+anim_anyYes           0.03945    0.08902   0.443 0.657645    
+gicontactbaseYes      0.50426    0.14573   3.460 0.000540 ***
+gicontactbaseMissing  0.47732    0.30849   1.547 0.121790    
+rawfood               0.12230    0.08347   1.465 0.142865    
+beachMalibu           0.16710    0.11878   1.407 0.159495    
+beachMission Bay      0.04693    0.13690   0.343 0.731751    
+beachSurfside        -0.16556    0.10911  -1.517 0.129168    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 4949.8  on 18781  degrees of freedom
+Residual deviance: 4739.2  on 18758  degrees of freedom
+AIC: 6341.2
+
+Number of Fisher Scoring iterations: 7
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                      Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)          -3.049760   0.166827 -18.2809 < 2.2e-16 ***
+qentero16002          0.062461   0.095017   0.6574  0.510947    
+qentero16003          0.270719   0.127128   2.1295  0.033214 *  
+qentero16004          0.071005   0.177710   0.3996  0.689485    
+agecat5-14           -0.706157   0.132331  -5.3363 9.487e-08 ***
+agecat15-24          -0.681849   0.148691  -4.5857 4.525e-06 ***
+agecat25-34          -0.275689   0.133159  -2.0704  0.038418 *  
+agecat35-44          -0.342668   0.133887  -2.5594  0.010486 *  
+agecat45-54          -0.450246   0.148040  -3.0414  0.002355 ** 
+agecat55-64          -0.530808   0.195459  -2.7157  0.006614 ** 
+agecat65-74          -2.627641   1.008051  -2.6067  0.009143 ** 
+agecat75+            -0.958149   0.994031  -0.9639  0.335095    
+agecatMissing        -0.310508   0.562183  -0.5523  0.580725    
+female                0.014514   0.069553   0.2087  0.834706    
+racewhiteYes          0.355176   0.123891   2.8669  0.004146 ** 
+racewhiteMissing     -2.369693   0.467216  -5.0719 3.938e-07 ***
+gichronYes            1.018014   0.152426   6.6787 2.410e-11 ***
+anim_anyYes           0.039451   0.097872   0.4031  0.686887    
+gicontactbaseYes      0.504256   0.157974   3.1920  0.001413 ** 
+gicontactbaseMissing  0.477324   0.287303   1.6614  0.096634 .  
+rawfood               0.122302   0.088772   1.3777  0.168290    
+beachMalibu           0.167101   0.130815   1.2774  0.201468    
+beachMission Bay      0.046930   0.176954   0.2652  0.790847    
+beachSurfside        -0.165556   0.121238  -1.3655  0.172082    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> ps <- mpreg(diarrheaci10~qentero1600 +agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$pointsource=="Yes",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9464  -0.3190  -0.2685  -0.2274   2.5110  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.91891    0.16055 -18.180  < 2e-16 ***
+qentero16002          -0.05006    0.12972  -0.386 0.699576    
+qentero16003           0.10959    0.11990   0.914 0.360708    
+qentero16004           0.26903    0.12346   2.179 0.029325 *  
+agecat5-14            -0.71675    0.09789  -7.322 2.44e-13 ***
+agecat15-24           -0.74343    0.10922  -6.806 1.00e-11 ***
+agecat25-34           -0.34203    0.10498  -3.258 0.001121 ** 
+agecat35-44           -0.34884    0.10371  -3.363 0.000770 ***
+agecat45-54           -0.58490    0.12267  -4.768 1.86e-06 ***
+agecat55-64           -0.57033    0.16584  -3.439 0.000584 ***
+agecat65-74           -0.73412    0.30012  -2.446 0.014442 *  
+agecat75+            -12.51743  145.25890  -0.086 0.931329    
+agecatMissing         -0.70920    0.25647  -2.765 0.005688 ** 
+female                 0.08687    0.05663   1.534 0.125043    
+racewhiteYes           0.16954    0.08794   1.928 0.053864 .  
+racewhiteMissing       0.40230    0.34385   1.170 0.242006    
+gichronYes             0.57765    0.13238   4.364 1.28e-05 ***
+gichronMissing       -12.19008  330.58431  -0.037 0.970585    
+anim_anyYes            0.25223    0.06637   3.800 0.000144 ***
+gicontactbaseYes       0.70327    0.09918   7.091 1.33e-12 ***
+gicontactbaseMissing   0.44936    0.45023   0.998 0.318250    
+rawfood                0.24217    0.07395   3.275 0.001057 ** 
+beachBoqueron         -0.42421    0.12437  -3.411 0.000647 ***
+beachEdgewater         0.11074    0.17401   0.636 0.524508    
+beachFairhope          0.03473    0.16235   0.214 0.830602    
+beachGoddard          -0.25224    0.17911  -1.408 0.159042    
+beachHuntington        0.50070    0.14397   3.478 0.000505 ***
+beachSilver           -0.41051    0.10447  -3.929 8.52e-05 ***
+beachWashington Park  -0.18511    0.12151  -1.523 0.127645    
+beachWest              0.32474    0.12069   2.691 0.007129 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 7872.7  on 28458  degrees of freedom
+Residual deviance: 7521.2  on 28429  degrees of freedom
+AIC: 10109
+
+Number of Fisher Scoring iterations: 13
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.918905   0.171282 -17.0415 < 2.2e-16 ***
+qentero16002          -0.050059   0.141803  -0.3530 0.7240779    
+qentero16003           0.109590   0.128764   0.8511 0.3947208    
+qentero16004           0.269025   0.132570   2.0293 0.0424275 *  
+agecat5-14            -0.716751   0.098730  -7.2597 3.880e-13 ***
+agecat15-24           -0.743431   0.110141  -6.7498 1.480e-11 ***
+agecat25-34           -0.342030   0.102419  -3.3395 0.0008392 ***
+agecat35-44           -0.348836   0.102329  -3.4090 0.0006521 ***
+agecat45-54           -0.584896   0.123665  -4.7297 2.249e-06 ***
+agecat55-64           -0.570328   0.163519  -3.4878 0.0004870 ***
+agecat65-74           -0.734118   0.296155  -2.4788 0.0131813 *  
+agecat75+            -12.517427   0.157606 -79.4223 < 2.2e-16 ***
+agecatMissing         -0.709195   0.294262  -2.4101 0.0159488 *  
+female                 0.086869   0.053682   1.6182 0.1056160    
+racewhiteYes           0.169544   0.099619   1.7019 0.0887709 .  
+racewhiteMissing       0.402305   0.360665   1.1155 0.2646563    
+gichronYes             0.577645   0.131380   4.3968 1.099e-05 ***
+gichronMissing       -12.190083   0.365368 -33.3639 < 2.2e-16 ***
+anim_anyYes            0.252234   0.073032   3.4537 0.0005529 ***
+gicontactbaseYes       0.703274   0.106209   6.6216 3.553e-11 ***
+gicontactbaseMissing   0.449361   0.405292   1.1087 0.2675448    
+rawfood                0.242170   0.077686   3.1173 0.0018251 ** 
+beachBoqueron         -0.424213   0.146293  -2.8998 0.0037346 ** 
+beachEdgewater         0.110743   0.189040   0.5858 0.5579981    
+beachFairhope          0.034731   0.184144   0.1886 0.8504022    
+beachGoddard          -0.252239   0.211372  -1.1933 0.2327356    
+beachHuntington        0.500704   0.162220   3.0866 0.0020248 ** 
+beachSilver           -0.410505   0.115122  -3.5658 0.0003627 ***
+beachWashington Park  -0.185113   0.139058  -1.3312 0.1831266    
+beachWest              0.324738   0.135985   2.3880 0.0169382 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Age-stratified results
+> age0to4   <- mpreg(diarrheaci10~qentero1600 +female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$agestrat=="(0, 4]",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7681  -0.3962  -0.3468  -0.3030   2.6547  
+
+Coefficients:
+                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -2.35870    0.30552  -7.720 1.16e-14 ***
+qentero16002          0.05691    0.19311   0.295  0.76824    
+qentero16003         -0.26948    0.21830  -1.234  0.21704    
+qentero16004          0.08076    0.23077   0.350  0.72638    
+female               -0.10930    0.12339  -0.886  0.37573    
+racewhiteYes          0.22743    0.16908   1.345  0.17859    
+racewhiteMissing     -1.78619    0.72749  -2.455  0.01408 *  
+gichronYes            0.34094    0.71440   0.477  0.63319    
+anim_anyYes           0.27266    0.14409   1.892  0.05846 .  
+gicontactbaseYes      0.47523    0.25945   1.832  0.06700 .  
+gicontactbaseMissing  0.94886    0.51838   1.830  0.06719 .  
+rawfood              -0.66108    0.28014  -2.360  0.01828 *  
+beachBoqueron        -0.58867    0.30583  -1.925  0.05425 .  
+beachDoheny          -0.36789    0.29720  -1.238  0.21577    
+beachEdgewater       -0.23564    0.49789  -0.473  0.63602    
+beachFairhope        -0.15958    0.34436  -0.463  0.64306    
+beachGoddard         -0.47471    0.40998  -1.158  0.24691    
+beachHuntington      -0.21562    0.39675  -0.543  0.58682    
+beachMalibu          -0.49466    0.35001  -1.413  0.15757    
+beachMission Bay     -0.26673    0.29976  -0.890  0.37357    
+beachSilver          -0.70550    0.26953  -2.617  0.00886 ** 
+beachSurfside        -0.84356    0.30481  -2.767  0.00565 ** 
+beachWashington Park -0.57573    0.33169  -1.736  0.08260 .  
+beachWest            -0.06548    0.33991  -0.193  0.84724    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 1430.6  on 3914  degrees of freedom
+Residual deviance: 1377.3  on 3891  degrees of freedom
+AIC: 1957.3
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -2.358703   0.279379 -8.4426  < 2e-16 ***
+qentero16002          0.056907   0.199847  0.2848  0.77583    
+qentero16003         -0.269484   0.217786 -1.2374  0.21595    
+qentero16004          0.080756   0.222895  0.3623  0.71712    
+female               -0.109299   0.118726 -0.9206  0.35726    
+racewhiteYes          0.227428   0.173325  1.3122  0.18947    
+racewhiteMissing     -1.786192   0.765493 -2.3334  0.01963 *  
+gichronYes            0.340942   0.637413  0.5349  0.59273    
+anim_anyYes           0.272663   0.151823  1.7959  0.07251 .  
+gicontactbaseYes      0.475228   0.255678  1.8587  0.06307 .  
+gicontactbaseMissing  0.948861   0.490568  1.9342  0.05309 .  
+rawfood              -0.661078   0.274114 -2.4117  0.01588 *  
+beachBoqueron        -0.588672   0.316003 -1.8629  0.06248 .  
+beachDoheny          -0.367890   0.278379 -1.3215  0.18632    
+beachEdgewater       -0.235637   0.491786 -0.4791  0.63183    
+beachFairhope        -0.159582   0.342222 -0.4663  0.64099    
+beachGoddard         -0.474715   0.424552 -1.1182  0.26350    
+beachHuntington      -0.215615   0.410832 -0.5248  0.59970    
+beachMalibu          -0.494656   0.342699 -1.4434  0.14891    
+beachMission Bay     -0.266730   0.321964 -0.8284  0.40742    
+beachSilver          -0.705498   0.292315 -2.4135  0.01580 *  
+beachSurfside        -0.843557   0.304433 -2.7709  0.00559 ** 
+beachWashington Park -0.575735   0.332635 -1.7308  0.08348 .  
+beachWest            -0.065482   0.350776 -0.1867  0.85191    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> age5to10  <- mpreg(diarrheaci10~qentero1600 +female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$agestrat=="(4, 10]",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7430  -0.3031  -0.2646  -0.2154   2.9931  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -3.60338    0.26820 -13.435  < 2e-16 ***
+qentero16002          -0.08454    0.18478  -0.458  0.64730    
+qentero16003           0.25591    0.19457   1.315  0.18843    
+qentero16004           0.37915    0.20495   1.850  0.06433 .  
+female                -0.09996    0.11003  -0.909  0.36360    
+racewhiteYes           0.38656    0.14913   2.592  0.00954 ** 
+racewhiteMissing      -1.66131    0.59493  -2.792  0.00523 ** 
+gichronYes             0.90556    0.45309   1.999  0.04565 *  
+gichronMissing        -9.69248  255.20280  -0.038  0.96970    
+anim_anyYes            0.08405    0.13481   0.623  0.53298    
+gicontactbaseYes       0.40212    0.22240   1.808  0.07060 .  
+gicontactbaseMissing  -0.06454    0.71384  -0.090  0.92796    
+rawfood               -0.22339    0.18510  -1.207  0.22748    
+beachBoqueron         -0.42455    0.29650  -1.432  0.15218    
+beachDoheny           -0.03458    0.24845  -0.139  0.88931    
+beachEdgewater         0.09827    0.48524   0.203  0.83950    
+beachFairhope         -0.19747    0.37783  -0.523  0.60122    
+beachGoddard           0.01272    0.40813   0.031  0.97513    
+beachHuntington        0.76813    0.28583   2.687  0.00720 ** 
+beachMalibu            0.57454    0.28555   2.012  0.04422 *  
+beachMission Bay       0.20908    0.25203   0.830  0.40677    
+beachSilver           -0.22715    0.22720  -1.000  0.31742    
+beachSurfside         -0.44684    0.28309  -1.578  0.11447    
+beachWashington Park  -0.09841    0.26873  -0.366  0.71421    
+beachWest              0.36918    0.30692   1.203  0.22903    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 2195.5  on 8874  degrees of freedom
+Residual deviance: 2107.9  on 8850  degrees of freedom
+AIC: 2827.9
+
+Number of Fisher Scoring iterations: 11
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                      Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)          -3.603376   0.277963 -12.9635 < 2.2e-16 ***
+qentero16002         -0.084542   0.206231  -0.4099  0.681853    
+qentero16003          0.255911   0.203133   1.2598  0.207736    
+qentero16004          0.379148   0.208018   1.8227  0.068353 .  
+female               -0.099961   0.107731  -0.9279  0.353470    
+racewhiteYes          0.386556   0.170261   2.2704  0.023185 *  
+racewhiteMissing     -1.661311   0.619323  -2.6825  0.007308 ** 
+gichronYes            0.905555   0.421378   2.1490  0.031632 *  
+gichronMissing       -9.692480   0.703665 -13.7743 < 2.2e-16 ***
+anim_anyYes           0.084049   0.137275   0.6123  0.540360    
+gicontactbaseYes      0.402118   0.227476   1.7677  0.077105 .  
+gicontactbaseMissing -0.064540   0.698296  -0.0924  0.926361    
+rawfood              -0.223390   0.196558  -1.1365  0.255744    
+beachBoqueron        -0.424546   0.319724  -1.3279  0.184227    
+beachDoheny          -0.034578   0.254026  -0.1361  0.891727    
+beachEdgewater        0.098274   0.474563   0.2071  0.835945    
+beachFairhope        -0.197469   0.408231  -0.4837  0.628586    
+beachGoddard          0.012724   0.441464   0.0288  0.977006    
+beachHuntington       0.768134   0.306156   2.5090  0.012108 *  
+beachMalibu           0.574542   0.287166   2.0007  0.045421 *  
+beachMission Bay      0.209080   0.295607   0.7073  0.479386    
+beachSilver          -0.227147   0.229254  -0.9908  0.321780    
+beachSurfside        -0.446836   0.293871  -1.5205  0.128380    
+beachWashington Park -0.098410   0.280129  -0.3513  0.725361    
+beachWest             0.369179   0.304271   1.2133  0.225006    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> age11plus <- mpreg(diarrheaci10~qentero1600 +female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$agestrat==">10",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.8017  -0.3105  -0.2673  -0.2311   2.9720  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -3.59920    0.13601 -26.463  < 2e-16 ***
+qentero16002           0.03567    0.08279   0.431  0.66658    
+qentero16003           0.23509    0.08832   2.662  0.00777 ** 
+qentero16004           0.27926    0.10213   2.734  0.00625 ** 
+female                 0.15028    0.05387   2.790  0.00527 ** 
+racewhiteYes           0.18128    0.08473   2.140  0.03239 *  
+racewhiteMissing      -1.82074    0.45813  -3.974 7.06e-05 ***
+gichronYes             0.78822    0.10628   7.416 1.20e-13 ***
+gichronMissing       -10.03257  149.17236  -0.067  0.94638    
+anim_anyYes            0.16742    0.06339   2.641  0.00826 ** 
+gicontactbaseYes       0.69073    0.09509   7.264 3.75e-13 ***
+gicontactbaseMissing   0.54407    0.32127   1.694  0.09036 .  
+rawfood                0.35702    0.06058   5.893 3.79e-09 ***
+beachBoqueron         -0.40944    0.13308  -3.077  0.00209 ** 
+beachDoheny            0.00787    0.13558   0.058  0.95371    
+beachEdgewater         0.19363    0.19820   0.977  0.32858    
+beachFairhope          0.18462    0.20774   0.889  0.37415    
+beachGoddard          -0.27893    0.22375  -1.247  0.21253    
+beachHuntington        0.52389    0.18127   2.890  0.00385 ** 
+beachMalibu            0.11402    0.14919   0.764  0.44469    
+beachMission Bay      -0.22745    0.16316  -1.394  0.16331    
+beachSilver           -0.36032    0.12438  -2.897  0.00377 ** 
+beachSurfside         -0.16217    0.11836  -1.370  0.17066    
+beachWashington Park  -0.06116    0.14400  -0.425  0.67106    
+beachWest              0.40573    0.13873   2.925  0.00345 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 8975  on 33733  degrees of freedom
+Residual deviance: 8639  on 33709  degrees of freedom
+AIC: 11519
+
+Number of Fisher Scoring iterations: 11
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                        Estimate  Std. Error  z value  Pr(>|z|)    
+(Intercept)           -3.5992051   0.1448013 -24.8562 < 2.2e-16 ***
+qentero16002           0.0356701   0.0865292   0.4122 0.6801692    
+qentero16003           0.2350877   0.0945851   2.4855 0.0129384 *  
+qentero16004           0.2792586   0.1088999   2.5644 0.0103366 *  
+female                 0.1502810   0.0506925   2.9646 0.0030312 ** 
+racewhiteYes           0.1812843   0.0887641   2.0423 0.0411203 *  
+racewhiteMissing      -1.8207418   0.4743175  -3.8387 0.0001237 ***
+gichronYes             0.7882188   0.1026352   7.6798 1.593e-14 ***
+gichronMissing       -10.0325655   0.3921591 -25.5829 < 2.2e-16 ***
+anim_anyYes            0.1674230   0.0658211   2.5436 0.0109714 *  
+gicontactbaseYes       0.6907263   0.0956270   7.2231 5.080e-13 ***
+gicontactbaseMissing   0.5440754   0.2946217   1.8467 0.0647918 .  
+rawfood                0.3570222   0.0625069   5.7117 1.118e-08 ***
+beachBoqueron         -0.4094406   0.1462537  -2.7995 0.0051178 ** 
+beachDoheny            0.0078697   0.1452962   0.0542 0.9568050    
+beachEdgewater         0.1936306   0.2100741   0.9217 0.3566719    
+beachFairhope          0.1846225   0.2072589   0.8908 0.3730460    
+beachGoddard          -0.2789344   0.2383061  -1.1705 0.2418046    
+beachHuntington        0.5238887   0.1795197   2.9183 0.0035197 ** 
+beachMalibu            0.1140231   0.1566871   0.7277 0.4667898    
+beachMission Bay      -0.2274452   0.1839305  -1.2366 0.2162421    
+beachSilver           -0.3603210   0.1291731  -2.7894 0.0052799 ** 
+beachSurfside         -0.1621669   0.1270766  -1.2761 0.2019077    
+beachWashington Park  -0.0611551   0.1539366  -0.3973 0.6911650    
+beachWest              0.4057269   0.1477933   2.7452 0.0060468 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Non-point source estimates, stratified by age group
+> nps0to4 <- mpreg(diarrheaci10~qentero1600 +female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$pointsource=="No" & ad$agestrat=="(0, 4]",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7613  -0.3762  -0.3552  -0.2700   2.6263  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.65459    0.29880  -8.884   <2e-16 ***
+qentero16002           0.07809    0.22758   0.343   0.7315    
+qentero16003          -0.55443    0.35033  -1.583   0.1135    
+qentero16004          -0.29081    0.39943  -0.728   0.4666    
+female                -0.02356    0.20131  -0.117   0.9068    
+racewhiteYes           0.22803    0.25946   0.879   0.3795    
+racewhiteMissing      -1.78223    0.73039  -2.440   0.0147 *  
+gichronYes           -12.62275  626.04896  -0.020   0.9839    
+anim_anyYes            0.05990    0.24571   0.244   0.8074    
+gicontactbaseYes       0.07614    0.51166   0.149   0.8817    
+gicontactbaseMissing   1.05011    0.52627   1.995   0.0460 *  
+rawfood               -0.71138    0.40377  -1.762   0.0781 .  
+beachMalibu           -0.14699    0.32341  -0.454   0.6495    
+beachMission Bay       0.22087    0.32610   0.677   0.4982    
+beachSurfside         -0.37325    0.30191  -1.236   0.2163    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 560.31  on 1646  degrees of freedom
+Residual deviance: 535.81  on 1632  degrees of freedom
+AIC: 765.81
+
+Number of Fisher Scoring iterations: 13
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)           -2.654591   0.300154  -8.8441  < 2e-16 ***
+qentero16002           0.078091   0.233449   0.3345  0.73799    
+qentero16003          -0.554433   0.385826  -1.4370  0.15072    
+qentero16004          -0.290814   0.402030  -0.7234  0.46946    
+female                -0.023562   0.203286  -0.1159  0.90773    
+racewhiteYes           0.228026   0.284877   0.8004  0.42346    
+racewhiteMissing      -1.782230   0.767977  -2.3207  0.02030 *  
+gichronYes           -12.622750   0.551005 -22.9086  < 2e-16 ***
+anim_anyYes            0.059897   0.243733   0.2458  0.80588    
+gicontactbaseYes       0.076144   0.484075   0.1573  0.87501    
+gicontactbaseMissing   1.050106   0.496972   2.1130  0.03460 *  
+rawfood               -0.711376   0.390133  -1.8234  0.06824 .  
+beachMalibu           -0.146987   0.324431  -0.4531  0.65050    
+beachMission Bay       0.220867   0.381711   0.5786  0.56284    
+beachSurfside         -0.373250   0.288078  -1.2957  0.19509    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> nps5to10 <- mpreg(diarrheaci10~qentero1600 +female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$pointsource=="No" & ad$agestrat=="(4, 10]",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.6772  -0.2889  -0.2511  -0.2071   3.0250  
+
+Coefficients:
+                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -3.48857    0.25779 -13.532  < 2e-16 ***
+qentero16002          0.07932    0.20455   0.388  0.69818    
+qentero16003          0.25055    0.26189   0.957  0.33872    
+qentero16004         -0.35718    0.38423  -0.930  0.35258    
+female               -0.38550    0.17868  -2.157  0.03097 *  
+racewhiteYes          0.36371    0.21740   1.673  0.09433 .  
+racewhiteMissing     -2.71549    1.01108  -2.686  0.00724 ** 
+gichronYes            1.48432    0.71657   2.071  0.03832 *  
+anim_anyYes           0.13660    0.20984   0.651  0.51505    
+gicontactbaseYes     -0.03063    0.45896  -0.067  0.94679    
+gicontactbaseMissing  0.16427    0.71879   0.229  0.81923    
+rawfood              -0.46258    0.27342  -1.692  0.09068 .  
+beachMalibu           0.55325    0.25241   2.192  0.02839 *  
+beachMission Bay      0.44682    0.27124   1.647  0.09949 .  
+beachSurfside        -0.46828    0.27922  -1.677  0.09353 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 909.38  on 3987  degrees of freedom
+Residual deviance: 862.74  on 3973  degrees of freedom
+AIC: 1160.7
+
+Number of Fisher Scoring iterations: 7
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                      Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)          -3.488569   0.265489 -13.1402 < 2.2e-16 ***
+qentero16002          0.079322   0.223312   0.3552  0.722435    
+qentero16003          0.250552   0.274119   0.9140  0.360703    
+qentero16004         -0.357176   0.444275  -0.8040  0.421424    
+female               -0.385500   0.168362  -2.2897  0.022038 *  
+racewhiteYes          0.363712   0.255738   1.4222  0.154967    
+racewhiteMissing     -2.715491   1.026350  -2.6458  0.008150 ** 
+gichronYes            1.484320   0.569266   2.6074  0.009122 ** 
+anim_anyYes           0.136602   0.221352   0.6171  0.537152    
+gicontactbaseYes     -0.030632   0.454176  -0.0674  0.946228    
+gicontactbaseMissing  0.164269   0.695034   0.2363  0.813163    
+rawfood              -0.462583   0.289213  -1.5995  0.109720    
+beachMalibu           0.553245   0.262262   2.1095  0.034900 *  
+beachMission Bay      0.446819   0.327856   1.3629  0.172930    
+beachSurfside        -0.468276   0.305052  -1.5351  0.124766    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> nps11plus <- mpreg(diarrheaci10~qentero1600 +female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$pointsource=="No" & ad$agestrat==">10",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.8403  -0.3058  -0.2738  -0.2513   3.2626  
+
+Coefficients:
+                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -3.76024    0.16062 -23.410  < 2e-16 ***
+qentero16002          0.05345    0.10024   0.533 0.593865    
+qentero16003          0.35661    0.12725   2.802 0.005072 ** 
+qentero16004          0.29388    0.19578   1.501 0.133350    
+female                0.13842    0.08769   1.579 0.114442    
+racewhiteYes          0.43102    0.13688   3.149 0.001638 ** 
+racewhiteMissing     -2.56018    0.71628  -3.574 0.000351 ***
+gichronYes            1.03333    0.16564   6.238 4.42e-10 ***
+anim_anyYes           0.02079    0.10751   0.193 0.846652    
+gicontactbaseYes      0.65686    0.16183   4.059 4.93e-05 ***
+gicontactbaseMissing  0.29207    0.45533   0.641 0.521233    
+rawfood               0.31101    0.09176   3.390 0.000700 ***
+beachMalibu           0.12772    0.14748   0.866 0.386494    
+beachMission Bay     -0.08090    0.18402  -0.440 0.660220    
+beachSurfside        -0.14675    0.13128  -1.118 0.263642    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 3408.5  on 12935  degrees of freedom
+Residual deviance: 3272.6  on 12921  degrees of freedom
+AIC: 4372.6
+
+Number of Fisher Scoring iterations: 7
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                      Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)          -3.760239   0.166611 -22.5690 < 2.2e-16 ***
+qentero16002          0.053455   0.104554   0.5113 0.6091664    
+qentero16003          0.356610   0.137974   2.5846 0.0097488 ** 
+qentero16004          0.293877   0.199080   1.4762 0.1398966    
+female                0.138421   0.083204   1.6636 0.0961855 .  
+racewhiteYes          0.431019   0.144182   2.9894 0.0027951 ** 
+racewhiteMissing     -2.560180   0.730356  -3.5054 0.0004559 ***
+gichronYes            1.033325   0.155156   6.6599 2.740e-11 ***
+anim_anyYes           0.020792   0.111343   0.1867 0.8518637    
+gicontactbaseYes      0.656863   0.166650   3.9416 8.095e-05 ***
+gicontactbaseMissing  0.292067   0.434329   0.6725 0.5012940    
+rawfood               0.311013   0.095498   3.2568 0.0011269 ** 
+beachMalibu           0.127716   0.151198   0.8447 0.3982798    
+beachMission Bay     -0.080896   0.205282  -0.3941 0.6935286    
+beachSurfside        -0.146754   0.133059  -1.1029 0.2700614    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # Point-source estimates by age group
+> ps0to4 <- mpreg(diarrheaci10~qentero1600 +female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$pointsource=="Yes" & ad$agestrat=="(0, 4]",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.8014  -0.4170  -0.3513  -0.2934   2.2344  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.62024    0.42056  -6.230 4.65e-10 ***
+qentero16002           0.15999    0.37256   0.429  0.66761    
+qentero16003           0.02671    0.36140   0.074  0.94109    
+qentero16004           0.38673    0.36847   1.050  0.29393    
+female                -0.16130    0.15637  -1.032  0.30231    
+racewhiteYes           0.21713    0.22347   0.972  0.33123    
+racewhiteMissing     -12.51078  503.49635  -0.025  0.98018    
+gichronYes             0.52564    0.72198   0.728  0.46658    
+anim_anyYes            0.39765    0.18218   2.183  0.02906 *  
+gicontactbaseYes       0.64409    0.30334   2.123  0.03373 *  
+gicontactbaseMissing -12.87326  735.82458  -0.017  0.98604    
+rawfood               -0.65066    0.39050  -1.666  0.09566 .  
+beachBoqueron         -0.55186    0.34084  -1.619  0.10542    
+beachEdgewater        -0.21976    0.50448  -0.436  0.66312    
+beachFairhope         -0.25793    0.34934  -0.738  0.46032    
+beachGoddard          -0.37803    0.42552  -0.888  0.37432    
+beachHuntington       -0.26805    0.40373  -0.664  0.50673    
+beachSilver           -0.82394    0.27597  -2.986  0.00283 ** 
+beachWashington Park  -0.71019    0.33755  -2.104  0.03538 *  
+beachWest             -0.08728    0.34627  -0.252  0.80100    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 868.07  on 2267  degrees of freedom
+Residual deviance: 833.68  on 2248  degrees of freedom
+AIC: 1205.7
+
+Number of Fisher Scoring iterations: 13
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.620242   0.385315  -6.8003 1.044e-11 ***
+qentero16002           0.159988   0.387769   0.4126  0.679911    
+qentero16003           0.026706   0.358172   0.0746  0.940563    
+qentero16004           0.386729   0.354576   1.0907  0.275413    
+female                -0.161297   0.148520  -1.0860  0.277465    
+racewhiteYes           0.217130   0.215602   1.0071  0.313895    
+racewhiteMissing     -12.510782   0.586606 -21.3274 < 2.2e-16 ***
+gichronYes             0.525640   0.637665   0.8243  0.409758    
+anim_anyYes            0.397646   0.200620   1.9821  0.047470 *  
+gicontactbaseYes       0.644089   0.302464   2.1295  0.033215 *  
+gicontactbaseMissing -12.873260   0.782472 -16.4520 < 2.2e-16 ***
+rawfood               -0.650664   0.388421  -1.6752  0.093904 .  
+beachBoqueron         -0.551861   0.348835  -1.5820  0.113647    
+beachEdgewater        -0.219758   0.504384  -0.4357  0.663058    
+beachFairhope         -0.257927   0.345683  -0.7461  0.455585    
+beachGoddard          -0.378033   0.436373  -0.8663  0.386322    
+beachHuntington       -0.268047   0.423946  -0.6323  0.527213    
+beachSilver           -0.823940   0.307006  -2.6838  0.007279 ** 
+beachWashington Park  -0.710188   0.342565  -2.0731  0.038158 *  
+beachWest             -0.087280   0.353816  -0.2467  0.805155    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> ps5to10 <- mpreg(diarrheaci10~qentero1600 +female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$pointsource=="Yes" & ad$agestrat=="(4, 10]",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7080  -0.3227  -0.2675  -0.2125   2.6502  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -3.88265    0.39038  -9.946  < 2e-16 ***
+qentero16002          -0.54084    0.40050  -1.350  0.17689    
+qentero16003           0.26208    0.34217   0.766  0.44372    
+qentero16004           0.55187    0.34337   1.607  0.10801    
+female                 0.10141    0.14180   0.715  0.47449    
+racewhiteYes           0.42733    0.20664   2.068  0.03864 *  
+racewhiteMissing       0.77521    0.73752   1.051  0.29321    
+gichronYes             0.65658    0.58409   1.124  0.26096    
+gichronMissing       -12.31933  733.68623  -0.017  0.98660    
+anim_anyYes            0.06208    0.17613   0.352  0.72451    
+gicontactbaseYes       0.54003    0.25634   2.107  0.03515 *  
+gicontactbaseMissing -12.30532  366.62341  -0.034  0.97322    
+rawfood               -0.01027    0.24836  -0.041  0.96702    
+beachBoqueron         -0.07731    0.32934  -0.235  0.81441    
+beachEdgewater         0.30329    0.49145   0.617  0.53714    
+beachFairhope         -0.09235    0.38384  -0.241  0.80988    
+beachGoddard           0.33125    0.42468   0.780  0.43538    
+beachHuntington        0.91767    0.29649   3.095  0.00197 ** 
+beachSilver           -0.21513    0.23794  -0.904  0.36593    
+beachWashington Park  -0.07128    0.27839  -0.256  0.79792    
+beachWest              0.47039    0.31339   1.501  0.13336    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 1282.8  on 4886  degrees of freedom
+Residual deviance: 1216.9  on 4866  degrees of freedom
+AIC: 1660.9
+
+Number of Fisher Scoring iterations: 13
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -3.882646   0.418836  -9.2701 < 2.2e-16 ***
+qentero16002          -0.540842   0.412335  -1.3117  0.189637    
+qentero16003           0.262077   0.349013   0.7509  0.452708    
+qentero16004           0.551868   0.345461   1.5975  0.110157    
+female                 0.101412   0.139948   0.7246  0.468673    
+racewhiteYes           0.427330   0.225573   1.8944  0.058169 .  
+racewhiteMissing       0.775212   0.627205   1.2360  0.216466    
+gichronYes             0.656583   0.564611   1.1629  0.244872    
+gichronMissing       -12.319333   0.660096 -18.6629 < 2.2e-16 ***
+anim_anyYes            0.062076   0.170433   0.3642  0.715688    
+gicontactbaseYes       0.540027   0.263366   2.0505  0.040318 *  
+gicontactbaseMissing -12.305316   0.419952 -29.3017 < 2.2e-16 ***
+rawfood               -0.010268   0.251818  -0.0408  0.967474    
+beachBoqueron         -0.077310   0.357755  -0.2161  0.828911    
+beachEdgewater         0.303292   0.479194   0.6329  0.526786    
+beachFairhope         -0.092347   0.413974  -0.2231  0.823478    
+beachGoddard           0.331254   0.457780   0.7236  0.469306    
+beachHuntington        0.917668   0.314064   2.9219  0.003479 ** 
+beachSilver           -0.215126   0.236345  -0.9102  0.362708    
+beachWashington Park  -0.071279   0.285225  -0.2499  0.802662    
+beachWest              0.470392   0.309048   1.5221  0.127992    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> ps11plus <- mpreg(diarrheaci10~qentero1600 +female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach,dat=ad[ad$pointsource=="Yes" & ad$agestrat==">10",],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7638  -0.3109  -0.2622  -0.2242   2.4596  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -3.44960    0.16933 -20.372  < 2e-16 ***
+qentero16002          -0.03686    0.14949  -0.247 0.805250    
+qentero16003           0.12412    0.13782   0.901 0.367812    
+qentero16004           0.19665    0.14396   1.366 0.171945    
+female                 0.16250    0.06834   2.378 0.017410 *  
+racewhiteYes           0.02757    0.10700   0.258 0.796646    
+racewhiteMissing      -0.32296    0.58671  -0.550 0.582002    
+gichronYes             0.63360    0.13855   4.573 4.81e-06 ***
+gichronMissing       -11.11172  249.71958  -0.044 0.964508    
+anim_anyYes            0.24687    0.07872   3.136 0.001713 ** 
+gicontactbaseYes       0.72312    0.11770   6.144 8.06e-10 ***
+gicontactbaseMissing   0.85066    0.45181   1.883 0.059731 .  
+rawfood                0.38969    0.08035   4.850 1.24e-06 ***
+beachBoqueron         -0.52024    0.14707  -3.537 0.000404 ***
+beachEdgewater         0.17271    0.20043   0.862 0.388835    
+beachFairhope          0.16191    0.21034   0.770 0.441436    
+beachGoddard          -0.32856    0.22679  -1.449 0.147414    
+beachHuntington        0.53135    0.18527   2.868 0.004131 ** 
+beachSilver           -0.35637    0.12887  -2.765 0.005689 ** 
+beachWashington Park  -0.06770    0.14790  -0.458 0.647116    
+beachWest              0.37558    0.14154   2.653 0.007967 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 5566.3  on 20797  degrees of freedom
+Residual deviance: 5346.1  on 20777  degrees of freedom
+AIC: 7148.1
+
+Number of Fisher Scoring iterations: 12
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -3.449602   0.175524 -19.6531 < 2.2e-16 ***
+qentero16002          -0.036858   0.153989  -0.2394  0.810833    
+qentero16003           0.124116   0.140858   0.8811  0.378238    
+qentero16004           0.196653   0.149236   1.3177  0.187595    
+female                 0.162505   0.064004   2.5390  0.011118 *  
+racewhiteYes           0.027572   0.110193   0.2502  0.802421    
+racewhiteMissing      -0.322962   0.585999  -0.5511  0.581544    
+gichronYes             0.633603   0.136455   4.6433 3.429e-06 ***
+gichronMissing       -11.111716   0.384931 -28.8668 < 2.2e-16 ***
+anim_anyYes            0.246870   0.081611   3.0250  0.002487 ** 
+gicontactbaseYes       0.723117   0.116496   6.2072 5.393e-10 ***
+gicontactbaseMissing   0.850659   0.373542   2.2773  0.022770 *  
+rawfood                0.389688   0.082102   4.7464 2.071e-06 ***
+beachBoqueron         -0.520244   0.159745  -3.2567  0.001127 ** 
+beachEdgewater         0.172713   0.212982   0.8109  0.417407    
+beachFairhope          0.161913   0.209686   0.7722  0.440016    
+beachGoddard          -0.328557   0.241743  -1.3591  0.174109    
+beachHuntington        0.531346   0.183485   2.8959  0.003781 ** 
+beachSilver           -0.356366   0.133378  -2.6718  0.007544 ** 
+beachWashington Park  -0.067705   0.157807  -0.4290  0.667898    
+beachWest              0.375579   0.150649   2.4931  0.012664 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> 
+> # --------------------------------------
+> # Calculate adjusted CIRs and 95% CIs
+> # From the regression coefficients
+> # --------------------------------------
+> 
+> # function to get Estimates and CIs for quartiles of exposure
+> # NOTE: assumes that the quartiles exposure variables are #s 2-4
+> CIRquartiles <- function(x,vcv) {
++ 	# x : log-linear model object returned from coeftest (class=coeftest)
++ 	# vcv : variance-covariance matrix of coefficients for robust SEs
++ 	lc2 <- c(0,1,rep(0,nrow(x)-2))
++ 	lc3 <- c(0,0,1,rep(0,nrow(x)-3))
++ 	lc4 <- c(0,0,0,1,rep(0,nrow(x)-4))	
++ 	estci <- function(lc,x,vcv) {
++ 		est <- exp(t(lc)%*%x[,1])
++ 		se  <- sqrt( t(lc)%*%vcv%*%lc )
++ 		lb <- exp(log(est)-1.96*se)
++ 		ub <- exp(log(est)+1.96*se)
++ 		res <- c(est,lb,ub)
++ 		return(res)
++ 	}
++ 	cirs <- t(sapply(list(lc2,lc3,lc4),estci,x=x,vcv=vcv))
++ 	colnames(cirs) <- c("CIR","CIRlb","CIRub")
++ 	rownames(cirs) <- paste("Entero1600-Q",2:4,sep="")
++ 	return(cirs)
++ }
+> 
+> cir.all <- CIRquartiles(overall.fit,all.VC)
+> 
+> cir.nps <- CIRquartiles(nps$fit,nps$vcovCL)
+> cir.ps  <- CIRquartiles(ps$fit,  ps$vcovCL)
+> 
+> cir.age0to4   <- CIRquartiles(age0to4$fit,  age0to4$vcovCL)
+> cir.age5to10  <- CIRquartiles(age5to10$fit, age5to10$vcovCL)
+> cir.age11plus <- CIRquartiles(age11plus$fit,age11plus$vcovCL)
+> 
+> cir.nps0to4   <- CIRquartiles(nps0to4$fit,  nps0to4$vcovCL)
+> cir.nps5to10  <- CIRquartiles(nps5to10$fit, nps5to10$vcovCL)
+> cir.nps11plus <- CIRquartiles(nps11plus$fit,nps11plus$vcovCL)
+> 
+> cir.ps0to4   <- CIRquartiles(ps0to4$fit,  ps0to4$vcovCL)
+> cir.ps5to10  <- CIRquartiles(ps5to10$fit, ps5to10$vcovCL)
+> cir.ps11plus <- CIRquartiles(ps11plus$fit,ps11plus$vcovCL)
+> 
+> 
+> # --------------------------------------
+> # Print N counts to the log file
+> # --------------------------------------
+> N.all
+    n     N
+1 379  9199
+2 544 14615
+3 598 13491
+4 520  9936
+> N.age0to4
+   n    N
+1 50  734
+2 75 1109
+3 63 1129
+4 78  943
+> N.age5to10
+    n    N
+1  61 1790
+2  66 2424
+3  97 2402
+4 111 2259
+> N.age11plus
+    n     N
+1 268  6608
+2 390 10913
+3 430  9713
+4 327  6500
+> N.nps
+    n    N
+1 288 7150
+2 292 6890
+3 144 3127
+4  53 1615
+> N.ps
+    n     N
+1  91  2049
+2 252  7725
+3 454 10364
+4 467  8321
+> N.nps0to4
+   n   N
+1 40 594
+2 39 552
+3 12 309
+4  9 192
+> N.nps5to10
+   n    N
+1 50 1475
+2 48 1344
+3 27  720
+4  9  449
+> N.nps11plus
+    n    N
+1 198 5018
+2 202 4924
+3 100 2053
+4  35  941
+> N.ps0to4
+   n   N
+1 10 140
+2 36 557
+3 51 820
+4 69 751
+> N.ps5to10
+    n    N
+1  11  315
+2  18 1080
+3  70 1682
+4 102 1810
+> N.ps11plus
+    n    N
+1  70 1590
+2 188 5989
+3 330 7660
+4 292 5559
+> 
+> # --------------------------------------
+> # Print Cumulative Incidence estimates
+> # to the log file
+> # --------------------------------------
+> ci.all
+           CI       CIlb       CIub
+Q1 0.04120013 0.03677873 0.04615306
+Q2 0.03722203 0.03378570 0.04100787
+Q3 0.04432585 0.04040919 0.04862212
+Q4 0.05233494 0.04744517 0.05772867
+> ci.0to4
+           CI       CIlb       CIub
+Q1 0.06811989 0.05119968 0.09063180
+Q2 0.06762849 0.05351018 0.08547183
+Q3 0.05580159 0.04305145 0.07232782
+Q4 0.08271474 0.06605331 0.10357889
+> ci.5to10
+           CI       CIlb       CIub
+Q1 0.03407821 0.02633593 0.04409658
+Q2 0.02722772 0.02073136 0.03575979
+Q3 0.04038301 0.03261980 0.04999379
+Q4 0.04913679 0.04025194 0.05998280
+> ci.11plus
+           CI       CIlb       CIub
+Q1 0.04055690 0.03577677 0.04597571
+Q2 0.03573719 0.03214713 0.03972818
+Q3 0.04427057 0.03999580 0.04900222
+Q4 0.05030769 0.04482535 0.05646056
+> ci.ps
+           CI       CIlb       CIub
+Q1 0.04441191 0.03559467 0.05541329
+Q2 0.03262136 0.02827784 0.03763205
+Q3 0.04380548 0.03948134 0.04860322
+Q4 0.05612306 0.05060310 0.06224517
+> ci.nps
+           CI       CIlb       CIub
+Q1 0.04027972 0.03529714 0.04596565
+Q2 0.04238026 0.03715330 0.04834258
+Q3 0.04605053 0.03768090 0.05627921
+Q4 0.03281734 0.02432140 0.04428107
+> 
+> 
+> # --------------------------------------
+> # Print CIR estimates to the log file
+> # --------------------------------------
+> 
+> cir.all
+                   CIR     CIRlb    CIRub
+Entero1600-Q2 1.035260 0.8863145 1.209236
+Entero1600-Q3 1.203212 1.0177368 1.422488
+Entero1600-Q4 1.321641 1.0995537 1.588586
+> cir.nps
+                   CIR     CIRlb    CIRub
+Entero1600-Q2 1.064452 0.8835809 1.282349
+Entero1600-Q3 1.310906 1.0217807 1.681844
+Entero1600-Q4 1.073586 0.7578218 1.520921
+> cir.ps
+                    CIR     CIRlb    CIRub
+Entero1600-Q2 0.9511737 0.7203677 1.255930
+Entero1600-Q3 1.1158201 0.8669376 1.436152
+Entero1600-Q4 1.3086885 1.0092298 1.697002
+> cir.age0to4
+                    CIR     CIRlb    CIRub
+Entero1600-Q2 1.0585577 0.7154863 1.566130
+Entero1600-Q3 0.7637734 0.4984036 1.170436
+Entero1600-Q4 1.0841064 0.7003894 1.678048
+> cir.age5to10
+                    CIR     CIRlb    CIRub
+Entero1600-Q2 0.9189335 0.6133900 1.376675
+Entero1600-Q3 1.2916372 0.8674211 1.923318
+Entero1600-Q4 1.4610390 0.9718373 2.196494
+> cir.age11plus
+                   CIR     CIRlb    CIRub
+Entero1600-Q2 1.036314 0.8746538 1.227853
+Entero1600-Q3 1.265020 1.0509567 1.522684
+Entero1600-Q4 1.322149 1.0680289 1.636733
+> cir.nps0to4
+                    CIR     CIRlb    CIRub
+Entero1600-Q2 1.0812212 0.6842254 1.708559
+Entero1600-Q3 0.5743979 0.2696442 1.223586
+Entero1600-Q4 0.7476546 0.3400059 1.644052
+> cir.nps5to10
+                    CIR     CIRlb    CIRub
+Entero1600-Q2 1.0825525 0.6988151 1.677010
+Entero1600-Q3 1.2847342 0.7507213 2.198608
+Entero1600-Q4 0.6996493 0.2928910 1.671301
+> cir.nps11plus
+                   CIR     CIRlb    CIRub
+Entero1600-Q2 1.054909 0.8594430 1.294831
+Entero1600-Q3 1.428479 1.0900032 1.872062
+Entero1600-Q4 1.341619 0.9081736 1.981937
+> cir.ps0to4
+                   CIR     CIRlb    CIRub
+Entero1600-Q2 1.173496 0.5487895 2.509329
+Entero1600-Q3 1.027066 0.5089980 2.072433
+Entero1600-Q4 1.472157 0.7347394 2.949681
+> cir.ps5to10
+                   CIR     CIRlb    CIRub
+Entero1600-Q2 0.582258 0.2594947 1.306479
+Entero1600-Q3 1.299626 0.6557409 2.575756
+Entero1600-Q4 1.736494 0.8822901 3.417711
+> cir.ps11plus
+                    CIR     CIRlb    CIRub
+Entero1600-Q2 0.9638134 0.7127137 1.303379
+Entero1600-Q3 1.1321474 0.8590187 1.492119
+Entero1600-Q4 1.2173214 0.9086000 1.630939
+> 
+> 
+> # --------------------------------------
+> # save the results
+> # exclude glm objects and data frames
+> # (they are really large)
+> # --------------------------------------
+> save(
++ 	overall.fit,all.VC,age0to4,age5to10,age11plus,
++ 	nps,nps0to4,nps5to10,nps11plus,
++ 	ps,ps0to4,ps5to10,ps11plus,
++ 	
++ 	hufit,sifit,wpfit,wefit,avfit,bofit,dhfit,edfit,fafit,gdfit,mafit,mbfit,sufit,
++ 	
++ 	N.all,N.age0to4,N.age5to10,N.age11plus,
++ 	N.nps,N.nps0to4,N.nps5to10,N.nps11plus,
++ 	N.ps,N.ps0to4,N.ps5to10,N.ps11plus,
++ 	
++ 	ci.all,ci.0to4,ci.5to10,ci.11plus,ci.ps,ci.nps,
++ 	
++ 	cir.all,cir.age0to4,cir.age5to10,cir.age11plus,
++ 	cir.nps,cir.nps0to4,cir.nps5to10,cir.nps11plus,
++ 	cir.ps,cir.ps0to4,cir.ps5to10,cir.ps11plus,
++ 
++ 	file="~/dropbox/13beaches/aim1-results/rawoutput/aim1-entero1600-Quartile-regs-body.Rdata"
++ 	)
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+124.357  11.263 139.350 

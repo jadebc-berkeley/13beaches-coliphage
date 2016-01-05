@@ -1,0 +1,88 @@
+# --------------------------------------
+# 10-aim1-sensitivity-swim-exposure-length-of-followup-plot.R
+# ben arnold (benarnold@berkeley.edu)
+#
+# description:
+# plot CIRs associated with swim exposure
+# using summary regression output
+# with varying lengths of follow-up
+# from 1-10 days
+#
+# --------------------------------------
+
+# --------------------------------------
+# input files:
+#	aim1-sens-swim-exposure-length-of-follow-up.RData
+#
+# output files:
+#	aim1-sens-swim-exposure-length-of-follow-up.pdf
+# --------------------------------------
+
+# --------------------------------------
+# preamble
+# --------------------------------------
+
+rm(list=ls())
+library(RColorBrewer)
+
+# --------------------------------------
+# Load the length of follow-up sensitivity
+# output
+# --------------------------------------
+load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-sensitivity-swim-exposure-length-of-follow-up.RData")
+
+
+# --------------------------------------
+# Plot the results
+# --------------------------------------
+
+pdf("~/dropbox/13beaches/aim1-results/figs/aim1-sens-swim-exposure-length-of-follow-up.pdf",width=7,height=5)
+op <- par(mar=c(10,11,1,1)+0.1)
+col  <- brewer.pal(9,"YlGnBu")[7]
+ncol <- brewer.pal(9,"YlGnBu")[6]
+scol <- brewer.pal(9,"YlGnBu")[8]
+ytics <- c(1,1.2,1.5,2,2.5)
+plot(1:10,CIRs[1,],type="n",bty="n",
+	xaxt="n",xlab="",xlim=c(1,10),
+	yaxt="n",ylab="",log="y",ylog=T,ylim=range(ytics),
+	las=1
+	)
+	axis(1,at=1:10)
+	axis(2,at=ytics,las=1)
+	segments(x0=0,x1=10,y0=ytics,col="gray80",lty=2)
+	
+	mtext("Adjusted CIR\nDiarrhea",side=2,line=3,at=2,adj=1,cex=1,las=1)
+
+	# plot the estimates
+	segments(x0=1:10,y0=CIRs[2,],y1=CIRs[3,],col=col,lwd=2)
+	points(1:10,CIRs[1,],pch=c(rep(16,9),21),bg="white",col=col,lwd=2,cex=2)
+	
+	text(10,2.1,"The primary analysis used 10 days of follow-up",cex=0.8,adj=1)
+
+	
+	# make a table below
+	mtext("Days of Follow-up",side=1,line=1,at=0,adj=1)
+	
+	mtext("Non-Swimmers",side=1,line=2.5,at=0,adj=1,cex=0.8,col=ncol,font=2)
+	mtext("At Risk",side=1,line=3.5,at=0,adj=1,cex=0.8,col=ncol)
+	mtext(format(N.noswim[2,1],big.mark=","),side=1,line=3.5,at=1+0.15,cex=0.8,adj=1,col="gray40")
+	mtext("Cumulative Incident Cases",side=1,line=4.5,at=0,adj=1,cex=0.8,col=ncol)
+	mtext(format(N.noswim[1,],big.mark=","),side=1,line=4.5,at=1:10+0.15,cex=0.8,adj=1,col="gray40")
+	
+	
+	mtext("Body Immersion Swimmers",side=1,line=6,at=0,adj=1,cex=0.8,col=scol,font=2)
+	mtext("At Risk",side=1,line=7,at=0,adj=1,cex=0.8,col=scol)
+	mtext(format(N.swim[2,1],big.mark=","),side=1,line=7,at=1+0.15,cex=0.8,adj=1,col="gray40")
+	mtext("Cumulative Incident Cases",side=1,line=8,at=0,adj=1,cex=0.8,col=scol)
+	mtext(format(N.swim[1,],big.mark=","),side=1,line=8,at=1:10+0.15,cex=0.8,adj=1,col="gray40")
+	
+par(op)
+dev.off()
+
+
+
+
+
+
+
+

@@ -1,0 +1,194 @@
+
+R version 3.0.3 (2014-03-06) -- "Warm Puppy"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin10.8.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> 
+> 
+> 
+> 
+> # --------------------------------------
+> # 8-aim2-PAR-entero1600-medgi.R
+> # ben arnold (benarnold@berkeley.edu)
+> #
+> # description:
+> # estimate the Diarrhea risk attributable
+> # to swimming in water that exceeds
+> # 35 CFU/100ml based on the Entero EPA 1600
+> # indicator.  Estimate the effect for 
+> # the overall population, E(Y|R,W) - E(Y|R=0,W),
+> # which is a PIM parameter, and also
+> # just among those exposed, E(Y|R=1,W) - E(Y|R=0,W),
+> # which is analogous to the aim 1 analysis
+> #
+> # Analyses are conducted for EPA 1600
+> # Among Swimmers with Body Immmersion
+> #
+> # The exposure categories are <=35 and >35 CFU/100ml
+> #
+> # version 1 (9 apr 2015)
+> #
+> # --------------------------------------
+> 
+> # --------------------------------------
+> # preamble
+> # --------------------------------------
+> 
+> rm(list=ls())
+> library(sandwich)
+> library(lmtest)
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+> 
+> # source the base functions
+> source("~/dropbox/13beaches/src/aim1/0-aim1-base-functions.R")
+> source("~/dropbox/13beaches/src/aim2/0-aim2-base-functions.R")
+> 
+> # --------------------------------------
+> # load the and pre-preprocess the 
+> # analysis dataset
+> # (refer to the base functions script
+> # for details on the pre-processing)
+> # --------------------------------------
+> 
+> ad <- preprocess.13beaches("~/dropbox/13beaches/data/final/13beaches-analysis.csv")
+
+Successfully loaded the data
+ Total sample size = 88083 
+
+Dropping individuals with GI illness at enrollment
+ N = 2025 
+
+Final sample size = 86058 
+
+Subsetting the data to relevant variables and completing final variable pre-processing> 
+> # drop individuals with no water quality information
+> table(ad$nowq)
+
+    0     1 
+84688  1370 
+> ad <- subset(ad,nowq==0)
+> dim(ad)
+[1] 84688    48
+> 
+> # subset to non-missing exposure categories
+> table(ad$bodycontact)
+
+   No   Yes 
+37448 47240 
+> ad <- subset(ad,ad$bodycontact=="Yes")
+> 	dim(ad)
+[1] 47240    48
+> ad <- subset(ad,is.na(ad$entero35)==FALSE)
+> 	dim(ad)
+[1] 47240    48
+> 
+> 
+> # --------------------------------------
+> # Calculate the actual Ns for each cell
+> # and store them for plotting and tables
+> # --------------------------------------
+> 
+> # --------------------------------------
+> # Summarize 
+> # the number of swimmers and number
+> # of cumulative incident episodes by
+> # Entero 1600 category
+> # --------------------------------------
+> calcNs <- function(outcome,exposurecat) {
++   n <- tapply(outcome,exposurecat,sum)
++   N <- tapply(outcome,exposurecat,function(x) length(x))
++   cbind(n,N)
++ }
+> 
+> # overall
+> N.all <- calcNs(ad$medgi,ad$entero35)
+> # age stratified
+> N.age0to4   <- calcNs(ad$medgi[ad$agestrat=="(0, 4]"],ad$entero35[ad$agestrat=="(0, 4]"] )
+> N.age5to10  <- calcNs(ad$medgi[ad$agestrat=="(4, 10]"],ad$entero35[ad$agestrat=="(4, 10]"] )
+> N.age11plus <- calcNs(ad$medgi[ad$agestrat==">10"],ad$entero35[ad$agestrat==">10"] )
+> # point source vs. non-point source stratified
+> N.nps <- calcNs(ad$medgi[ad$pointsource=="No"], ad$entero35[ad$pointsource=="No"])
+> N.ps  <- calcNs(ad$medgi[ad$pointsource=="Yes"],ad$entero35[ad$pointsource=="Yes"])
+> 
+> # --------------------------------------
+> # Estimate and bootstrap the parameters
+> # of interest
+> # see the aim2 base functions for
+> # details of the bootAR35cfu function
+> # --------------------------------------
+> set.seed(335324)
+> fmla <- formula(medgi~entero35+marine+pointsource+agecat+female+racewhite+gichron+anim_any+gicontactbase+rawfood+beach)
+> AR35cfu.medgi <- bootAR(fn="AR35cfu",fmla=fmla,data=ad,ID=ad$hhid,strata=ad$beach,iter=1000)
+
+
+
+Bootstrap Iterations (1000) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..................................................50 
+..................................................100 
+..................................................150 
+..................................................200 
+..................................................250 
+..................................................300 
+..................................................350 
+..................................................400 
+..................................................450 
+..................................................500 
+..................................................550 
+..................................................600 
+..................................................650 
+..................................................700 
+..................................................750 
+..................................................800 
+..................................................850 
+..................................................900 
+..................................................950 
+..................................................1000 
+
+ Bootstrap Run Time: 101.115  Minutes 
+
+
+ Bootstrap Estimates:
+
+ Means    : 0.0000 0.1447 0.0124 0.0123 0.0127 
+ Lower 95%: -0.0005 -4.2487 0.0110 0.0109 0.0083 
+ Upper 95%: 0.0006 4.5380 0.0137 0.0139 0.0180 
+There were 50 or more warnings (use warnings() to see the first 50)
+> 
+> # save results down
+> rm(ad)
+> save.image(file="~/dropbox/13beaches/aim2-results/rawoutput/aim2-PARentero1600-medgi.RData")
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> proc.time()
+    user   system  elapsed 
+4690.233 1458.519 6151.819 

@@ -1,0 +1,1082 @@
+--------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/4-append-epi-data.log
+  log type:  text
+ opened on:  18 Dec 2015, 10:14:15
+
+. 
+. *----------------------------------------
+. * 4-append-epi-data.do
+. * ben arnold
+. *
+. * append NEEAR, ADM, and Mission Bay
+. * epi data into a single file
+. *
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * input files:
+. *       neear-epi.dta
+. *       adm-epi.dta
+. *       mb-epi.dta
+. *
+. * output files:
+. *       13beaches-epi.dta / .csv
+. *       13beaches-epi-varlist.dta / .csv
+. *----------------------------------------
+. 
+. 
+. *----------------------------------------
+. * read in NEEAR and append ADM
+. *----------------------------------------
+. use "~/dropbox/13beaches/data/final/neear-epi.dta", clear
+(NEEAR epi data, created by 1-format-neear-epi.do)
+
+. 
+. desc, s
+
+Contains data from ~/dropbox/13beaches/data/final/neear-epi.dta
+  obs:        54,250                          NEEAR epi data, created by
+                                                1-format-neear-epi.do
+ vars:           281                          17 Dec 2015 13:54
+ size:    38,409,000                          
+Sorted by: 
+
+. 
+. append using "~/dropbox/13beaches/data/final/adm-epi.dta"
+(note: variable hhmem was byte, now int to accommodate using data's values)
+(note: variable sex was byte, now int to accommodate using data's values)
+(note: variable pool was byte, now int to accommodate using data's values)
+(note: variable earplugs was byte, now int to accommodate using data's values)
+(note: variable noseplugs was byte, now int to accommodate using data's
+       values)
+(note: variable mask was byte, now int to accommodate using data's values)
+(note: variable sunmin was int, now float to accommodate using data's values)
+(note: variable dig was byte, now int to accommodate using data's values)
+(note: variable bsand was byte, now int to accommodate using data's values)
+(note: variable sandwash was byte, now int to accommodate using data's values)
+(note: variable sanddry was byte, now int to accommodate using data's values)
+(note: variable sandmouth was byte, now int to accommodate using data's
+       values)
+(note: variable algae was byte, now int to accommodate using data's values)
+(note: variable algaemouth was byte, now int to accommodate using data's
+       values)
+(note: variable algaewash was byte, now int to accommodate using data's
+       values)
+(note: variable cutbase was byte, now int to accommodate using data's values)
+(note: variable block was byte, now int to accommodate using data's values)
+(note: variable prothat was byte, now int to accommodate using data's values)
+(note: variable shade was byte, now int to accommodate using data's values)
+(note: variable repel was byte, now int to accommodate using data's values)
+(note: variable eatfood was byte, now int to accommodate using data's values)
+(note: variable food was byte, now int to accommodate using data's values)
+(note: variable anim_base was byte, now int to accommodate using data's
+       values)
+(note: variable gicontact_base was byte, now int to accommodate using data's
+       values)
+(note: variable fish_base was byte, now int to accommodate using data's
+       values)
+(note: variable rawmeat_base was byte, now int to accommodate using data's
+       values)
+(note: variable eggs_base was byte, now int to accommodate using data's
+       values)
+(note: variable sunbase was byte, now int to accommodate using data's values)
+(note: variable stomach was byte, now int to accommodate using data's values)
+(note: variable stomachstill was byte, now int to accommodate using data's
+       values)
+(note: variable stomachdays was byte, now int to accommodate using data's
+       values)
+(note: variable diarrhea was byte, now int to accommodate using data's values)
+(note: variable diarrheastill was byte, now int to accommodate using data's
+       values)
+(note: variable diarrheadays was byte, now int to accommodate using data's
+       values)
+(note: variable diarrheanumber was byte, now int to accommodate using data's
+       values)
+(note: variable nausea was byte, now int to accommodate using data's values)
+(note: variable nauseastill was byte, now int to accommodate using data's
+       values)
+(note: variable nauseadays was byte, now int to accommodate using data's
+       values)
+(note: variable vomiting was byte, now int to accommodate using data's values)
+(note: variable vomitingstill was byte, now int to accommodate using data's
+       values)
+(note: variable vomitingdays was byte, now int to accommodate using data's
+       values)
+(note: variable vomitingnumber was byte, now int to accommodate using data's
+       values)
+(note: variable urinarytractinfection was byte, now int to accommodate using
+       data's values)
+(note: variable urinarytractinfectionstill was byte, now int to accommodate
+       using data's values)
+(note: variable urinarytractinfectiondays was byte, now int to accommodate
+       using data's values)
+(note: variable fever was byte, now int to accommodate using data's values)
+(note: variable feverstill was byte, now int to accommodate using data's
+       values)
+(note: variable feverdays was byte, now int to accommodate using data's
+       values)
+(note: variable fevertemptaken was byte, now int to accommodate using data's
+       values)
+(note: variable headache was byte, now int to accommodate using data's values)
+(note: variable headachestill was byte, now int to accommodate using data's
+       values)
+(note: variable headachedays was byte, now int to accommodate using data's
+       values)
+(note: variable sorethroat was byte, now int to accommodate using data's
+       values)
+(note: variable sorethroatstill was byte, now int to accommodate using data's
+       values)
+(note: variable sorethroatdays was byte, now int to accommodate using data's
+       values)
+(note: variable sorethroatallergy was byte, now int to accommodate using
+       data's values)
+(note: variable cough was byte, now int to accommodate using data's values)
+(note: variable coughstill was byte, now int to accommodate using data's
+       values)
+(note: variable coughdays was byte, now int to accommodate using data's
+       values)
+(note: variable coughallergy was byte, now int to accommodate using data's
+       values)
+(note: variable cold was byte, now int to accommodate using data's values)
+(note: variable coldstill was byte, now int to accommodate using data's
+       values)
+(note: variable colddays was byte, now int to accommodate using data's values)
+(note: variable coldallergy was byte, now int to accommodate using data's
+       values)
+(note: variable runnynose was byte, now int to accommodate using data's
+       values)
+(note: variable runnynosestill was byte, now int to accommodate using data's
+       values)
+(note: variable runnynosedays was byte, now int to accommodate using data's
+       values)
+(note: variable runnynoseallergy was byte, now int to accommodate using data's
+       values)
+(note: variable earache was byte, now int to accommodate using data's values)
+(note: variable earachestill was byte, now int to accommodate using data's
+       values)
+(note: variable earachedays was byte, now int to accommodate using data's
+       values)
+(note: variable earacheallergy was byte, now int to accommodate using data's
+       values)
+(note: variable wateryeyes was byte, now int to accommodate using data's
+       values)
+(note: variable wateryeyesstill was byte, now int to accommodate using data's
+       values)
+(note: variable wateryeyesdays was byte, now int to accommodate using data's
+       values)
+(note: variable wateryeyesallergy was byte, now int to accommodate using
+       data's values)
+(note: variable eyeinfection was byte, now int to accommodate using data's
+       values)
+(note: variable eyeinfectionstill was byte, now int to accommodate using
+       data's values)
+(note: variable eyeinfectiondays was byte, now int to accommodate using data's
+       values)
+(note: variable cut was byte, now int to accommodate using data's values)
+(note: variable cutstill was byte, now int to accommodate using data's values)
+(note: variable cutdays was byte, now int to accommodate using data's values)
+(note: variable rash was byte, now int to accommodate using data's values)
+(note: variable rashstill was byte, now int to accommodate using data's
+       values)
+(note: variable rashdays was byte, now int to accommodate using data's values)
+(note: variable sunburn was byte, now int to accommodate using data's values)
+(note: variable working was byte, now int to accommodate using data's values)
+(note: variable asth was byte, now int to accommodate using data's values)
+(note: variable skinchron was byte, now int to accommodate using data's
+       values)
+(note: variable preg was byte, now int to accommodate using data's values)
+(note: variable swam was byte, now int to accommodate using data's values)
+(note: variable samebeach was byte, now int to accommodate using data's
+       values)
+(note: variable publicpool was byte, now int to accommodate using data's
+       values)
+(note: variable anim_int was byte, now int to accommodate using data's values)
+(note: variable fish_int was byte, now int to accommodate using data's values)
+(note: variable rawmeat_int was byte, now int to accommodate using data's
+       values)
+(note: variable eggs_int was byte, now int to accommodate using data's values)
+(note: variable differentbeach was byte, now int to accommodate using data's
+       values)
+(note: variable hisp was byte, now int to accommodate using data's values)
+(note: variable intdate was int, now float to accommodate using data's values)
+(note: variable race was byte, now int to accommodate using data's values)
+(note: variable stomachstdt was int, now float to accommodate using data's
+       values)
+(note: variable diarrheastdt was int, now float to accommodate using data's
+       values)
+(note: variable nauseastdt was int, now float to accommodate using data's
+       values)
+(note: variable vomitingstdt was int, now float to accommodate using data's
+       values)
+(note: variable urinarytractinfectionstdt was int, now float to accommodate
+       using data's values)
+(note: variable feverstdt was int, now float to accommodate using data's
+       values)
+(note: variable headachestdt was int, now float to accommodate using data's
+       values)
+(note: variable sorethroatstdt was int, now float to accommodate using data's
+       values)
+(note: variable coughstdt was int, now float to accommodate using data's
+       values)
+(note: variable coldstdt was int, now float to accommodate using data's
+       values)
+(note: variable runnynosestdt was int, now float to accommodate using data's
+       values)
+(note: variable earachestdt was int, now float to accommodate using data's
+       values)
+(note: variable wateryeyesstdt was int, now float to accommodate using data's
+       values)
+(note: variable eyeinfectionstdt was int, now float to accommodate using
+       data's values)
+(note: variable cutstdt was int, now float to accommodate using data's values)
+(note: variable rashstdt was int, now float to accommodate using data's
+       values)
+(note: variable gibase was byte, now float to accommodate using data's values)
+(note: variable utibase was byte, now float to accommodate using data's
+       values)
+(note: variable vomitbase was byte, now float to accommodate using data's
+       values)
+(note: variable sorebase was byte, now float to accommodate using data's
+       values)
+(note: variable earbase was byte, now float to accommodate using data's
+       values)
+(note: variable eyebase was byte, now float to accommodate using data's
+       values)
+(note: variable rashbase was byte, now float to accommodate using data's
+       values)
+(note: variable teledate was int, now float to accommodate using data's
+       values)
+(note: variable anim_any was byte, now float to accommodate using data's
+       values)
+(note: variable eggs_any was byte, now float to accommodate using data's
+       values)
+(note: variable fish_any was byte, now float to accommodate using data's
+       values)
+(note: variable rawmeat_any was byte, now float to accommodate using data's
+       values)
+(label yesno already defined)
+
+. 
+. desc, s
+
+Contains data from ~/dropbox/13beaches/data/final/neear-epi.dta
+  obs:        75,614                          NEEAR epi data, created by
+                                                1-format-neear-epi.do
+ vars:           292                          17 Dec 2015 13:54
+ size:    69,111,196                          
+Sorted by: 
+     Note: Dataset has changed since last saved.
+
+. 
+. *----------------------------------------
+. * append Mission Bay
+. *----------------------------------------
+. 
+. append using "~/dropbox/13beaches/data/final/mb-epi.dta"
+(note: variable beach was str2, now str10 to accommodate using data's values)
+(note: variable beachcode was str11, now str13 to accommodate using data's
+       values)
+(note: variable anycontact was byte, now int to accommodate using data's
+       values)
+(note: variable bodycontact was byte, now int to accommodate using data's
+       values)
+(note: variable headunder was byte, now int to accommodate using data's
+       values)
+(note: variable mouthwater was byte, now int to accommodate using data's
+       values)
+(note: variable swallwater was byte, now int to accommodate using data's
+       values)
+(note: variable anyotcmeds_eye was byte, now int to accommodate using data's
+       values)
+(note: variable anyotcmeds_ear was byte, now int to accommodate using data's
+       values)
+(note: variable anyotcmeds_skn was byte, now int to accommodate using data's
+       values)
+(note: variable allergy was byte, now float to accommodate using data's
+       values)
+(note: variable gichron was byte, now float to accommodate using data's
+       values)
+(note: variable asth was int, now float to accommodate using data's values)
+(note: variable anyotcmeds_gas was byte, now float to accommodate using data's
+       values)
+(note: variable anyotcmeds_res was byte, now float to accommodate using data's
+       values)
+(note: variable cough was int, now float to accommodate using data's values)
+(note: variable differentbeach was int, now float to accommodate using data's
+       values)
+(note: variable earache was int, now float to accommodate using data's values)
+(note: variable samebeach was int, now float to accommodate using data's
+       values)
+(note: variable shade was int, now float to accommodate using data's values)
+(note: variable stayhomedays_ear was byte, now float to accommodate using
+       data's values)
+(note: variable stayhomedays_eye was byte, now float to accommodate using
+       data's values)
+(note: variable stayhomedays_gas was byte, now float to accommodate using
+       data's values)
+(note: variable stayhomedays_res was byte, now float to accommodate using
+       data's values)
+(note: variable stayhomedays_skn was byte, now float to accommodate using
+       data's values)
+(note: variable stopdailydays_ear was byte, now float to accommodate using
+       data's values)
+(note: variable stopdailydays_eye was byte, now float to accommodate using
+       data's values)
+(note: variable stopdailydays_gas was byte, now float to accommodate using
+       data's values)
+(note: variable stopdailydays_res was byte, now float to accommodate using
+       data's values)
+(note: variable stopdailydays_skn was byte, now float to accommodate using
+       data's values)
+(note: variable swam was int, now float to accommodate using data's values)
+(label yesno already defined)
+(label race already defined)
+(label sex already defined)
+
+. 
+. desc, s
+
+Contains data from ~/dropbox/13beaches/data/final/neear-epi.dta
+  obs:        88,083                          NEEAR epi data, created by
+                                                1-format-neear-epi.do
+ vars:           294                          17 Dec 2015 13:54
+ size:    87,378,336                          
+Sorted by: 
+     Note: Dataset has changed since last saved.
+
+. 
+. 
+. * make beach labels more informative
+. replace beach = "Avalon" if beach=="AV"
+(6,165 real changes made)
+
+. replace beach = "Boqueron" if beach=="BB"
+(15,726 real changes made)
+
+. replace beach = "Doheny" if beach=="DO"
+(9,525 real changes made)
+
+. replace beach = "Edgewater" if beach=="EB"
+(1,351 real changes made)
+
+. replace beach = "Fairhope" if beach=="FB"
+(2,022 real changes made)
+
+. replace beach = "Goddard" if beach=="GB"
+(2,977 real changes made)
+
+. replace beach = "Huntington" if beach=="HB"
+(2,840 real changes made)
+
+. replace beach = "Malibu" if beach=="MA"
+(5,674 real changes made)
+
+. replace beach = "Surfside" if beach=="MB"
+(11,159 real changes made)
+
+. replace beach = "Silver" if beach=="SB"
+(10,921 real changes made)
+
+. replace beach = "West" if beach=="WB"
+(2,877 real changes made)
+
+. replace beach = "Washington Park" if beach=="WP"
+variable beach was str10 now str15
+(4,377 real changes made)
+
+. replace beach = "Mission Bay" if beach=="MissionBay"
+(12,469 real changes made)
+
+. 
+. * format dates
+. format intdate teledate %d
+
+. 
+. 
+. * variable label that wasn't coming through for some reason
+. label define sanddry 1 "All dry" 2 "Mostly dry" 3 "Mostly wet" 4 "All wet" 8 "
+> DK" 9 "MD"
+
+. label values sanddry sanddry
+
+. 
+. * add the Yes/No label to a few straggling variables that remain unlabeled
+. local yesnovars "eatfood cough gicontact_int fevertemptaken working othersmiss
+> _gas othersmiss_eye othersmiss_res othersmiss_ear othersmiss_uti othersmiss_sk
+> n"
+
+. foreach var of varlist `yesnovars' {
+  2.         label values `var' yesno
+  3. }
+
+. 
+. * assume that 39 people with no GI illness at enrollment are "No"
+. replace gibase=0 if gibase==.
+(39 real changes made)
+
+. 
+. * assume that 381 people with no information about water contact had none
+. replace anycontact=0 if anycontact==.
+(381 real changes made)
+
+. * assume that 501 people with no information about body immersion contact had 
+> none
+. replace bodycontact=0 if bodycontact==.
+(501 real changes made)
+
+. * assume that 550 people with no information about head immersion contact had 
+> none
+. replace headunder=0 if headunder==.
+(550 real changes made)
+
+. * assume that 1648 people with no information about water ingestion had none
+. replace swallwater=0 if swallwater==.
+(1,648 real changes made)
+
+. 
+. *---------------------------------------------
+. * add variable notes
+. *---------------------------------------------
+. 
+. * drop any existing notes
+. notes drop _dta
+  (4 notes dropped)
+
+. notes drop *
+  (0 notes dropped)
+
+. 
+. * general notes
+. note: TS 13-Beaches Epidemiology Data, created by 4-append-epi-data.do
+
+. note: Please contact Ben Arnold (benarnold@berkeley.edu) and Tim Wade (wade.ti
+> m@epa.gov) if you have specific questions about the dataset
+
+. note: Some variables were not collected at all beaches. See 13beaches-epi-varl
+> ist.dta for a summary table of variable inclusion by beach group (NEEAR, Avalo
+> n/Doheny/Malibu, Mision Bay).
+
+. note: Doheny and Malibu have a -berm- variable that indicates when a sand berm
+>  was open to allow freshwater to flow into the ocean. See Colford et al (Water
+>  Res, 2012, 46, 2176-2186) and Arnold et al (Epidemiology, 2013, 24, 845-853) 
+> for details. 
+
+. note: Avalon has a -groundwater- variable that indicates that groundwater flow
+>  was above median. See Yau et al (Water Res, 2014, 59, 23-36) for details.
+
+. 
+. 
+. * Race variable for NEEAR
+. note race: "In the NEEAR beaches, hispanic individuals were all coded as non-w
+> hite, which is different from Avalon/Doheney/Malibu/Mission Bay, where some pe
+> ople identified as white, hispanic"
+
+. 
+. * sunhr for MB
+. note sunhr: "sunhr and sunmin not calculable for Mission Bay -- only collected
+>  as categorical data, stored as sunhr_cat"
+
+. note sunhr_cat: "Mission Bay only collected categorical information about expo
+> sure to direct sunlight"
+
+. 
+. * stmatch
+. note stmatch: "Site- and Time-specific match code only created for Avalon/Dohe
+> ny/Malibu beaches for merge to site- and time-specific water quality data"
+
+. 
+. * hhinc
+. note hhinc: "Household income categories collected at Avalon/Doheny/Malibu"
+
+. note hhinc_mb: "Household income categories collected at Mission Bay, differen
+> t from Av/Do/Ma beaches"
+
+. 
+. 
+. *----------------------------------------
+. * save combined epidemiology dataset
+. *----------------------------------------
+. order beach beachcode hhid indid intdate teledate
+
+. compress
+  variable intdate was float now int
+  variable teledate was float now int
+  variable sex was int now byte
+  variable hisp was int now byte
+  variable gibase was float now byte
+  variable utibase was float now byte
+  variable vomitbase was float now byte
+  variable sorebase was float now byte
+  variable earbase was float now byte
+  variable eyebase was float now byte
+  variable rashbase was float now byte
+  variable sunbase was int now byte
+  variable gichron was float now byte
+  variable asth was float now byte
+  variable allergy was float now byte
+  variable skinchron was int now byte
+  variable sunburn was int now byte
+  variable pool was int now byte
+  variable dig was int now byte
+  variable bsand was int now byte
+  variable sandmouth was int now byte
+  variable sandwash was int now byte
+  variable sanddry was int now byte
+  variable algae was int now byte
+  variable algaemouth was int now byte
+  variable cutbase was int now byte
+  variable block was int now byte
+  variable prothat was int now byte
+  variable shade was float now byte
+  variable repel was int now byte
+  variable eatfood was int now byte
+  variable food was int now byte
+  variable anim_base was int now byte
+  variable gicontact_base was int now byte
+  variable fish_base was int now byte
+  variable rawmeat_base was int now byte
+  variable eggs_base was int now byte
+  variable anycontact was int now byte
+  variable bodycontact was int now byte
+  variable headunder was int now byte
+  variable swallwater was int now byte
+  variable mouthwater was int now byte
+  variable earplugs was int now byte
+  variable noseplugs was int now byte
+  variable mask was int now byte
+  variable preg was int now byte
+  variable swam was float now byte
+  variable samebeach was float now byte
+  variable differentbeach was float now byte
+  variable publicpool was int now byte
+  variable stomach was int now byte
+  variable diarrhea was int now byte
+  variable nausea was int now byte
+  variable vomiting was int now byte
+  variable urinarytractinfection was int now byte
+  variable fever was int now byte
+  variable headache was int now byte
+  variable sorethroat was int now byte
+  variable cough was float now byte
+  variable cold was int now byte
+  variable runnynose was int now byte
+  variable earache was float now byte
+  variable wateryeyes was int now byte
+  variable eyeinfection was int now byte
+  variable cut was int now byte
+  variable rash was int now byte
+  variable anim_int was int now byte
+  variable fish_int was int now byte
+  variable rawmeat_int was int now byte
+  variable eggs_int was int now byte
+  variable stomachstill was int now byte
+  variable stomachdays was int now byte
+  variable diarrheastill was int now byte
+  variable diarrheadays was int now byte
+  variable diarrheanumber was int now byte
+  variable nauseastill was int now byte
+  variable nauseadays was int now byte
+  variable vomitingstill was int now byte
+  variable vomitingdays was int now byte
+  variable vomitingnumber was int now byte
+  variable urinarytractinfectionstill was int now byte
+  variable urinarytractinfectiondays was int now byte
+  variable feverstill was int now byte
+  variable feverdays was int now byte
+  variable fevertemptaken was int now byte
+  variable headachestill was int now byte
+  variable headachedays was int now byte
+  variable sorethroatstill was int now byte
+  variable sorethroatdays was int now byte
+  variable sorethroatallergy was int now byte
+  variable coughstill was int now byte
+  variable coughdays was int now byte
+  variable coughallergy was int now byte
+  variable coldstill was int now byte
+  variable colddays was int now byte
+  variable coldallergy was int now byte
+  variable runnynosestill was int now byte
+  variable runnynosedays was int now byte
+  variable runnynoseallergy was int now byte
+  variable earachestill was int now byte
+  variable earachedays was int now byte
+  variable earacheallergy was int now byte
+  variable wateryeyesstill was int now byte
+  variable wateryeyesdays was int now byte
+  variable wateryeyesallergy was int now byte
+  variable eyeinfectionstill was int now byte
+  variable eyeinfectiondays was int now byte
+  variable cutstill was int now byte
+  variable cutdays was int now byte
+  variable rashstill was int now byte
+  variable rashdays was int now byte
+  variable working was int now byte
+  variable stayhomedays_gas was float now byte
+  variable stopdailydays_gas was float now byte
+  variable anyotcmeds_gas was float now byte
+  variable stayhomedays_eye was float now byte
+  variable stopdailydays_eye was float now byte
+  variable anyotcmeds_eye was int now byte
+  variable stayhomedays_res was float now byte
+  variable stopdailydays_res was float now byte
+  variable anyotcmeds_res was float now byte
+  variable stayhomedays_ear was float now byte
+  variable stopdailydays_ear was float now byte
+  variable anyotcmeds_ear was int now byte
+  variable stayhomedays_skn was float now byte
+  variable stopdailydays_skn was float now byte
+  variable anyotcmeds_skn was int now byte
+  variable stomachstdt was float now int
+  variable diarrheastdt was float now int
+  variable nauseastdt was float now int
+  variable vomitingstdt was float now int
+  variable urinarytractinfectionstdt was float now int
+  variable feverstdt was float now int
+  variable headachestdt was float now int
+  variable sorethroatstdt was float now int
+  variable coughstdt was float now int
+  variable coldstdt was float now int
+  variable runnynosestdt was float now int
+  variable earachestdt was float now int
+  variable wateryeyesstdt was float now int
+  variable eyeinfectionstdt was float now int
+  variable cutstdt was float now int
+  variable rashstdt was float now int
+  variable rawmeat_any was float now byte
+  variable fish_any was float now byte
+  variable eggs_any was float now byte
+  variable anim_any was float now byte
+  variable hhmem was int now byte
+  variable algaewash was int now byte
+  variable race was int now byte
+  variable wetsuit was int now byte
+  variable drinksy was int now byte
+  variable sunburnstill was int now byte
+  variable sunburndays was int now byte
+  variable hhinc was int now byte
+  variable sunburnstdt was float now int
+  variable totdays was float now byte
+  variable berm was float now byte
+  variable stmatch was int now byte
+  variable sunhr_cat was int now byte
+  variable hhinc_mb was int now byte
+  (21,844,584 bytes saved)
+
+. label data "13 beaches epi data, created by 4-append-epi-data.do"
+
+. saveold "~/dropbox/13beaches/data/final/13beaches-epi.dta", replace version(12
+> )
+(saving in Stata 12 format, which can be read by Stata 11 or 12)
+file ~/dropbox/13beaches/data/final/13beaches-epi.dta saved
+
+. outsheet using "~/dropbox/13beaches/data/final/13beaches-epi.csv", comma repla
+> ce
+
+. 
+. * write a codebook to separate file
+. log close
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/4-append-epi-data.log
+  log type:  text
+ closed on:  18 Dec 2015, 10:14:58
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/4-append-epi-data.log
+  log type:  text
+ opened on:  18 Dec 2015, 10:16:34
+
+. 
+. 
+. use "~/dropbox/13beaches/data/temp/neear-epi-vars.dta", clear
+(variables for neear-epi.dta)
+
+. sort name
+
+. tempfile neear
+
+. save `neear'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_00944.000001 saved
+
+. 
+. use "~/dropbox/13beaches/data/temp/adm-epi-vars.dta", clear
+(variables for adm-epi.dta)
+
+. sort name
+
+. merge 1:1 name using `neear'
+(note: variable type was str5, now str6 to accommodate using data's values)
+(note: variable format was str6, now str8 to accommodate using data's values)
+(note: variable varlab was str57, now str80 to accommodate using data's
+       values)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                            44
+        from master                        11  (_merge==1)
+        from using                         33  (_merge==2)
+
+    matched                               248  (_merge==3)
+    -----------------------------------------
+
+. 
+. gen byte inNEEAR = inlist(_merge,2,3)
+
+.         label var inNEEAR "In NEEAR data"
+
+. gen byte inADM = inlist(_merge,1,3)
+
+.         label var inADM "In ADM data"
+
+.         drop _merge
+
+. 
+. save `neear', replace
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_00944.000001 saved
+
+. 
+. use "~/dropbox/13beaches/data/temp/mb-epi-vars.dta", clear
+(variables for mb-epi.dta)
+
+. sort name
+
+. merge 1:1 name using `neear'
+(note: variable name was str17, now str26 to accommodate using data's values)
+(note: variable type was str5, now str6 to accommodate using data's values)
+(note: variable format was str6, now str8 to accommodate using data's values)
+(note: variable vallab was str6, now str25 to accommodate using data's values)
+(note: variable varlab was str61, now str80 to accommodate using data's
+       values)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                           182
+        from master                         2  (_merge==1)
+        from using                        180  (_merge==2)
+
+    matched                               112  (_merge==3)
+    -----------------------------------------
+
+. gen byte inMB = inlist(_merge,1,3)
+
+.         label var inMB "In Mission Bay data"
+
+.         drop _merge
+
+. 
+. * set unmatched values to 0
+. replace inNEEAR = 0 if inNEEAR==.
+(2 real changes made)
+
+. replace inADM = 0 if inADM==.
+(2 real changes made)
+
+. 
+. 
+. * tabulate discordance
+. tab inNEEAR inADM
+
+  In NEEAR |      In ADM data
+      data |         0          1 |     Total
+-----------+----------------------+----------
+         0 |         2         11 |        13 
+         1 |        33        248 |       281 
+-----------+----------------------+----------
+     Total |        35        259 |       294 
+
+
+. tab inNEEAR inMB
+
+  In NEEAR |  In Mission Bay data
+      data |         0          1 |     Total
+-----------+----------------------+----------
+         0 |         9          4 |        13 
+         1 |       171        110 |       281 
+-----------+----------------------+----------
+     Total |       180        114 |       294 
+
+
+. tab inADM inMB
+
+    In ADM |  In Mission Bay data
+      data |         0          1 |     Total
+-----------+----------------------+----------
+         0 |        33          2 |        35 
+         1 |       147        112 |       259 
+-----------+----------------------+----------
+     Total |       180        114 |       294 
+
+
+. 
+. * list discordance
+. list name if inNEEAR & !inADM
+
+     +---------------+
+     |          name |
+     |---------------|
+124. |       areamst |
+125. |     beachtype |
+127. |     blockface |
+139. | diagnosis_ear |
+140. | diagnosis_eye |
+     |---------------|
+141. | diagnosis_gas |
+142. | diagnosis_res |
+143. | diagnosis_skn |
+144. | diagnosis_uti |
+164. | gicontact_any |
+     |---------------|
+165. | gicontact_int |
+185. |           lat |
+186. |         longi |
+187. |   meanbathers |
+188. |         miles |
+     |---------------|
+222. |          prot |
+223. |      protbrim |
+224. |       protslv |
+225. |       raceoth |
+228. |         reapp |
+     |---------------|
+235. |        seatdr |
+239. |           spf |
+250. |      sunburn1 |
+251. |      sunburn2 |
+252. |      sunburn3 |
+     |---------------|
+253. |      sunburn4 |
+254. |      sunburn5 |
+255. |      sunburn6 |
+256. |      sunburn7 |
+258. |  sunburnother |
+     |---------------|
+263. |       swimloc |
+264. |       tanning |
+271. |       venfest |
+     +---------------+
+
+. list name if inADM & !inNEEAR
+
+     +--------------+
+     |         name |
+     |--------------|
+ 15. |    beachcode |
+ 28. |      drinksy |
+126. |         berm |
+166. |  groundwater |
+171. |        hhinc |
+     |--------------|
+242. |      stmatch |
+257. |  sunburndays |
+259. |  sunburnstdt |
+260. | sunburnstill |
+265. |      totdays |
+     |--------------|
+294. |      wetsuit |
+     +--------------+
+
+. 
+. list name if (inNEEAR & inADM) & (!inMB)
+
+     +----------------------------+
+     |                       name |
+     |----------------------------|
+115. |                 algaemouth |
+116. |                  algaewash |
+117. |             anyotcmeds_uti |
+118. |          anyprescrdrug_ear |
+119. |          anyprescrdrug_eye |
+     |----------------------------|
+120. |          anyprescrdrug_gas |
+121. |          anyprescrdrug_res |
+122. |          anyprescrdrug_skn |
+123. |          anyprescrdrug_uti |
+128. |                       cold |
+     |----------------------------|
+129. |                coldallergy |
+130. |                   colddays |
+131. |                   coldstdt |
+132. |                  coldstill |
+133. |                       come |
+     |----------------------------|
+134. |               coughallergy |
+135. |                  coughdays |
+136. |                 coughstill |
+137. |                    cutdays |
+138. |                   cutstill |
+     |----------------------------|
+145. |               diarrheadays |
+146. |             diarrheanumber |
+147. |              diarrheastill |
+148. |             earacheallergy |
+149. |                earachedays |
+     |----------------------------|
+150. |               earachestill |
+151. |                    earbase |
+152. |          emergencyroom_ear |
+153. |          emergencyroom_eye |
+154. |          emergencyroom_gas |
+     |----------------------------|
+155. |          emergencyroom_res |
+156. |          emergencyroom_skn |
+157. |          emergencyroom_uti |
+158. |           eyeinfectiondays |
+159. |          eyeinfectionstill |
+     |----------------------------|
+160. |                  feverdays |
+161. |                 feverstill |
+162. |                  fevertemp |
+163. |             fevertemptaken |
+167. |                   headache |
+     |----------------------------|
+168. |               headachedays |
+169. |               headachestdt |
+170. |              headachestill |
+172. |                      hhmem |
+173. |           hospitaldays_ear |
+     |----------------------------|
+174. |           hospitaldays_eye |
+175. |           hospitaldays_gas |
+176. |           hospitaldays_res |
+177. |           hospitaldays_skn |
+178. |           hospitaldays_uti |
+     |----------------------------|
+179. |           hospitalized_ear |
+180. |           hospitalized_eye |
+181. |           hospitalized_gas |
+182. |           hospitalized_res |
+183. |           hospitalized_skn |
+     |----------------------------|
+184. |           hospitalized_uti |
+189. |                 nauseadays |
+190. |                nauseastill |
+191. |             othersmiss_ear |
+192. |             othersmiss_eye |
+     |----------------------------|
+193. |             othersmiss_gas |
+194. |             othersmiss_res |
+195. |             othersmiss_skn |
+196. |             othersmiss_uti |
+197. |         othersmissdays_ear |
+     |----------------------------|
+198. |         othersmissdays_eye |
+199. |         othersmissdays_gas |
+200. |         othersmissdays_res |
+201. |         othersmissdays_skn |
+202. |         othersmissdays_uti |
+     |----------------------------|
+203. |       ownmoneyfordrugs_ear |
+204. |       ownmoneyfordrugs_eye |
+205. |       ownmoneyfordrugs_gas |
+206. |       ownmoneyfordrugs_res |
+207. |       ownmoneyfordrugs_skn |
+     |----------------------------|
+208. |       ownmoneyfordrugs_uti |
+209. |         ownmoneyforotc_ear |
+210. |         ownmoneyforotc_eye |
+211. |         ownmoneyforotc_gas |
+212. |         ownmoneyforotc_res |
+     |----------------------------|
+213. |         ownmoneyforotc_skn |
+214. |         ownmoneyforotc_uti |
+215. |               phonedoc_ear |
+216. |               phonedoc_eye |
+217. |               phonedoc_gas |
+     |----------------------------|
+218. |               phonedoc_res |
+219. |               phonedoc_skn |
+220. |               phonedoc_uti |
+221. |                       pool |
+226. |                   rashdays |
+     |----------------------------|
+227. |                  rashstill |
+229. |           runnynoseallergy |
+230. |              runnynosedays |
+231. |             runnynosestill |
+232. |                    sanddry |
+     |----------------------------|
+233. |                  sandmouth |
+234. |                   sandwash |
+236. |          sorethroatallergy |
+237. |             sorethroatdays |
+238. |            sorethroatstill |
+     |----------------------------|
+240. |               stayhome_uti |
+241. |           stayhomedays_uti |
+243. |                    stomach |
+244. |                stomachdays |
+245. |               stomachstill |
+     |----------------------------|
+246. |              stopdaily_uti |
+247. |          stopdailydays_uti |
+248. |                    sunbase |
+249. |                    sunburn |
+261. |                      sunhr |
+     |----------------------------|
+262. |                     sunmin |
+266. |      urinarytractinfection |
+267. |  urinarytractinfectiondays |
+268. |  urinarytractinfectionstdt |
+269. | urinarytractinfectionstill |
+     |----------------------------|
+270. |                    utibase |
+272. |               visitdoc_uti |
+273. |          visitdoctimes_ear |
+274. |          visitdoctimes_eye |
+275. |          visitdoctimes_gas |
+     |----------------------------|
+276. |          visitdoctimes_res |
+277. |          visitdoctimes_skn |
+278. |          visitdoctimes_uti |
+279. |           visitertimes_ear |
+280. |           visitertimes_eye |
+     |----------------------------|
+281. |           visitertimes_gas |
+282. |           visitertimes_res |
+283. |           visitertimes_skn |
+284. |           visitertimes_uti |
+285. |                  vomitbase |
+     |----------------------------|
+286. |               vomitingdays |
+287. |             vomitingnumber |
+288. |              vomitingstill |
+289. |                 wateryeyes |
+290. |          wateryeyesallergy |
+     |----------------------------|
+291. |             wateryeyesdays |
+292. |             wateryeyesstdt |
+293. |            wateryeyesstill |
+     +----------------------------+
+
+. list name if inMB & !(inNEEAR | inADM)
+
+     +-----------+
+     |      name |
+     |-----------|
+ 50. |  hhinc_mb |
+101. | sunhr_cat |
+     +-----------+
+
+. 
+. 
+. label data "13 beaches variable list, created by 4-append-epi-data.do"
+
+. saveold "~/dropbox/13beaches/data/final/13beaches-epi-varlist.dta", replace ve
+> rsion(12)
+(saving in Stata 12 format, which can be read by Stata 11 or 12)
+file ~/dropbox/13beaches/data/final/13beaches-epi-varlist.dta saved
+
+. outsheet using "~/dropbox/13beaches/data/final/13beaches-epi-varlist.csv", com
+> ma replace
+
+. 
+. 
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/4-append-epi-data.log
+  log type:  text
+ closed on:  18 Dec 2015, 10:16:35
+--------------------------------------------------------------------------------

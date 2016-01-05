@@ -1,0 +1,201 @@
+
+
+
+
+# --------------------------------------
+# 7-aim1-entero-distribution-figures.R
+# ben arnold (benarnold@berkeley.edu)
+#
+# description:
+# plot the distributions and summary 
+# statistics for the Entero EPA 1600
+# and Entero EPA qPCR 1611 water samples
+#
+# --------------------------------------
+
+# --------------------------------------
+# input files:
+#    13beaches-wq.csv
+#    13beaches-analysis.csv
+#
+# output files:
+#    aim1-Enterococcus-distributions.pdf
+#    aim1-Enterococcus-1600-v-qPCR-scatter.pdf
+# --------------------------------------
+
+
+# --------------------------------------
+# preamble
+# --------------------------------------
+
+rm(list=ls())
+library(RColorBrewer)
+library(scales)
+
+
+# --------------------------------------
+# load the water quality dataset
+# --------------------------------------
+
+wq <-read.csv("~/dropbox/13beaches/data/final/13beaches-wq.csv")
+
+
+# --------------------------------------
+# Recode the EPA 1600 values at
+# Mission Bay with the Enterolert values
+# --------------------------------------
+wq$avgdyentero1600[wq$beach=="Mission Bay"] <- wq$avgdyenteroELT[wq$beach=="Mission Bay"]
+
+
+quantile(10^wq$avgdyentero1600,na.rm=T)
+
+# drop Site C samples from Doheny and Malibu for plotting
+# (Lagoon samples are not at all representative of the 
+# main beach conditions that the vast majority of individuals were exposed to)
+table(wq$beachcode)
+wq <- subset(wq,beachcode!="Doheny-C" & beachcode!="Malibu-C")
+
+quantile(10^wq$avgdyentero1600,na.rm=T)
+
+
+# --------------------------------------
+# load the individual participant dataset
+# --------------------------------------
+
+d <- read.csv("~/dropbox/13beaches/data/final/13beaches-analysis.csv")
+
+# restrict the data to individuals who are at risk of GI illness
+dim(d)
+d <- subset(d,gibase!="Yes")
+dim(d)
+
+# restrict the data to body immersion swimmers
+d <- subset(d,bodycontact=="Yes")
+dim(d)
+
+# restrict the data to individuals who have water quality measurements
+d <- subset(d,nowq==0)
+dim(d)
+
+# --------------------------------------
+# Recode the EPA 1600 values at
+# Mission Bay with the Enterolert values
+# --------------------------------------
+d$avgdyentero1600[d$beach=="Mission Bay"] <- d$avgdyenteroELT[d$beach=="Mission Bay"]
+
+# --------------------------------------
+# make the plots for water quality
+# samples and exposure distributions
+# --------------------------------------
+
+pdf("~/dropbox/13beaches/aim1-results/figs/aim1-Enterococcus-distributions.pdf",width=8,height=8)
+
+# common plot parameters and layout
+xtics <- c(-1,0,1,2,3,4)
+histbreaks <- seq(-1,4.7,by=0.1)
+wqytics <- seq(0,40,by=10)
+pytics <- seq(0,4000,by=1000)
+cols <- c(brewer.pal(9,"YlGnBu")[7], brewer.pal(9,"YlOrBr")[4]   )
+lo <- layout(mat=matrix(1:4,nrow=2,ncol=2,byrow=T))
+
+# Entero 1600 water samples
+hist(wq$avgdyentero1600,breaks=histbreaks,
+	col=alpha(cols[1],0.5),
+	xlab="Log10 Enterococcus CFU/100ml",xlim=range(xtics),xaxt="n",
+	ylab="",ylim=range(wqytics),yaxt="n",
+	main=""
+	)
+	axis(1,at=xtics)
+	axis(2,at=wqytics,las=1)
+	mtext("Frequency",side=3,line=0,at=-1.75,adj=0,cex=0.7)
+	segments(x0=log10(35),y0=0,y1=35,lty=2,lwd=2,col="gray20")
+	points(log10(35),0,pch=16,col="gray20")
+	text(x=log10(35),y=35,"Regulatory guideline\n35 CFU/100ml",pos=4,cex=0.75)
+	mtext("Enterococcus EPA 1600 and Enterolert\nDistribution of Daily Averages",side=3,line=1.5,cex=0.8,font=2,adj=0)
+	mtext("A)",side=3,line=2,at=-1.75,font=2,cex=1.5)
+
+# Entero qPCR 1611 water samples
+hist(wq$avgdyenteropcr,breaks=histbreaks,
+	col=alpha(cols[2],0.5),
+	xlab="Log10 Enterococcus EPA qPCR 1611 CCE/100ml",xlim=range(xtics),xaxt="n",
+	ylab="",ylim=range(wqytics),yaxt="n",
+	main=""
+	)
+	axis(1,at=xtics)
+	axis(2,at=wqytics,las=1)
+	mtext("Frequency",side=3,line=0,at=-1.75,adj=0,cex=0.7)
+	segments(x0=log10(470),y0=0,y1=35,lty=2,lwd=2,col="gray20")
+	points(log10(470),0,pch=16,col="gray20")
+	text(x=log10(470),y=35,"Regulatory guideline\n470 CCE/100ml",pos=4,cex=0.75)
+	mtext("Enterococcus EPA qPCR 1611\nDistribution of Daily Averages",side=3,line=1.5,cex=0.8,font=2,adj=0)
+	mtext("B)",side=3,line=2,at=-1.75,font=2,cex=1.5)
+
+	
+
+# Entero 1600 swimmers exposed
+hist(d$avgdyentero1600,breaks=histbreaks,
+	col=alpha(cols[1],0.5),
+	xlab="Log10 Enterococcus CFU/100ml",xlim=range(xtics),xaxt="n",
+	ylab="",ylim=range(pytics),yaxt="n",
+	main=""
+	)
+	axis(1,at=xtics)
+	axis(2,at=pytics,labels=sprintf("%1.0f",pytics/1000),las=1)
+	mtext("Frequency (1000s)",side=3,line=-0.25,at=-1.75,adj=0,cex=0.7)
+	segments(x0=log10(35),y0=0,y1=3000,lty=2,lwd=2,col="gray20")
+	points(log10(35),0,pch=16,col="gray20")
+	text(x=log10(35),y=3000,"Regulatory guideline\n35 CFU/100ml",pos=4,cex=0.75)
+	mtext("Enterococcus EPA 1600 and Enterolert\nDistribution of Body Immersion Swimmer Exposure",side=3,line=1.5,cex=0.8,font=2,adj=0)
+	mtext("C)",side=3,line=2,at=-1.75,font=2,cex=1.5)
+
+
+# Entero qPCR 1611 water samples
+hist(d$avgdyenteropcr,breaks=histbreaks,
+	col=alpha(cols[2],0.5),
+	xlab="Log10 Enterococcus EPA qPCR 1611 CCE/100ml",xlim=range(xtics),xaxt="n",
+	ylab="",ylim=range(pytics),yaxt="n",
+	main=""
+	)
+	axis(1,at=xtics)
+	axis(2,at=pytics,labels=sprintf("%1.0f",pytics/1000),las=1)	
+	mtext("Frequency (1000s)",side=3,line=-0.25,at=-1.75,adj=0,cex=0.7)
+	segments(x0=log10(470),y0=0,y1=3000,lty=2,lwd=2,col="gray20")
+	points(log10(470),0,pch=16,col="gray20")
+	text(x=log10(470),y=3000,"Regulatory guideline\n470 CCE/100ml",pos=4,cex=0.75)
+	mtext("Enterococcus EPA qPCR 1611\nDistribution of Body Immersion Swimmer Exposure",side=3,line=1.5,cex=0.8,font=2,adj=0)
+	mtext("D)",side=3,line=2,at=-1.75,font=2,cex=1.5)
+
+			
+dev.off()
+
+# --------------------------------------
+# scatter plot of 1600 vs qPCR
+# --------------------------------------
+
+# calculate Spearman's rank correlation coeff (rho)
+sp.rho <- cor.test(x=wq$avgdyentero1600,y=wq$avgdyenteropcr,method="spearman")
+rho.text <- substitute(paste("Spearman's ",rho," = ",rho.txt ),list(rho.txt=sprintf("%1.2f",sp.rho$estimate)))
+
+pdf("~/dropbox/13beaches/aim1-results/figs/aim1-Enterococcus-1600-v-qPCR-scatter.pdf")
+cols <- c(brewer.pal(9,"YlGnBu")[6], brewer.pal(9,"YlOrBr")[4]   )
+ytics <- xtics <- seq(-1,4,by=1)
+# combined plot
+plot(wq$avgdyentero1600,wq$avgdyenteropcr,type="n",
+	xaxt="n",xlab="Log10 Enterococcus CFU/100 ml",xlim=range(xtics),
+	yaxt="n",ylab="",ylim=range(ytics),
+	bty="n",las=1,main=""
+	)
+	axis(1,at=xtics,las=1)
+	axis(2,at=ytics,las=1)
+	mtext("Log10 Enterococcus EPA qPCR 1611\nCCE/100 ml",side=2,line=2)
+	segments(x0=log10(35),y0=min(ytics),y1=max(ytics),lty=2,lwd=1.5,col="gray40")
+	segments(y0=log10(470),x0=min(xtics),x1=max(xtics),lty=2,lwd=1.5,col="gray40")
+	text(x=max(xtics),y=log10(470)+0.2,"470 CCE",adj=1,col="gray20")
+	text(x=log10(35),y=max(ytics)-0.2,"35 CFU",pos=4,col="gray20")
+	
+	points(wq$avgdyentero1600,wq$avgdyenteropcr,pch=16,cex=0.7,col=alpha(cols[1],0.5))
+
+	mtext("Enterococcus qPCR vs. Culture Methods\nDaily Averages",side=3,line=1,cex=1.2,font=2)
+	text(3,0,rho.text)
+dev.off()
+

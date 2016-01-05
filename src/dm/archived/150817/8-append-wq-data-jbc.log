@@ -1,0 +1,451 @@
+---------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/jadederong/dropbox/13beaches/src/dm/8-append-wq-data-jbc.log
+  log type:  text
+ opened on:  16 Jul 2015, 14:43:23
+
+. 
+. *----------------------------------------
+. * 8-append-wq-data.do
+. * ben arnold
+. *
+. * append the water quality datasets into
+. * a single file and calculate quantiles
+. * of indicator distributions
+. *
+. * version 7 (14 jul 2015) by Jade
+. * modify script to output a dataset with 
+. * a row for each sample
+. *
+. * version 6 (12 jun 2015)
+. * output a codebook for the 13beaches-wq.dta/.csv datasets
+. *
+. * version 5 (24 apr 2015)
+. * revised the indicator quartile calculations
+. * to exclude the samples from lagoons in Doheny and Malibu (sites C)
+. * since very, very few individuals were exposed at those sites
+. * and the measurements are not representative of the distributions
+. * experienced in the population
+. *
+. * version 4 (20 feb 2015)
+. * added indicator quantile calculations
+. * 
+. * version 3 (12 feb 2015)
+. * added .csv export
+. *
+. * version 2 (4 feb 2015)
+. * added Mission Bay data
+. *
+. * version 1 (28 feb 2014)
+. *
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * input files:
+. *       neear-wq.dta
+. *   neear-wq-samples.dta
+. *   adm-wq.dta
+. *   adm-wq-samples.dta
+. *   mb-wq.dta
+. *   mb-wq-samples.dta
+. *
+. * output files:
+. *       13beaches-wq.dta / .csv
+. *       13beaches-wq-samples.dta / .csv
+. *
+. *----------------------------------------
+. 
+. 
+. *----------------------------------------
+. * read in the beaches indicator data
+. * append 
+. *----------------------------------------
+. 
+. use "~/dropbox/13beaches/data/final/adm-wq.dta", clear
+(ADM water quality data, created by 6-format-adm-wq.do)
+
+. 
+. append using "~/dropbox/13beaches/data/final/mb-wq.dta"
+(note: variable beach was str6, now str11 to accommodate using data's values)
+(note: variable beachcode was str11, now str13 to accommodate using data's values)
+
+. 
+. order beach beachcode marine coldate
+
+. 
+. append using  "~/dropbox/13beaches/data/final/neear-wq.dta"
+(note: variable beach was str11, now str15 to accommodate using data's values)
+
+. 
+. *----------------------------------------
+. * calculate quartiles of the indicator
+. * distribution
+. *----------------------------------------
+. 
+. * Enterococcus EPA 1600 quartiles
+. * exclude site C from Malibu and Doheny from the
+. * calculation because they are very different
+. sum avgdyentero1600
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+avgdyen~1600 |        643     1.18656    .9925824         -1   4.612784
+
+. sum avgdyentero1600 if !inlist(beachcode,"Doheny-C","Malibu-C"), d
+
+               Daily Avg log10 Entero EPA 1600
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%           -1             -1
+ 5%    -.3919732             -1
+10%    -.0758065             -1       Obs                 571
+25%     .4958486             -1       Sum of Wgt.         571
+
+50%     1.136238                      Mean           .9676432
+                        Largest       Std. Dev.      .7561427
+75%     1.472601       2.618365
+90%     1.810146       3.017899       Variance       .5717518
+95%     1.948192       3.132492       Skewness      -.6443063
+99%     2.463414       3.133969       Kurtosis       3.346724
+
+.         local p25 = r(p25)
+
+.         local p50 = r(p50)
+
+.         local p75 = r(p75)
+
+. gen int qavgdyentero1600 = 1
+
+.         replace qavgdyentero1600 = 2 if (avgdyentero1600> `p25') & (avgdyentero1600<=
+>  `p50')
+(143 real changes made)
+
+.         replace qavgdyentero1600 = 3 if (avgdyentero1600> `p50') & (avgdyentero1600<=
+>  `p75')
+(144 real changes made)
+
+.         replace qavgdyentero1600 = 4 if (avgdyentero1600> `p75') 
+(213 real changes made)
+
+.         replace qavgdyentero1600 = . if avgdyentero1600==.
+(2 real changes made, 2 to missing)
+
+.         label var qavgdyentero1600 "Quartiles of Enterococcus EPA 1600"
+
+.         tab qavgdyentero1600 if !inlist(beachcode,"Doheny-C","Malibu-C")
+
+  Quartiles |
+         of |
+Enterococcu |
+ s EPA 1600 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        143       25.04       25.04
+          2 |        143       25.04       50.09
+          3 |        143       25.04       75.13
+          4 |        142       24.87      100.00
+------------+-----------------------------------
+      Total |        571      100.00
+
+.         tab qavgdyentero1600
+
+  Quartiles |
+         of |
+Enterococcu |
+ s EPA 1600 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        145       22.55       22.55
+          2 |        143       22.24       44.79
+          3 |        144       22.40       67.19
+          4 |        211       32.81      100.00
+------------+-----------------------------------
+      Total |        643      100.00
+
+. 
+. * Enterococcus QPCR quartiles
+. * exclude site C from Malibu and Doheny from the
+. * calculation because they are very different
+. sum avgdyenteropcr, d
+
+              Daily Avg log10 Entero QPCR ddct
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%           -1             -1
+ 5%     .3592787             -1
+10%     .7622917             -1       Obs                 584
+25%     1.436451             -1       Sum of Wgt.         584
+
+50%     1.924992                      Mean           1.833454
+                        Largest       Std. Dev.      .8508073
+75%     2.359543       3.864311
+90%     2.746874       3.872112       Variance       .7238731
+95%     3.000284       3.971452       Skewness      -.7762585
+99%     3.581618       4.218297       Kurtosis       4.469361
+
+. sum avgdyenteropcr if !inlist(beachcode,"Doheny-C","Malibu-C"), d
+
+              Daily Avg log10 Entero QPCR ddct
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%           -1             -1
+ 5%     .3239978             -1
+10%      .680459             -1       Obs                 529
+25%     1.379584             -1       Sum of Wgt.         529
+
+50%     1.872867                      Mean           1.715584
+                        Largest       Std. Dev.      .7913561
+75%     2.269504       3.197376
+90%     2.549336       3.242097       Variance       .6262445
+95%     2.719659       3.507966       Skewness      -1.093057
+99%     3.159161       3.864311       Kurtosis       4.820121
+
+.         local p25 = r(p25)
+
+.         local p50 = r(p50)
+
+.         local p75 = r(p75)
+
+. gen int qavgdyenteropcr = 1
+
+.         replace qavgdyenteropcr = 2 if (avgdyenteropcr> `p25') & (avgdyenteropcr <= `
+> p50')
+(133 real changes made)
+
+.         replace qavgdyenteropcr = 3 if (avgdyenteropcr> `p50') & (avgdyenteropcr <= `
+> p75')
+(135 real changes made)
+
+.         replace qavgdyenteropcr = 4 if (avgdyenteropcr> `p75') 
+(244 real changes made)
+
+.         replace qavgdyenteropcr = . if avgdyenteropcr ==.
+(61 real changes made, 61 to missing)
+
+.         label var qavgdyenteropcr "Quartiles of Enterococcus EPA 1600"
+
+.         tab qavgdyenteropcr if !inlist(beachcode,"Doheny-C","Malibu-C")
+
+  Quartiles |
+         of |
+Enterococcu |
+ s EPA 1600 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        133       25.14       25.14
+          2 |        132       24.95       50.09
+          3 |        132       24.95       75.05
+          4 |        132       24.95      100.00
+------------+-----------------------------------
+      Total |        529      100.00
+
+.         tab qavgdyenteropcr
+
+  Quartiles |
+         of |
+Enterococcu |
+ s EPA 1600 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        133       22.77       22.77
+          2 |        133       22.77       45.55
+          3 |        135       23.12       68.66
+          4 |        183       31.34      100.00
+------------+-----------------------------------
+      Total |        584      100.00
+
+. 
+. 
+. *----------------------------------------
+. * save file
+. *----------------------------------------
+. note: TS 13-Beaches Water Quality Data, created by 8-append-wq-data.do
+
+. note: All indicators are means of log10 values, summarized daily over all samples, or
+>  separately for AM, Mid-Day, PM, shin-depth, or waist-depth samples 
+
+. note: The enteropcr2-4 variables are alternative Enterococcus qPCR calculations at Av
+> alon/Doheny/Malibu beaches only
+
+. note: The clat5 series of coliphage indicators are unique to 2 NEEAR beaches (Fairhop
+> e Goddard) 
+
+. note: The Mission Bay water quality data are separate for 6 beaches within the area a
+> nd need to merge to individuals separately by beachcode
+
+. note: Avalon water quality data are summarized separately for sites A/B/C and D; site
+>  D is very different. See Yau et al 2014 Figs 1 and 2.
+
+. note: Doheny and Malibu water quality data are summarized separately for sites C; at 
+> both beaches site C was located in a lagoon. At Doheny, site E is also summarized sep
+> arately, since it was nearly 1 mile from the other sampling sites (See Fig 1 of Arnol
+> d et al. 2013 and SI Fig 1 of Colford et al. 2012)
+
+. note: Quartile categories for Entero 1600 and qPCR exclude water quality measurements
+>  from Doheny and Malibu sites C in the lagoons because they are not representative of
+>  the broader swimmer exposure
+
+. note: AM/Mid-Day/PM and shin/waist disaggregations were not available for Mission Bay
+>  due to incomplete data at the time this dataset was created.
+
+. 
+. 
+. compress
+  variable qavgdyentero1600 was int now byte
+  variable qavgdyenteropcr was int now byte
+  (1,290 bytes saved)
+
+. label data "13 beaches water quality data, created by 8-append-wq-data.do"
+
+. save "~/dropbox/13beaches/data/final/13beaches-wq.dta", replace
+file ~/dropbox/13beaches/data/final/13beaches-wq.dta saved
+
+. outsheet using "~/dropbox/13beaches/data/final/13beaches-wq.csv", comma replace
+
+. 
+. desc
+
+Contains data from ~/dropbox/13beaches/data/final/13beaches-wq.dta
+  obs:           645                          13 beaches water quality data, created
+                                                by 8-append-wq-data.do
+ vars:            84                          16 Jul 2015 14:43
+ size:       218,655                          (_dta has notes)
+---------------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+---------------------------------------------------------------------------------------
+beach           str15   %15s                  Beach
+beachcode       str13   %13s                  Water quality sampling location beach
+                                                code
+marine          byte    %9.0g                 Marine Beach
+coldate         int     %d                    Sample date
+avgdyenteropcr  float   %9.0g                 Daily Avg log10 Entero QPCR ddct
+avgamenteropcr  float   %9.0g                 AM Avg log10 Entero QPCR ddct
+avgmdenteropcr  float   %9.0g                 Mid-Day Avg log10 Entero QPCR ddct
+avgpmenteropcr  float   %9.0g                 PM Avg log10 Entero QPCR ddct
+avgdyenteropcr2 float   %9.0g                 Daily Avg log10 Entero QPCR ddct w/i
+avgamenteropcr2 float   %9.0g                 AM Avg log10 Entero QPCR ddct w/i
+avgmdenteropcr2 float   %9.0g                 Mid-Day Avg log10 Entero QPCR ddct w/i
+avgpmenteropcr2 float   %9.0g                 PM Avg log10 Entero QPCR ddct w/i
+avgdyenteropcr3 float   %9.0g                 Daily Avg log10 Entero QPCR dct
+avgamenteropcr3 float   %9.0g                 AM Avg log10 Entero QPCR dct
+avgmdenteropcr3 float   %9.0g                 Mid-Day Avg log10 Entero QPCR dct
+avgpmenteropcr3 float   %9.0g                 PM Avg log10 Entero QPCR dct
+avgdyenteropcr4 float   %9.0g                 Daily Avg log10 Entero QPCR dct w/i
+avgamenteropcr4 float   %9.0g                 AM Avg log10 Entero QPCR dct w/i
+avgmdenteropcr4 float   %9.0g                 Mid-Day Avg log10 Entero QPCR dct w/i
+avgpmenteropcr4 float   %9.0g                 PM Avg log10 Entero QPCR dct w/i
+avgdyentero1600 float   %9.0g                 Daily Avg log10 Entero EPA 1600
+avgamentero1600 float   %9.0g                 AM Avg log10 Entero EPA 1600
+avgmdentero1600 float   %9.0g                 Mid-Day Avg log10 Entero EPA 1600
+avgpmentero1600 float   %9.0g                 PM Avg log10 Entero EPA 1600
+avgdyfmc1601    float   %9.0g                 Daily Avg log10 F-minus Coliphage EPA
+                                                1601
+avgamfmc1601    float   %9.0g                 AM Avg log10 F-minus Coliphage EPA 1601
+avgmdfmc1601    float   %9.0g                 Mid-Day Avg log10 F-minus Coliphage EPA
+                                                1601
+avgpmfmc1601    float   %9.0g                 PM Avg log10 F-minus Coliphage EPA 1601
+avgdyfmc1602    float   %9.0g                 Daily Avg log10 F-minus Coliphage EPA
+                                                1602
+avgamfmc1602    float   %9.0g                 AM Avg log10 F-minus Coliphage EPA 1602
+avgmdfmc1602    float   %9.0g                 Mid-Day Avg log10 F-minus Coliphage EPA
+                                                1602
+avgpmfmc1602    float   %9.0g                 PM Avg log10 F-minus Coliphage EPA 1602
+avgdyfpc1601    float   %9.0g                 Daily Avg log10 F-plus Coliphage EPA 1601
+avgamfpc1601    float   %9.0g                 AM Avg log10 F-plus Coliphage EPA 1601
+avgmdfpc1601    float   %9.0g                 Mid-Day Avg log10 F-plus Coliphage EPA
+                                                1601
+avgpmfpc1601    float   %9.0g                 PM Avg log10 F-plus Coliphage EPA 1601
+avgdyfpc1602    float   %9.0g                 Daily Avg log10 F-plus Coliphage EPA 1602
+avgamfpc1602    float   %9.0g                 AM Avg log10 F-plus Coliphage EPA 1602
+avgmdfpc1602    byte    %9.0g                 Mid-Day Avg log10 F-plus Coliphage EPA
+                                                1602
+avgpmfpc1602    byte    %9.0g                 PM Avg log10 F-plus Coliphage EPA 1602
+avgshenteropcr  float   %9.0g                 shin Avg log10 Entero qPCR
+avgwtenteropcr  float   %9.0g                 waist Avg log10 Entero qPCR
+avgshentero1600 float   %9.0g                 shin Avg log10 Entero EPA 1600
+avgwtentero1600 float   %9.0g                 waist Avg log10 Entero EPA 1600
+avgshfpc1601    float   %9.0g                 shin Avg log10 F-plus Coliphage EPA 1601
+avgwtfpc1601    float   %9.0g                 waist Avg log10 F-plus Coliphage EPA 1601
+avgdyphage_rn~5 float   %9.0g                 Daily Avg log10 RNA Coliphage, 5-hour
+                                                Clat assay
+avgamphage_rn~5 float   %9.0g                 AM Avg log10 RNA Coliphage, 5-hour Clat
+                                                assay
+avgmdphage_rn~5 float   %9.0g                 Mid-Day Avg log10 RNA Coliphage, 5-hour
+                                                Clat assay
+avgpmphage_rn~5 float   %9.0g                 PM Avg log10 RNA Coliphage, 5-hour Clat
+                                                assay
+avgshphage_rn~5 float   %9.0g                 shin Avg log10 RNA Coliphage, 5-hour Clat
+                                                assay
+avgwtphage_rn~5 float   %9.0g                 waist Avg log10 RNA Coliphage, 5-hour
+                                                Clat assay
+avgdyph~1_clat5 float   %9.0g                 Daily Avg log10 Group 1 RNA Coliphage,
+                                                5-hour Clat assay
+avgamph~1_clat5 float   %9.0g                 AM Avg log10 Group 1 RNA Coliphage,
+                                                5-hour Clat assay
+avgmdph~1_clat5 float   %9.0g                 Mid-Day Avg log10 Group 1 RNA Coliphage,
+                                                5-hour Clat assay
+avgpmph~1_clat5 float   %9.0g                 PM Avg log10 Group 1 RNA Coliphage,
+                                                5-hour Clat assay
+avgshph~1_clat5 float   %9.0g                 shin Avg log10 Group 1 RNA Coliphage,
+                                                5-hour Clat assay
+avgwtph~1_clat5 float   %9.0g                 waist Avg log10 Group 1 RNA Coliphage,
+                                                5-hour Clat assay
+avgdyph~2_clat5 float   %9.0g                 Daily Avg log10 Group 2 RNA Coliphage,
+                                                5-hour Clat assay
+avgamph~2_clat5 float   %9.0g                 AM Avg log10 Group 2 RNA Coliphage,
+                                                5-hour Clat assay
+avgmdph~2_clat5 float   %9.0g                 Mid-Day Avg log10 Group 2 RNA Coliphage,
+                                                5-hour Clat assay
+avgpmph~2_clat5 float   %9.0g                 PM Avg log10 Group 2 RNA Coliphage,
+                                                5-hour Clat assay
+avgshph~2_clat5 float   %9.0g                 shin Avg log10 Group 2 RNA Coliphage,
+                                                5-hour Clat assay
+avgwtph~2_clat5 float   %9.0g                 waist Avg log10 Group 2 RNA Coliphage,
+                                                5-hour Clat assay
+avgdyph~3_clat5 float   %9.0g                 Daily Avg log10 Group 3 RNA Coliphage,
+                                                5-hour Clat assay
+avgamph~3_clat5 float   %9.0g                 AM Avg log10 Group 3 RNA Coliphage,
+                                                5-hour Clat assay
+avgmdph~3_clat5 float   %9.0g                 Mid-Day Avg log10 Group 3 RNA Coliphage,
+                                                5-hour Clat assay
+avgpmph~3_clat5 float   %9.0g                 PM Avg log10 Group 3 RNA Coliphage,
+                                                5-hour Clat assay
+avgshph~3_clat5 float   %9.0g                 shin Avg log10 Group 3 RNA Coliphage,
+                                                5-hour Clat assay
+avgwtph~3_clat5 float   %9.0g                 waist Avg log10 Group 3 RNA Coliphage,
+                                                5-hour Clat assay
+avgdyph~4_clat5 float   %9.0g                 Daily Avg log10 Group 4 RNA Coliphage,
+                                                5-hour Clat assay
+avgamph~4_clat5 float   %9.0g                 AM Avg log10 Group 4 RNA Coliphage,
+                                                5-hour Clat assay
+avgmdph~4_clat5 float   %9.0g                 Mid-Day Avg log10 Group 4 RNA Coliphage,
+                                                5-hour Clat assay
+avgpmph~4_clat5 float   %9.0g                 PM Avg log10 Group 4 RNA Coliphage,
+                                                5-hour Clat assay
+avgshph~4_clat5 float   %9.0g                 shin Avg log10 Group 4 RNA Coliphage,
+                                                5-hour Clat assay
+avgwtph~4_clat5 float   %9.0g                 waist Avg log10 Group 4 RNA Coliphage,
+                                                5-hour Clat assay
+avgdyphage_dn~5 float   %9.0g                 Daily Avg log10 DNA Coliphage, 5-hour
+                                                Clat assay
+avgamphage_dn~5 float   %9.0g                 AM Avg log10 DNA Coliphage, 5-hour Clat
+                                                assay
+avgmdphage_dn~5 float   %9.0g                 Mid-Day Avg log10 DNA Coliphage, 5-hour
+                                                Clat assay
+avgpmphage_dn~5 float   %9.0g                 PM Avg log10 DNA Coliphage, 5-hour Clat
+                                                assay
+avgshphage_dn~5 float   %9.0g                 shin Avg log10 DNA Coliphage, 5-hour Clat
+                                                assay
+avgwtphage_dn~5 float   %9.0g                 waist Avg log10 DNA Coliphage, 5-hour
+                                                Clat assay
+qavgdyente~1600 byte    %8.0g                 Quartiles of Enterococcus EPA 1600
+qavgdyenteropcr byte    %8.0g                 Quartiles of Enterococcus EPA 1600
+---------------------------------------------------------------------------------------
+Sorted by: 
+
+. 
+. 
+. * write a codebook to separate file
+. log close
+      name:  <unnamed>
+       log:  /Users/jadederong/dropbox/13beaches/src/dm/8-append-wq-data-jbc.log
+  log type:  text
+ closed on:  16 Jul 2015, 14:43:23
+---------------------------------------------------------------------------------------

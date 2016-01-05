@@ -1,0 +1,694 @@
+--------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/5-format-neear-wq.log
+  log type:  text
+ opened on:  17 Dec 2015, 13:58:27
+
+. 
+. *----------------------------------------
+. * 5-format-neear-wq.do
+. * ben arnold
+. *
+. * format the NEEAR water quality data from
+. * Tim Wade.  label variables
+. *
+. *
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * input files:
+. *
+. *  Entero 1600 datasets:
+. *       cfudata.txt
+. *       wqentero1600marine.txt
+. *       wqentero16002009.txt
+. *       
+. *  Entero qPCR datasets:
+. *       wqepcrddctfresh.txt
+. *       wqepcrddctmarine.txt
+. *       wqepcrddct2009.txt
+. *
+. *  Coliphage dataset:
+. *       wqphagemarine.dta
+. *
+. * output files:
+. *       neear-wq-samples.dta
+. *
+. *----------------------------------------
+. 
+. 
+. *----------------------------------------
+. * read in the enterococcus 1600 sample
+. * datasets
+. *----------------------------------------
+. 
+. *------------------------------
+. * Freshwater Entero 1600 data
+. insheet using "~/dropbox/13beaches/data/untouched/neear/cfudata.txt", clear
+(7 vars, 1,600 obs)
+
+. 
+. * reformat collection date
+. gen coldate = date(collectiondate,"MDY")
+
+.         format coldate %d
+
+.         label var coldate "Sample Collection Date"
+
+. 
+. * reformat collection time
+. gen coltime = 8 if collectiontime=="8:00:00 AM"
+(1,069 missing values generated)
+
+.         replace coltime = 11 if collectiontime=="11:00:00 AM"
+(553 real changes made)
+
+.         replace coltime = 15 if collectiontime=="3:00:00 PM"
+(516 real changes made)
+
+.         label var coltime "Sample Collection Time"
+
+. 
+. rename count_cfu entero1600cfu
+
+.         
+. keep  beach coldate coltime sampleid sampleloc depth entero1600cfu
+
+. order beach coldate coltime sampleid sampleloc depth entero1600cfu
+
+. sort  beach coldate coltime sampleid sampleloc
+
+. 
+. tempfile fresh1600
+
+. save `fresh1600'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000001 saved
+
+. 
+. *------------------------------
+. * Marine Entero 1600 data
+. insheet using "~/dropbox/13beaches/data/untouched/neear/wqentero1600marine.txt
+> ", clear
+(9 vars, 1,260 obs)
+
+. 
+. * reformat collection date
+. gen coldate = date(collection_date,"MDY")
+
+.         format coldate %d
+
+.         label var coldate "Sample Collection Date"
+
+. 
+. rename collection_time coltime
+
+. rename sample_id sampleid
+
+. rename count entero1600cfu
+
+.         
+. keep  beach coldate coltime sampleid sampleloc swimloc depth entero1600cfu
+
+. order beach coldate coltime sampleid sampleloc swimloc depth entero1600cfu
+
+. sort  beach coldate coltime sampleid sampleloc
+
+. 
+. tempfile marine1600
+
+. save `marine1600'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000002 saved
+
+. 
+. *------------------------------
+. * 2009 studies Entero 1600 data
+. insheet using "~/dropbox/13beaches/data/untouched/neear/wqentero16002009.txt",
+>  clear
+(9 vars, 1,130 obs)
+
+. 
+. * reformat collection date
+. gen coldate = date(collection_date,"MDY")
+
+.         format coldate %d
+
+.         label var coldate "Sample Collection Date"
+
+. 
+. * reformat collection time
+. gen coltime = 8 if collection_time=="08:00:00"
+(744 missing values generated)
+
+.         replace coltime = 11 if collection_time=="11:00:00"
+(378 real changes made)
+
+.         replace coltime = 15 if collection_time=="15:00:00"
+(366 real changes made)
+
+.         label var coltime "Sample Collection Time"
+
+. 
+. rename sample_id sampleid
+
+. rename count entero1600cfu
+
+.         
+. keep  beach coldate coltime sampleid sampleloc swimloc depth entero1600cfu
+
+. order beach coldate coltime sampleid sampleloc swimloc depth entero1600cfu
+
+. sort  beach coldate coltime sampleid sampleloc
+
+. 
+. 
+. *------------------------------
+. * Append the 3 datasets
+. * and final format
+. 
+. append using `marine1600'
+
+. append using `fresh1600'
+(note: variable sampleid was str9, now str10 to accommodate using data's
+       values)
+(note: variable entero1600cfu was int, now long to accommodate using data's
+       values)
+
+. 
+. * check for duplicates and fix 2 IDs
+. duplicates list beach sampleid
+
+Duplicates in terms of beach sampleid
+
+  +------------------------------------+
+  | group:   obs:   beach     sampleid |
+  |------------------------------------|
+  |      1   2932      SB   71050115SS |
+  |      1   2946      SB   71050115SS |
+  |      2   3689      WP    71050115W |
+  |      2   3703      WP    71050115W |
+  +------------------------------------+
+
+.         replace sampleid = "71150115SS" if (sampleid=="71050115SS") & beach=="
+> SB" & coldate==mdy(7,11,2004)
+(1 real change made)
+
+.         replace sampleid = "71150115W" if (sampleid=="71050115W") & beach=="WP
+> " & coldate==mdy(7,11,2004)
+(1 real change made)
+
+.         duplicates report beach sampleid
+
+Duplicates in terms of beach sampleid
+
+--------------------------------------
+   copies | observations       surplus
+----------+---------------------------
+        1 |         3990             0
+--------------------------------------
+
+. 
+. * label depth
+. label var depth "Sample depth"
+
+.         capture label drop depth
+
+. label define depth 1 "Shin depth" 2 "Waist depth"
+
+. label values depth depth
+
+. 
+. label var beach "Beach"
+
+. label var sampleid "Water sample ID"
+
+.         note sampleid: for NEEAR beaches this is date (3) loc (1) type(2) time
+>  (02) beach(1)
+
+. label var sampleloc "Water sample location"
+
+. label var swimloc "Swim area location"
+
+. label var entero1600cfu "Enterococcus 1600 CFU/100ml"
+
+. 
+. tempfile neearentero
+
+. save `neearentero'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000003 saved
+
+. 
+. 
+. *----------------------------------------
+. * read in the enterococcus qPCR sample
+. * datasets (all identical format, so easier)
+. * merge to the existing dataset
+. *----------------------------------------
+. 
+. insheet using "~/dropbox/13beaches/data/untouched/neear/wqepcrddctfresh.txt", 
+> clear
+(10 vars, 1,600 obs)
+
+. tempfile freshqpcr
+
+. save `freshqpcr'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000004 saved
+
+. insheet using "~/dropbox/13beaches/data/untouched/neear/wqepcrddctmarine.txt",
+>  clear
+(11 vars, 1,260 obs)
+
+. tempfile marineqpcr
+
+. save `marineqpcr'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000005 saved
+
+. insheet using "~/dropbox/13beaches/data/untouched/neear/wqepcrddct2009.txt", c
+> lear
+(11 vars, 1,132 obs)
+
+. append using `freshqpcr'
+
+. append using `marineqpcr'
+
+. 
+. 
+. * reformat collection date
+. gen coldate = date(collection_date,"YMD")
+
+.         format coldate %d
+
+.         label var coldate "Sample Collection Date"
+
+. 
+. * reformat collection time
+. gen coltime = 8 if collection_time=="08:00:00"
+(2,657 missing values generated)
+
+.         replace coltime = 11 if collection_time=="11:00:00"
+(1,357 real changes made)
+
+.         replace coltime = 15 if collection_time=="15:00:00"
+(1,300 real changes made)
+
+.         label var coltime "Sample Collection Time"
+
+. 
+. 
+. rename sample_id sampleid_neearqpcr
+
+.         label var sampleid_neearqpcr "Water Sample ID, NEEAR Entero QPCR data"
+
+. 
+. rename count enteroQPCRcce
+
+.         label var enteroQPCRcce "Entero 1611 qPCR ddct CCE/100ml"
+
+. 
+. label var beach "Beach"
+
+. label var sampleid "Water Sample ID"
+
+. label var sampleloc "Sample location"
+
+. label var depth "Sample depth"
+
+.         capture label drop depth
+
+. label define depth 1 "Shin depth" 2 "Waist depth"
+
+. label values depth depth
+
+. 
+. label var dl "Below detection limit"
+
+.         capture label drop dl
+
+.         label define dl 0 "Detected" 1 "Below detection"
+
+.         label values dl dl
+
+. label var passes_qc "Passes Salmon QC criterion"
+
+. 
+. order beach sampleid coldate coltime sampleloc depth dl passes_qc enteroQPCRcc
+> e
+
+. keep beach sampleid coldate coltime sampleloc depth dl passes_qc enteroQPCRcce
+
+. 
+. sort beach coldate coltime sampleloc depth
+
+. tempfile neearqpcr
+
+. save `neearqpcr'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000006 saved
+
+. 
+. 
+. * Merge
+. use `neearentero', clear
+
+. sort beach coldate coltime sampleloc depth
+
+. merge 1:1 beach coldate coltime sampleloc depth using `neearqpcr'
+(label depth already defined)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                            10
+        from master                         4  (_merge==1)
+        from using                          6  (_merge==2)
+
+    matched                             3,986  (_merge==3)
+    -----------------------------------------
+
+. list beach coldate coltime sampleloc sampleid sampleid_neearqpcr if _merge !=3
+
+      +----------------------------------------------------------------+
+      | beach     coldate   coltime   sample~c    sampleid   samplei~r |
+      |----------------------------------------------------------------|
+2281. |    MB   01jun2009         8          5   B0601085S             |
+2282. |    MB   01jun2009         8          6   B0601086S             |
+2667. |    MB   15aug2009        15          1   B0815151S             |
+2668. |    MB   15aug2009        15          2   B0815152S             |
+3991. |    MB   02aug2009        15          1               B0802151S |
+      |----------------------------------------------------------------|
+3992. |    MB   02aug2009        15          2               B0802152S |
+3993. |    MB   02aug2009        15          3               B0802153S |
+3994. |    MB   02aug2009        15          4               B0802154S |
+3995. |    MB   02aug2009        15          5               B0802155S |
+3996. |    MB   02aug2009        15          6               B0802156S |
+      +----------------------------------------------------------------+
+
+. replace sampleid = sampleid_neearqpcr if _merge !=3 & sampleid==""
+(6 real changes made)
+
+. drop _merge
+
+. 
+. save `neearentero', replace
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000003 saved
+
+. 
+. 
+. *----------------------------------------
+. * read in the Coliphage dataset
+. * merge to the existing dataset
+. *----------------------------------------
+. 
+. use "~/dropbox/13beaches/data/untouched/neear/wqphagemarine.dta", clear
+(SAVASTATA created this dataset on 29NOV2010)
+
+. 
+. rename sample_id sampleid_neearphage
+
+.         label var sampleid_neearphage "Water Sample ID, NEEAR Coliphage Data"
+
+.         
+. 
+. rename collection_date coldate
+
+. rename collection_time coltime
+
+. destring sampleloc, replace force
+sampleloc contains nonnumeric characters; sampleloc replaced as byte
+
+. 
+. * restrict to non-redundant variables
+. keep  beach coldate coltime sampleloc depth sampleid_neearphage beach mpn_* fr
+> ozen
+
+. sort beach coldate coltime sampleloc depth
+
+. tempfile neearphage
+
+. save `neearphage'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000007 saved
+
+. 
+. * merge to the main dataset.
+. use `neearentero', clear
+
+. sort beach coldate coltime sampleloc depth
+
+. merge 1:1  beach coldate coltime sampleloc depth using `neearphage'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                         3,343
+        from master                     3,343  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                               653  (_merge==3)
+    -----------------------------------------
+
+.         assert _merge !=2
+
+.         drop _merge
+
+. 
+. 
+. *----------------------------------------
+. * Variable cleanup and renaming in the
+. * combined dataset
+. *----------------------------------------
+. 
+. rename sampleid sampleid_neear1600
+
+.         label var sampleid_neear1600 "Water Sample ID, NEEAR Entero 1600 data"
+
+. order beach sampleid* coldate coltime sampleloc depth
+
+. 
+. 
+. label var frozen "Sample frozen (coliphage assays only)"
+
+. label var mpn_rna_clat5 "MPN RNA Coliphage, 5-hour Clat assay"
+
+. label var mpn_dna_clat5 "MPN DNA Coliphage, 5-hour Clat assay"
+
+. label var mpn_group1_clat5 "MPN Group 1 RNA Coliphage, 5-hour Clat assay"
+
+. label var mpn_group2_clat5 "MPN Group 2 RNA Coliphage, 5-hour Clat assay"
+
+. label var mpn_group3_clat5 "MPN Group 3 RNA Coliphage, 5-hour Clat assay"
+
+. label var mpn_group4_clat5 "MPN Group 4 RNA Coliphage, 5-hour Clat assay"
+
+. label var mpn_spot24 "F-plus Coliphage EPA 1601"
+
+.         
+.         rename mpn_rna_clat5 rnaclat5mpn
+
+.         rename mpn_dna_clat5 dnaclat5mpn
+
+.         rename mpn_group1_clat5 group1clat5mpn
+
+.         rename mpn_group2_clat5 group2clat5mpn
+
+.         rename mpn_group3_clat5 group3clat5mpn
+
+.         rename mpn_group4_clat5 group4clat5mpn
+
+.         rename mpn_spot24 fpc1601mpn
+
+. 
+. gen stationid = string(sampleloc)
+
+.         label var stationid "Water sample station/location ID"
+
+.         drop sampleloc
+
+.         
+. * make beach labels more informative
+. replace beach = "Avalon" if beach=="AV"
+(0 real changes made)
+
+. replace beach = "Boqueron" if beach=="BB"
+variable beach was str2 now str8
+(600 real changes made)
+
+. replace beach = "Doheny" if beach=="DO"
+(0 real changes made)
+
+. replace beach = "Edgewater" if beach=="EB"
+variable beach was str8 now str9
+(396 real changes made)
+
+. replace beach = "Fairhope" if beach=="FB"
+(438 real changes made)
+
+. replace beach = "Goddard" if beach=="GB"
+(426 real changes made)
+
+. replace beach = "Huntington" if beach=="HB"
+variable beach was str9 now str10
+(420 real changes made)
+
+. replace beach = "Malibu" if beach=="MA"
+(0 real changes made)
+
+. replace beach = "Surfside" if beach=="MB"
+(536 real changes made)
+
+. replace beach = "Silver" if beach=="SB"
+(423 real changes made)
+
+. replace beach = "West" if beach=="WB"
+(336 real changes made)
+
+. replace beach = "Washington Park" if beach=="WP"
+variable beach was str10 now str15
+(421 real changes made)
+
+. 
+. 
+. 
+. *----------------------------------------
+. * Flag samples that fell below
+. * the detection limit
+. *----------------------------------------
+. 
+. local vars "entero1600cfu fpc1601mpn rnaclat5mpn dnaclat5mpn group1clat5mpn gr
+> oup2clat5mpn group3clat5mpn group4clat5mpn"
+
+. capture label drop ND
+
+. label define ND 0 "Detected" 1 "Below detection"
+
+. foreach var of local vars {
+  2.         local vlab : var lab `var'
+  3.         gen `var'_nd = (`var'==0)
+  4.         replace `var'_nd = . if `var'==.
+  5.         label values `var'_nd ND
+  6.         label var `var'_nd "`vlab', below detection"
+  7. }
+(14 real changes made, 14 to missing)
+(3,343 real changes made, 3,343 to missing)
+(3,343 real changes made, 3,343 to missing)
+(3,345 real changes made, 3,345 to missing)
+(3,343 real changes made, 3,343 to missing)
+(3,343 real changes made, 3,343 to missing)
+(3,343 real changes made, 3,343 to missing)
+(3,343 real changes made, 3,343 to missing)
+
+. 
+. rename dl enteroQPCRcce_nd
+
+. rename passes_qc enteroQPCRcce_qc
+
+. 
+. 
+. order beach coldate coltime sampleid_neear1600 sampleid_neearqpcr sampleid_nee
+> arphage stationid swimloc depth frozen entero1600* enteroQPCRcce enteroQPCRcce
+> _nd enteroQPCRcce_qc fpc1601* rnaclat5* dnaclat5* group1* group2* group3* grou
+> p4*
+
+. 
+. 
+. *----------------------------------------
+. * save an individual water-sample dataset
+. *----------------------------------------
+. note: for Entero QPCR samples that failed QC criteron, the value was imputed b
+> ased on the average of the other two samples at the same depth and time
+
+. compress
+  variable coldate was float now int
+  variable coltime was float now byte
+  variable entero1600cfu_nd was float now byte
+  variable fpc1601mpn_nd was float now byte
+  variable rnaclat5mpn_nd was float now byte
+  variable dnaclat5mpn_nd was float now byte
+  variable group1clat5mpn_nd was float now byte
+  variable group2clat5mpn_nd was float now byte
+  variable group3clat5mpn_nd was float now byte
+  variable group4clat5mpn_nd was float now byte
+  (115,884 bytes saved)
+
+. label data "NEEAR water sample data, formatted by 5-format-neear-wq.do"
+
+. save "~/dropbox/13beaches/data/final/neear-wq-samples.dta", replace
+file ~/dropbox/13beaches/data/final/neear-wq-samples.dta saved
+
+. outsheet using "~/dropbox/13beaches/data/final/neear-wq-samples.csv", comma re
+> place
+
+. 
+. desc
+
+Contains data from ~/dropbox/13beaches/data/final/neear-wq-samples.dta
+  obs:         3,996                          NEEAR water sample data,
+                                                formatted by
+                                                5-format-neear-wq.do
+ vars:            29                          17 Dec 2015 13:58
+ size:       503,496                          (_dta has notes)
+--------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+--------------------------------------------------------------------------------
+beach           str15   %15s                  Beach
+coldate         int     %d                    Sample Collection Date
+coltime         byte    %9.0g                 Sample Collection Time
+sampleid_n~1600 str10   %10s                * Water Sample ID, NEEAR Entero 1600
+                                                data
+sampleid_neea~r str9    %9s                   Water Sample ID
+sampleid_neea~e str9    %9s                   Water Sample ID, NEEAR Coliphage
+                                                Data
+stationid       str1    %9s                   Water sample station/location ID
+swimloc         byte    %8.0g                 Swim area location
+depth           byte    %11.0g     depth      Sample depth
+frozen          byte    %8.0g                 Sample frozen (coliphage assays
+                                                only)
+entero1600cfu   long    %8.0g                 Enterococcus 1600 CFU/100ml
+entero1600cfu~d byte    %15.0g     ND         Enterococcus 1600 CFU/100ml, below
+                                                detection
+enteroQPCRcce   float   %9.0g                 Entero 1611 qPCR ddct CCE/100ml
+enteroQPCRcce~d byte    %15.0g     dl         Below detection limit
+enteroQPCRcce~c str3    %9s                   Passes Salmon QC criterion
+fpc1601mpn      double  %10.0g                F-plus Coliphage EPA 1601
+fpc1601mpn_nd   byte    %15.0g     ND         F-plus Coliphage EPA 1601, below
+                                                detection
+rnaclat5mpn     double  %10.0g                MPN RNA Coliphage, 5-hour Clat
+                                                assay
+rnaclat5mpn_nd  byte    %15.0g     ND         MPN RNA Coliphage, 5-hour Clat
+                                                assay, below detection
+dnaclat5mpn     double  %10.0g                MPN DNA Coliphage, 5-hour Clat
+                                                assay
+dnaclat5mpn_nd  byte    %15.0g     ND         MPN DNA Coliphage, 5-hour Clat
+                                                assay, below detection
+group1clat5mpn  double  %10.0g                MPN Group 1 RNA Coliphage, 5-hour
+                                                Clat assay
+group1clat5mp~d byte    %15.0g     ND         MPN Group 1 RNA Coliphage, 5-hour
+                                                Clat assay, below detection
+group2clat5mpn  double  %10.0g                MPN Group 2 RNA Coliphage, 5-hour
+                                                Clat assay
+group2clat5mp~d byte    %15.0g     ND         MPN Group 2 RNA Coliphage, 5-hour
+                                                Clat assay, below detection
+group3clat5mpn  double  %10.0g                MPN Group 3 RNA Coliphage, 5-hour
+                                                Clat assay
+group3clat5mp~d byte    %15.0g     ND         MPN Group 3 RNA Coliphage, 5-hour
+                                                Clat assay, below detection
+group4clat5mpn  double  %10.0g                MPN Group 4 RNA Coliphage, 5-hour
+                                                Clat assay
+group4clat5mp~d byte    %15.0g     ND         MPN Group 4 RNA Coliphage, 5-hour
+                                                Clat assay, below detection
+                                            * indicated variables have notes
+--------------------------------------------------------------------------------
+Sorted by: 
+
+. notes
+
+_dta:
+  1.  for Entero QPCR samples that failed QC criteron, the value was imputed
+      based on the average of the other two samples at the same depth and time
+
+sampleid_neear1600:
+  1.  for NEEAR beaches this is date (3) loc (1) type(2) time (02) beach(1)
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/5-format-neear-wq.log
+  log type:  text
+ closed on:  17 Dec 2015, 13:58:28
+--------------------------------------------------------------------------------

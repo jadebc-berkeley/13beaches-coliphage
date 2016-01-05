@@ -1,0 +1,212 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/programs/aim1/1-aim1-regs.log
+  log type:  text
+ opened on:   1 Mar 2014, 08:35:01
+
+. 
+. *----------------------------------------
+. * 1-aim1-regs.do
+. * ben arnold
+. *
+. * estimate the risk of GI illness
+. * associated with a 1-log increase in
+. * water quality indicator concentrations
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * input files:
+. *       13beaches-analysis.dta
+. *
+. * output files:
+. *       xxx
+. *
+. *----------------------------------------
+. 
+. 
+. *----------------------------------------
+. * Load the data and restrict to
+. * the analysis population
+. *----------------------------------------
+. use "~/dropbox/13beaches/data/final/13beaches-analysis.dta", clear
+(13 Beaches NIH-R03 analysis dataset, created by 9-make-analysis.dataset.do)
+
+. 
+. 
+. keep if swimmer==1
+(31084 observations deleted)
+
+. 
+. drop if venfest==1
+(283 observations deleted)
+
+. 
+. drop if nowq==1
+(97 observations deleted)
+
+. 
+. drop if gibase==1
+(917 observations deleted)
+
+. 
+. 
+. 
+. 
+. *----------------------------------------
+. * prelim regressions to check against
+. * results in R
+. *----------------------------------------
+. 
+. xi: glm gici10 i.berm*avgdyenterocfu if beach=="Doheny", family(binomial) lin
+> k(log)
+i.berm            _Iberm_0-1          (naturally coded; _Iberm_0 omitted)
+i.berm*avgdye~u   _IberXavgdy_#       (coded as above)
+
+Iteration 0:   log likelihood = -1462.7208  
+Iteration 1:   log likelihood = -1026.4968  
+Iteration 2:   log likelihood =  -1021.707  
+Iteration 3:   log likelihood = -1021.7054  
+Iteration 4:   log likelihood = -1021.7054  
+
+Generalized linear models                          No. of obs      =      4261
+Optimization     : ML                              Residual df     =      4257
+                                                   Scale parameter =         1
+Deviance         =  2043.410751                    (1/df) Deviance =  .4800119
+Pearson          =  4260.737378                    (1/df) Pearson  =  1.000878
+
+Variance function: V(u) = u*(1-u)                  [Bernoulli]
+Link function    : g(u) = ln(u)                    [Log]
+
+                                                   AIC             =  .4814388
+Log likelihood   = -1021.705375                    BIC             = -33533.44
+
+------------------------------------------------------------------------------
+             |                 OIM
+      gici10 |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _Iberm_1 |   .1802071   .6604886     0.27   0.785    -1.114327    1.474741
+avgdyenter~u |   .3379215   .3947537     0.86   0.392    -.4357815    1.111625
+_IberXavgd~1 |  -.1687086    .495106    -0.34   0.733    -1.139098    .8016814
+       _cons |  -3.144125   .4769593    -6.59   0.000    -4.078948   -2.209301
+------------------------------------------------------------------------------
+
+. xi: glm gici10 i.berm*avgdyenterocfu if beach=="Doheny", family(binomial) lin
+> k(log) cluster(hhid) robust 
+i.berm            _Iberm_0-1          (naturally coded; _Iberm_0 omitted)
+i.berm*avgdye~u   _IberXavgdy_#       (coded as above)
+
+Iteration 0:   log pseudolikelihood = -1462.7208  
+Iteration 1:   log pseudolikelihood = -1026.4968  
+Iteration 2:   log pseudolikelihood =  -1021.707  
+Iteration 3:   log pseudolikelihood = -1021.7054  
+Iteration 4:   log pseudolikelihood = -1021.7054  
+
+Generalized linear models                          No. of obs      =      4261
+Optimization     : ML                              Residual df     =      4257
+                                                   Scale parameter =         1
+Deviance         =  2043.410751                    (1/df) Deviance =  .4800119
+Pearson          =  4260.737378                    (1/df) Pearson  =  1.000878
+
+Variance function: V(u) = u*(1-u)                  [Bernoulli]
+Link function    : g(u) = ln(u)                    [Log]
+
+                                                   AIC             =  .4814388
+Log pseudolikelihood = -1021.705375                BIC             = -33533.44
+
+                                (Std. Err. adjusted for 2120 clusters in hhid)
+------------------------------------------------------------------------------
+             |               Robust
+      gici10 |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _Iberm_1 |   .1802071   .7579132     0.24   0.812    -1.305276     1.66569
+avgdyenter~u |   .3379215   .4483715     0.75   0.451    -.5408706    1.216714
+_IberXavgd~1 |  -.1687086   .5617825    -0.30   0.764    -1.269782     .932365
+       _cons |  -3.144125   .5420881    -5.80   0.000    -4.206598   -2.081651
+------------------------------------------------------------------------------
+
+. 
+. glm, eform
+
+Generalized linear models                          No. of obs      =      4261
+Optimization     : ML                              Residual df     =      4257
+                                                   Scale parameter =         1
+Deviance         =  2043.410751                    (1/df) Deviance =  .4800119
+Pearson          =  4260.737378                    (1/df) Pearson  =  1.000878
+
+Variance function: V(u) = u*(1-u)                  [Bernoulli]
+Link function    : g(u) = ln(u)                    [Log]
+
+                                                   AIC             =  .4814388
+Log pseudolikelihood = -1021.705375                BIC             = -33533.44
+
+                                (Std. Err. adjusted for 2120 clusters in hhid)
+------------------------------------------------------------------------------
+             |               Robust
+      gici10 | Risk Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    _Iberm_1 |   1.197465   .9075748     0.24   0.812     .2710978     5.28932
+avgdyenter~u |    1.40203   .6286306     0.75   0.451     .5822412    3.376074
+_IberXavgd~1 |   .8447551   .4745686    -0.30   0.764     .2808928     2.54051
+       _cons |   .0431046   .0233665    -5.80   0.000      .014897    .1247241
+------------------------------------------------------------------------------
+
+. 
+. lincom avgdyenterocfu+_IberXavgdy_1, eform
+
+ ( 1)  [gici10]avgdyenterocfu + [gici10]_IberXavgdy_1 = 0
+
+------------------------------------------------------------------------------
+      gici10 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.184372   .4008756     0.50   0.617     .6100722    2.299298
+------------------------------------------------------------------------------
+
+. 
+. 
+. glm gici10 avgdyenterocfu if beach=="Malibu", family(binomial) link(log) efor
+> m
+
+Iteration 0:   log likelihood = -952.33319  
+Iteration 1:   log likelihood = -675.98854  
+Iteration 2:   log likelihood = -673.00735  
+Iteration 3:   log likelihood = -673.00601  
+Iteration 4:   log likelihood = -673.00601  
+
+Generalized linear models                          No. of obs      =      2556
+Optimization     : ML                              Residual df     =      2554
+                                                   Scale parameter =         1
+Deviance         =  1346.012025                    (1/df) Deviance =  .5270212
+Pearson          =  2555.633222                    (1/df) Pearson  =  1.000639
+
+Variance function: V(u) = u*(1-u)                  [Bernoulli]
+Link function    : g(u) = ln(u)                    [Log]
+
+                                                   AIC             =  .5281737
+Log likelihood   = -673.0060124                    BIC             = -18693.18
+
+------------------------------------------------------------------------------
+             |                 OIM
+      gici10 | Risk Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+avgdyenter~u |   1.397033   .3159577     1.48   0.139     .8968008    2.176292
+       _cons |   .0584982   .0103565   -16.03   0.000     .0413471    .0827636
+------------------------------------------------------------------------------
+
+. 
+. * xi: logit gici10 i.berm*avgdyenterocfu if beach=="Doheny", cluster(hhid) ro
+> bust
+. * xi: poisson gici10 i.berm*avgdyenterocfu if beach=="Doheny", cluster(hhid) 
+> robust
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/programs/aim1/1-aim1-regs.log
+  log type:  text
+ closed on:   1 Mar 2014, 08:35:06
+-------------------------------------------------------------------------------

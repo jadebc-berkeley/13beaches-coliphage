@@ -1,0 +1,156 @@
+
+%-------------------------------------------------------------------------------------------
+%%%%%%%% PREAMBLE
+%-------------------------------------------------------------------------------------------
+\documentclass[11pt]{article}
+
+% Load packages
+\usepackage[T1]{fontenc}
+
+\usepackage{aeguill}
+\usepackage{fancyhdr, amssymb, amsmath, geometry,setspace,lastpage}
+\usepackage[pdftex]{graphicx,color}
+\definecolor{dkblue}{rgb}{0,0.08,0.45}
+\usepackage[pdftex]{hyperref}
+\hypersetup{colorlinks}%
+%citecolor=black,%
+%filecolor=black,%
+%linkcolor=black,%
+%urlcolor=black}
+
+%\usepackage{lmodern}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% Page Setup
+\geometry{ top = 1in, bottom = 1in }
+\pagestyle{plain}
+\lhead{}
+\chead{}
+\rhead{}
+\lfoot{}
+\cfoot{\footnotesize \thepage  { /}  \pageref{LastPage}}
+\rfoot{}
+
+% Paragraph Setup
+\setlength{\parskip}{\baselineskip}%
+\setlength{\parindent}{0pt}%
+
+% Title Information
+\title{Length of Follow-up for the NIH R03 Primary Analysis}
+\author{Ben Arnold (benarnold@berkeley.edu)}
+\date{Updated \today}
+
+%-------------------------------------------------------------------------------------------
+%%%%%%%% DOCUMENT BEGINS HERE
+%-------------------------------------------------------------------------------------------
+\begin{document}
+\maketitle
+
+
+%-------------------------------------------------------------------------------------------
+% Introduction
+%-------------------------------------------------------------------------------------------
+\section*{Choice of follow-up period}
+
+In our original NIH application, we stated that we would use a 10 day follow-up period. We chose 10 days because every single person enrolled in all 13 cohorts had at least 10 days of follow-up (i.e., nobody was censored).  There was additional rationale for a longer follow-up period as well: 10-days captures the incubation period for most viral, bacterial and protozoan pathogens, and the longer the follow-up period the more cases of illness there is in the cohort = more statistical power.
+
+Daily incidence curves for diarrhea suggest that the maximum separation between swimmers and non-swimmers is in the first 3 days (these are data from 88,083 people across all 13 cohorts):
+
+\begin{center}
+\includegraphics[width=0.6\textwidth]{/users/benarnold/dropbox/13beaches/aim1-results/figs/aim1-daily-incidence-curves.pdf}
+\end{center}
+
+The large separation between swimmers and non-swimmers, led us to think that focusing on the first 3 days of follow-up would be the most relevant period for the analysis.  For this reason, we proposed a change to the protocol to limit the primary analysis to the first 3 days (rather than 10 days), and then conduct a sensitivity analysis of the effect of follow-up period on the parameter estimates.  The results of that sensitivity analysis are below and I think we should revisit this decision.
+
+%-------------------------------------------------------------------------------------------
+% Sensitivity Analysis Results
+%-------------------------------------------------------------------------------------------
+\section*{Follow-up period sensitivity analysis}
+
+We conducted a simple sensitivity analysis that varied the length of follow-up from 1 to 10 days.  We re-estimated the adjusted Cumulative Incidence Ratio (CIR) associated with:
+\begin{itemize}
+	\item swim exposure (comparing swimmers to non-swimmers)
+	\item \textit{Enterococcus}  1600 exposure among swimmers (Quartiles of concentration)
+	\item \textit{Enterococcus}  1600 exposure among swimmers (above and below regulatory limits)
+\end{itemize}
+
+The following pages include figures referenced in these summary results of the analysis:
+
+\underline{Swim exposure analysis:} Increasing the length of follow-up led to an attenuation in the CIR associated with swim exposure (Fig \ref{fig:swimex}).  The CIR with 3 days of follow-up was 1.75 (95\% CI: 1.53, 2.00); with 10 days of follow-up the CIR was 1.45 (1.33, 1.59).  Longer follow-up led to more precise estimates with nearly twice as many incident cases.
+
+\underline{Entero 1600 Quartiles:} Increasing the length of follow-up had no appreciable impact on the CIR associated with exposure to \textit{Enterococcus EPA 1600} (Fig \ref{fig:entero1600q}). However, estimates with longer follow-up periods were considerably more precise (owing to the larger number of cases).
+
+\underline{Entero 1600 >35 CFU/100ml:} Increasing the length of follow-up had no appreciable impact on the CIR associated with exposure to \textit{Enterococcus EPA 1600} above the regulatory limit (Fig \ref{fig:entero1600cfu35}). Results were similar when stratified by beach conditions (point vs. non-point source) where there was significant effect modification. As with the quartile analysis, estimates with longer follow-up periods were considerably more precise (owing to the larger number of cases).
+
+% swim exposure figure
+\clearpage
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth]{/users/benarnold/dropbox/13beaches/aim1-results/figs/aim1-sens-swim-exposure-length-of-follow-up.pdf}
+\begin{minipage}{0.8\textwidth}
+\caption{Sensitivity analysis of length-of-follow-up and the Cumulative Incidence Ratio (CIR) of diarrhea associated with swim exposure (comparing body immersion swimmers to non-swimmers}
+\label{fig:swimex}
+\end{minipage}
+\end{center}
+\end{figure}
+
+% Entero 1600 quartiles figure
+\clearpage
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.84\textwidth]{/users/benarnold/dropbox/13beaches/aim1-results/figs/aim1-sens-entero1600-Quartile-length-of-follow-up.pdf}
+\begin{minipage}{0.8\textwidth}
+\caption{Sensitivity analysis of length-of-follow-up and the Cumulative Incidence Ratio (CIR) of diarrhea among body immersion swimmers associated with exposure to higher quartiles of \textit{Enterococcus} EPA 1600 concentrations.}
+\label{fig:entero1600q}
+\end{minipage}
+\end{center}
+\end{figure}
+
+% Entero 1600 >35 CFU figure
+\clearpage
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.84\textwidth]{/users/benarnold/dropbox/13beaches/aim1-results/figs/aim1-sens-entero1600-35cfu-length-of-follow-up.pdf}
+\begin{minipage}{0.8\textwidth}
+\caption{Sensitivity analysis of length-of-follow-up and the Cumulative Incidence Ratio (CIR) of diarrhea among body immersion swimmers associated with exposure \textit{Enterococcus} EPA 1600 concentrations >35 CFU/100ml, stratified by beach conditions.}
+\label{fig:entero1600cfu35}
+\end{minipage}
+\end{center}
+\end{figure}
+
+%-------------------------------------------------------------------------------------------
+% Points for Discussion
+%-------------------------------------------------------------------------------------------
+\clearpage
+\section*{Reflections and Points For Discussion}
+
+Based on the results of this sensitivity analysis, I think it would be useful to reconsider a 10-day follow-up period.  These are the main considerations from my perspective that would support a 10 day period compared to a 3 day period:
+
+\begin{itemize}
+	\item 10 days was the length of follow-up we specified in our original protocol, for reasons outlined on page 1 (more cases, capture relevant pathogen incubation periods)
+	\item 10 days is closer to all of the previously published analyses (which used 10-12 days)
+	\item 10 days clearly wins out in a bias-variance tradeoff for the water quality indicators, because there is little ``bias'' (difference between estimates) and clearly lower variance [note: we cannot do a formal bias-variance tradeoff without making some assumption of what the true CIR is to estimate bias]
+	\item 10 days leads to an attenuated CIR for the swim exposure analyses compared to 3 days. But, it's important to note that observation is on the relative scale.  The Risk Difference actually increases with follow-up (despite a smaller relative risk) because of the consistent accumulation of excess cases over follow-up (see figure on page 1). The RD at 3 days is 8.5 cases per 1000, and at 10 days is 10.3 cases per 1000.
+	\item For the outcomes of GI-related hospital visits, and missed days of work/school, we will need to look at a 10 day follow-up period because of how rare the outcomes are.  Using a 10-day follow-up period throughout would be most consistent.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

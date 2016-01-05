@@ -1,0 +1,198 @@
+---
+title: "13 Beaches Tables"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+    includes:
+      in_header: 13beaches-tables-header.tex
+mainfont: Helvetica Light
+fontsize: 12pt
+geometry: margin=0.5in
+fig_height: 4
+fig_width: 4
+
+---
+
+
+```{r R preamble, echo=FALSE}
+# --------------------------------------
+# R preamble
+# --------------------------------------
+
+rm(list=ls())
+library(xtable)
+
+# --------------------------------------
+# function to strip row/colnames from 
+# table and output contents only
+# for formatting in latex
+# --------------------------------------
+cleantable <- function(x,digits) {
+ print( xtable(x,digits=digits),
+        sanitize.text.function=function(y){y},
+        floating=FALSE,
+        include.rownames=FALSE,
+        include.colnames=FALSE,
+        only.contents=TRUE,
+        hline.after=NULL
+ )
+}
+
+
+# --------------------------------------
+# clean table output, including rownames
+# --------------------------------------
+rowtable <- function(x,digits) {
+ print( xtable(x,digits=digits),
+        sanitize.text.function=function(y){y},
+        floating=FALSE,
+        include.rownames=TRUE,
+        include.colnames=FALSE,
+        only.contents=TRUE,
+        hline.after=NULL
+ )
+}
+```
+
+\begin{table}[h!tb]
+\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{minipage}{0.65\textwidth}
+\caption{Cumulative Incidence of Diarrhea by Water Exposure and Age. \label{tab:swimCIR}}
+\end{minipage}
+\begin{tabular}{l c c c c }
+& \\
+Water Exposure & All Ages & Age 0 to 4 & Age 5 to 10 & Age >10 \\
+\hline
+```{r Swim Exposure CIR Table,echo=FALSE,results='asis'}
+load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-swim-exposure-regs-allages.Rdata")
+# Age-specific CIR estimates, formatted
+circi <- function(ests) paste(sprintf("%1.2f",ests[1])," (",sprintf("%1.2f",ests[2]),", ",sprintf("%1.2f",ests[3]),")"  ,sep="")
+f.cir.0to4 <- c("ref",apply(agestrat.cir[,1:3],1,circi))
+f.cir.5to10 <- c("ref",apply(agestrat.cir[,4:6],1,circi)) 
+f.cir.11plus <- c("ref",apply(agestrat.cir[,7:9],1,circi)) 
+f.cir.allage <- c("ref",apply(all.cir,1,circi))
+f.cir <- cbind(f.cir.allage,f.cir.0to4,f.cir.5to10,f.cir.11plus)
+rownames(f.cir)[1] <- "Non Swimmers"
+rowtable(f.cir,0)
+```
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+
+```{r EPA 1600 water quality summary labels,echo=FALSE}
+
+# --------------------------------------
+# Load the water quality dataset to
+# get the mid-points of the Entero 1600
+# concentrations by each quartile
+# --------------------------------------
+wq <- read.csv("~/dropbox/13beaches/data/final/13beaches-wq.csv")
+
+minQs <- tapply(wq$avgdyentero1600,wq$qavgdyentero1600,function(x) min(x,na.rm=T))
+maxQs <- tapply(wq$avgdyentero1600,wq$qavgdyentero1600,function(x) max(x,na.rm=T))
+labQs <-  paste(sprintf("%1.0f",10^minQs)," to ",sprintf("%1.0f",10^maxQs),sep="")
+labQs <- paste("Q",1:4," (",labQs,")",sep="")
+
+midQs <- minQs + (maxQs-minQs)/2
+
+```
+
+```{r EPA 1600 Quartiles Format Output,echo=FALSE}
+# --------------------------------------
+# Load Entero 1600 Body Immersion 
+# regression output
+# --------------------------------------
+load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-entero1600-regs-body.Rdata")
+
+# --------------------------------------
+# Format CIRs as text and print a table
+# --------------------------------------
+cirformat <- function(x) {
+  # x : a vector of length 3 with CIR, lb, ub
+  paste(sprintf("%1.2f",x[1]), " (",sprintf("%1.2f",x[2]),", ",sprintf("%1.2f",x[3]),")",sep="")
+}
+
+fcir.all <- c("ref",apply(cir.all,2,cirformat))
+fcir.age0to4 <- c("ref",apply(cir.age0to4,2,cirformat))
+fcir.age5to10 <- c("ref",apply(cir.age5to10,2,cirformat))
+fcir.age11plus <- c("ref",apply(cir.age11plus,2,cirformat))
+
+fci.all <- sprintf("%1.0f",ci.all)
+fci.age0to4 <- sprintf("%1.0f",ci.age0to4)
+fci.age5to10 <- sprintf("%1.0f",ci.age5to10)
+fci.age11plus <- sprintf("%1.0f",ci.age11plus)
+
+# --------------------------------------
+# Summarize 
+# the number of swimmers and number
+# of cumulative incident episodes by
+# qunitile of Entero 1600 and age category
+# --------------------------------------
+calcNs <- function(gi,Qentero) {
+  n <- tapply(gi,Qentero,sum)
+  N <- tapply(gi,Qentero,function(x) length(x))
+  cbind(n,N)
+}
+
+N.all <- calcNs(ad$diarrheaci3[ad$bodycontact=="Yes" & ad$agestrat!=""],ad$qentero1600[ad$bodycontact=="Yes"& ad$agestrat!=""])
+
+N.age0to4 <- calcNs(ad$diarrheaci3[ad$bodycontact=="Yes" & ad$agestrat=="(0, 4]"],ad$qentero1600[ad$bodycontact=="Yes" & ad$agestrat=="(0, 4]"] )
+
+N.age5to10 <- calcNs(ad$diarrheaci3[ad$bodycontact=="Yes" & ad$agestrat=="(4, 10]"],ad$qentero1600[ad$bodycontact=="Yes" & ad$agestrat=="(4, 10]"] )
+
+N.age11plus <- calcNs(ad$diarrheaci3[ad$bodycontact=="Yes" & ad$agestrat==">10"],ad$qentero1600[ad$bodycontact=="Yes" & ad$agestrat==">10"] )
+
+# format them to a single text string
+Nformat <- function(Ns) {
+  paste(Ns[,1],"/",Ns[,2],sep="")
+}
+fN.all <- Nformat(N.all)
+fN.age0to4 <- Nformat(N.age0to4)
+fN.age5to10 <- Nformat(N.age5to10)
+fN.age11plus <- Nformat(N.age11plus)
+
+# --------------------------------------
+# Put all of the Ns and CIRs into
+# a single table
+# --------------------------------------
+cirtab <- cbind(fN.all,fcir.all,
+               fN.age0to4,fcir.age0to4,
+               fN.age5to10,fcir.age5to10,
+               fN.age11plus,fcir.age11plus)
+rownames(cirtab) <- labQs 
+
+```
+
+\clearpage
+\blandscape
+\begin{table}[h!tb]
+\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\caption{Cumlative Incidence of Diarrhea Among Body Immersion Swimmers by Quartiles of \textit{Enterococcus} EPA 1600 Concentration and Age}
+\begin{tabular}{l rc rc rc rc}
+& \\
+\textit{Enterococcus} & \multicolumn{2}{c}{All Ages} & \multicolumn{2}{c}{Ages 0 to 4} & \multicolumn{2}{c}{Ages 5 to 10} & \multicolumn{2}{c}{Ages >10} \\
+Quartile & Cases$^*$/ & aCIR$^{**}$ & Cases$^*$/  & aCIR$^{**}$ & Cases$^*$/  & aCIR$^{**}$ & Cases$^*$/ & aCIR$^{**}$ \\
+(range CFU/100ml) & At Risk & & At Risk & & At Risk & & At Risk \\
+\hline
+```{r EPA 1600 Quartiles CIR table,echo=FALSE,results='asis'}
+   rowtable(cirtab,digits=0)
+```
+\hline
+\end{tabular}
+\end{center}
+
+$^*$ 3-day Cumulative incident cases of diarrhea \\
+$^{**}$ Adjusted Cumulative Incidence Ratio (aCIR)
+\end{table}
+\elandscape
+
+
+
+
+
+

@@ -1,0 +1,257 @@
+
+
+
+
+# --------------------------------------
+# 1-aim1-daily-incidence-curves.R
+# ben arnold (benarnold@berkeley.edu)
+#
+# description:
+# calculate the daily incidence of
+# GI illness following beach exposure
+# by different swimmer exposure groups
+# and by different ages. 
+#
+# --------------------------------------
+
+# --------------------------------------
+# input files:
+#    13beaches-analysis.csv
+#
+# output files:
+#    daily-incidence-curves.pdf
+#    daily-incidence-curves-by-beach.pdf
+#    daily-incidence-curves-by-age.pdf
+#    cumulative-incidence-curves.pdf
+# --------------------------------------
+
+
+# --------------------------------------
+# preamble
+# --------------------------------------
+
+rm(list=ls())
+library(RColorBrewer)
+
+# --------------------------------------
+# load the analysis dataset
+# --------------------------------------
+
+d <- read.csv("~/dropbox/13beaches/data/final/13beaches-analysis.csv")
+
+# remove individuals with GI illness at baseline (not at risk)
+d <- subset(d,gibase!="Yes")
+
+# --------------------------------------
+# pull out convenience analysis variables
+#
+# because of how the data were collected
+# and symptoms were asked about at many
+# beaches, it appears that we have
+# complete follow-up person-time only
+# through day 9.  The vast majority of 
+# interviews were conducted on day 10
+# of follow-up.
+# --------------------------------------
+
+beach <- d$beach
+swim <- d$anycontact
+bodyim <- d$bodycontact
+headim <- d$headunder
+swallw <- d$swallwater
+agestrat <- d$agestrat
+itab <- d[,paste("diarrheai",0:9,sep="")]
+rtab <- d[,paste("diarrhearisk",0:9,sep="")]
+
+citab <- d[,paste("diarrheaci",0:9,sep="")]
+
+
+# --------------------------------------
+# calculate daily incidence rates
+# by different swim exposure categories
+# --------------------------------------
+
+dailyincidence <- function(imat,rmat,swim,bodyim,headim,swallw) {
+	# calculate daily incidence
+	# imat: matrix of incident cases (rows=people,cols=days)
+	# rmat: matrix of days at risk (rows=people,cols=days)
+	# swim: indicator of any water contact
+	# bodyim: indicator of body immersion swimmer
+	# headim: indicator of head immersion swimmer
+	# swallw: indicator of swallowed water swimmer
+	
+	# overall daily incident cases
+	noswimi <- apply(imat[swim=="No",],2,sum)
+	bodyimi <- apply(imat[bodyim=="Yes",],2,sum)
+	headimi <- apply(imat[headim=="Yes",],2,sum)
+	swallwi <- apply(imat[swallw=="Yes",],2,sum)
+	
+	# overall days at risk, by exposure category
+	noswimr <- apply(rmat[swim=="No",],2,sum)
+	bodyimr <- apply(rmat[bodyim=="Yes",],2,sum)
+	headimr <- apply(rmat[headim=="Yes",],2,sum)
+	swallwr <- apply(rmat[swallw=="Yes",],2,sum)
+	
+	# daily incidence rates, per 1000
+	noswim <- noswimi/noswimr * 1000
+	bodyim <- bodyimi/bodyimr * 1000
+	headim <- headimi/headimr * 1000
+	swallw <- swallwi/swallwr * 1000
+	
+	list(noswim=noswim,bodyim=bodyim,headim=headim,swallw=swallw,noswimi=noswimi,bodyimi=bodyimi,headimi=headimi,swallwi=swallwi,noswimr=noswimr,bodyimr=bodyimr,headimr=headimr,swallwr=swallwr)
+	
+}
+
+
+# --------------------------------------
+# Daily incidence rates
+# Overall
+# --------------------------------------
+all <- dailyincidence(imat=itab,rmat=rtab,swim=swim,bodyim=bodyim,headim=headim,swallw=swallw)
+
+# --------------------------------------
+# Daily incidence rates
+# All ages, separate beaches
+# --------------------------------------
+blabs <- as.character(unique(beach))
+bres <- as.list(blabs)
+for (i in 1:length(blabs)) {
+	bres[[i]] <- dailyincidence(imat=itab[beach==blabs[i],],rmat=rtab[beach==blabs[i],],swim=swim[beach==blabs[i]],bodyim=bodyim[beach==blabs[i]],headim=headim[beach==blabs[i]],swallw=swallw[beach==blabs[i]])
+}
+names(bres) <- blabs
+
+
+# --------------------------------------
+# Daily incidence rates
+# Stratified by age group, all beaches
+# --------------------------------------
+alabs <- levels(agestrat)
+ares <- as.list(alabs)
+for (i in 1:length(alabs)) {
+	ares[[i]] <- dailyincidence(imat=itab[agestrat==alabs[i],],rmat=rtab[agestrat==alabs[i],],swim=swim[agestrat==alabs[i]],bodyim=bodyim[agestrat==alabs[i]],headim=headim[agestrat==alabs[i]],swallw=swallw[agestrat==alabs[i]])
+}
+names(ares) <- c("Missing","0 to 4","5 to 10",">10")
+
+
+# --------------------------------------
+# daily incidence plot - overall
+# --------------------------------------
+
+pdf("~/dropbox/13beaches/aim1-results/figs/aim1-daily-incidence-curves.pdf")
+cols <- c("black",brewer.pal(3,"Dark2"))
+ltys <- c(1,1,1,1)
+plot(0:9,all$noswim,type="n",
+	xlab="Day Since Beach Visit",xaxt="n",
+	ylab="",ylim=c(0,16),yaxt="n",
+	bty="n",las=1
+	)
+	axis(1,at=0:9)
+	axis(2,at=seq(0,16,by=2),las=1)
+	mtext("Incident Diarrhea Episodes per 1000",side=3,at=-1,adj=0,cex=1.25)
+	lines(0:9,all$noswim,lwd=3,col=cols[1],type="l",lty=ltys[1])
+	lines(0:9,all$bodyim,lwd=2,col=cols[2],type="l",lty=ltys[2])
+	lines(0:9,all$headim,lwd=2,col=cols[3],type="l",lty=ltys[3])
+	lines(0:9,all$swallw,lwd=2,col=cols[4],type="l",lty=ltys[4])
+	legend("topright",rev(c("Non-swimmers","Body immersion","Head immersion","Swallowed water")),col=rev(cols),lty=rev(ltys),lwd=2,bty="n")
+dev.off()
+
+
+# --------------------------------------
+# daily incidence plot - beach-stratified
+# --------------------------------------
+
+pdf("~/dropbox/13beaches/aim1-results/figs/aim1-daily-incidence-curves-by-beach.pdf",width=3*4,height=5*4)
+cols <- c("black",brewer.pal(3,"Dark2"))
+ltys <- c(1,1,1,1)
+lo <- layout(mat=matrix(1:15,nrow=5,ncol=3,byrow=TRUE))
+for (i in 1:13) {
+	
+	plot(0:9,bres[[i]]$noswim,type="n",
+	xlab="Day Since Beach Visit",xaxt="n",
+	ylab="",ylim=c(0,40),yaxt="n",
+	bty="n",las=1
+	)
+	axis(1,at=0:9)
+	axis(2,at=seq(0,35,by=5),las=1)
+	mtext("Incident Diarrhea Episodes per 1000",side=3,line=0,at=-1,adj=0)
+	mtext(blabs[i],side=3,line=2,font=2)
+	lines(0:9,bres[[i]]$noswim,lwd=3,col=cols[1],type="l",lty=ltys[1])
+	lines(0:9,bres[[i]]$bodyim,lwd=2,col=cols[2],type="l",lty=ltys[2])
+	lines(0:9,bres[[i]]$headim,lwd=2,col=cols[3],type="l",lty=ltys[3])
+	lines(0:9,bres[[i]]$swallw,lwd=2,col=cols[4],type="l",lty=ltys[4])
+	
+}
+plot(1:1,type="n",xaxt="n",xlab="",yaxt="n",ylab="",bty="n")
+legend("center",legend=rev(c("Non-swimmers","Body immersion","Head immersion","Swallowed water")),col=rev(cols),lty=rev(ltys),lwd=2,bty="n",cex=2,title="Swim Exposure Group")
+
+dev.off()
+
+
+# --------------------------------------
+# daily incidence plot - age stratified
+# --------------------------------------
+
+pdf("~/dropbox/13beaches/aim1-results/figs/aim1-daily-incidence-curves-by-age.pdf",width=3*6,height=6)
+cols <- c("black",brewer.pal(3,"Dark2"))
+ltys <- c(1,1,1,1)
+lo <- layout(mat=matrix(1:15,nrow=1,ncol=3,byrow=TRUE))
+for (i in 2:4) {
+	
+	plot(0:9,ares[[i]]$noswim,type="n",
+	xlab="Day Since Beach Visit",xaxt="n",
+	ylab="",ylim=c(0,16),yaxt="n",
+	bty="n",las=1
+	)
+	axis(1,at=0:9)
+	axis(2,at=seq(0,18,by=2),las=1)
+	mtext("Incident Diarrhea Episodes per 1000",side=3,line=0,at=-1,adj=0)
+	mtext(paste("Age ",names(ares)[i]," years",sep=""),side=3,line=2,font=2)
+	lines(0:9,ares[[i]]$noswim,lwd=3,col=cols[1],type="l",lty=ltys[1])
+	lines(0:9,ares[[i]]$bodyim,lwd=2,col=cols[2],type="l",lty=ltys[2])
+	lines(0:9,ares[[i]]$headim,lwd=2,col=cols[3],type="l",lty=ltys[3])
+	lines(0:9,ares[[i]]$swallw,lwd=2,col=cols[4],type="l",lty=ltys[4])
+	legend("topright",rev(c("Non-swimmers","Body immersion","Head immersion","Swallowed water")),col=rev(cols),lty=rev(ltys),lwd=2,bty="n")
+}
+
+dev.off()
+
+
+# --------------------------------------
+# cumulative incidence plot
+# --------------------------------------
+
+# exctract cumulative incidence rates
+# by different swim exposure categories
+noswimci <- apply(citab[swim=="No",],2,mean)*1000
+bodyimci <- apply(citab[bodyim=="Yes",],2,mean)*1000
+headimci <- apply(citab[headim=="Yes",],2,mean)*1000
+swallwci <- apply(citab[swallw=="Yes",],2,mean)*1000
+
+pdf("~/dropbox/13beaches/aim1-results/figs/aim1-cumulative-incidence-curves.pdf")
+cols <- c("black",brewer.pal(3,"Dark2"))
+ltys <- c(1,1,1,1)
+ytics <- seq(0,55,by=5)
+plot(0:9,noswimci,type="n",
+	xlab="Day Since Beach Visit",xaxt="n",
+	ylab="",ylim=range(ytics),yaxt="n",
+	bty="n",las=1
+	)
+	axis(1,at=0:9)
+	axis(2,at=ytics,las=1)
+	mtext("Cumulative Incidence Rates of Diarrhea per 1000",side=3,at=-1,adj=0,cex=1.25)
+	lines(0:9,noswimci,lwd=3,col=cols[1],type="l",lty=ltys[1])
+	lines(0:9,bodyimci,lwd=2,col=cols[2],type="l",lty=ltys[1])
+	lines(0:9,headimci,lwd=2,col=cols[3],type="l",lty=ltys[1])
+	lines(0:9,swallwci,lwd=2,col=cols[4],type="l",lty=ltys[1])
+	legend("topleft",rev(c("Non-swimmers","Body immersion","Head immersion","Swallowed water")),col=rev(cols),lty=rev(ltys),lwd=2,bty="n")
+dev.off()
+
+
+
+
+
+
+
+
+
+

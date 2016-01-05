@@ -1,0 +1,582 @@
+---------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/jadederong/dropbox/13beaches/src/dm/6-format-adm-wq-sample.log
+  log type:  text
+ opened on:  16 Jul 2015, 14:43:18
+
+. 
+. *----------------------------------------
+. * 6-format-adm-wq.do
+. * ben arnold
+. *
+. * format the Avalon, Doheny, Malibu
+. * water quality data.
+. * 
+. * calculate log averages using a standardized
+. * imputation approach for values at 
+. * the detection limits
+. * for values below LOD, use 0.1, consistent with NEEAR data
+. * for values at upper LOD, use upper LOD
+. *
+. * Only include Entero 1600 and QPCR
+. * for comparability to the NEEAR data
+. *
+. * version 5 (15 jul 2015) by Jade
+. * modify script to output a dataset with 
+. * a row for each sample
+. *
+. * version 4 (17 apr 2015)
+. * Further split out site E at Doheny as a separate water quality site
+. *
+. * version 3 (21 feb 2015)
+. * created a separate site-specific match for each beach. At Avalon
+. * since site D is so different + geographically separate from A/B/C 
+. * (see Figs 1 and 2 of Yau et al. 2014)
+. * At Doheny and Malibu, Site C was in the lagoon.
+. *
+. * version 2 (13 feb 2015)
+. * add Coliphage indicator variables for EPA 1601 and 1602
+. *
+. * version 1 (25 feb 2014)
+. *
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * input files:
+. *       avalon_inddata.dta
+. *   doheny_inddata.dta
+. *   malibu_inddata.dta
+. *
+. * output files:
+. *       adm-wq.dta
+. *
+. *----------------------------------------
+. 
+. 
+. *----------------------------------------
+. * read in the beaches indicator data
+. * create an indicator code that 
+. * excludes beach and year info
+. *----------------------------------------
+. use "~/dropbox/13beaches/data/untouched/adm/avalon_inddata.dta", clear
+
+. gen indcode = substr(groupindex,1,8) + substr(groupindex,13,1)
+
+. keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","12ENT0411","1
+> 4FMC0511","16FMC0811","14FPC0511","16FPC0811")
+(18,954 observations deleted)
+
+. tempfile avalon
+
+. save `avalon'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_29756.000001 saved
+
+. 
+. use "~/dropbox/13beaches/data/untouched/adm/doheny_inddata.dta", clear
+
+. gen indcode = substr(groupindex,1,8) + substr(groupindex,13,1)
+
+. keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","15ENT0411","1
+> 4FMC0511","16FMC0811","14FPC0511","16FPC0811")
+(10,217 observations deleted)
+
+. tempfile doheny
+
+. save `doheny'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_29756.000002 saved
+
+. 
+. use "~/dropbox/13beaches/data/untouched/adm/malibu_inddata.dta", clear
+
+. gen indcode = substr(groupindex,1,8) + substr(groupindex,13,1)
+
+. keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","12ENT0411","1
+> 4FMC0511","16FMC0811","14FPC0511","16FPC0811")
+(10,233 observations deleted)
+
+. 
+. append using `avalon'
+(note: variable sampleid was str6, now str8 to accommodate using data's values)
+(note: variable qualifier was str2, now str5 to accommodate using data's values)
+(note: variable labcode was str7, now str8 to accommodate using data's values)
+(note: variable comments was str55, now str66 to accommodate using data's values)
+(label lsampletime already defined)
+
+. append using `doheny'
+(note: variable comments was str66, now str124 to accommodate using data's values)
+(label lsampletime already defined)
+
+. 
+. * standardize the EPA 1600 indicator code for Doheny
+. replace indcode = "12ENT0411" if indcode=="15ENT0411"
+(441 real changes made)
+
+. 
+. tab indcode beach
+
+           |              Beach
+   indcode |    Avalon     Doheny     Malibu |     Total
+-----------+---------------------------------+----------
+ 02ENT2411 |       560        334        337 |     1,231 
+ 02ENT2412 |       623        338        346 |     1,307 
+ 02ENT2413 |       560        334        337 |     1,231 
+ 02ENT2414 |       622        338        346 |     1,306 
+ 12ENT0411 |       705        441        381 |     1,527 
+ 14FMC0511 |       318        101          0 |       419 
+ 14FPC0511 |       608        427        177 |     1,212 
+ 16FMC0811 |       395        234        195 |       824 
+ 16FPC0811 |       395        234        195 |       824 
+-----------+---------------------------------+----------
+     Total |     4,786      2,781      2,314 |     9,881 
+
+
+. 
+. *----------------------------------------
+. * Create a standard beach code for Avalon
+. * to differentiate sites A/B/C from site D
+. * and in Doheny to differentiate site C
+. * (in the lagoon) from the other sites
+. *----------------------------------------
+. gen str beachcode = ""
+(9,881 missing values generated)
+
+.         replace beachcode = "Avalon-ABC" if beach=="Avalon" & stationid!="A_D"
+variable beachcode was str1 now str10
+(4,546 real changes made)
+
+.         replace beachcode = "Avalon-D" if beach=="Avalon" & stationid=="A_D"
+(240 real changes made)
+
+.         replace beachcode= "Doheny-ABD" if beach=="Doheny" & (stationid!="D_C" & stat
+> ionid!="D_E")
+(1,910 real changes made)
+
+.         replace beachcode= "Doheny-C" if beach=="Doheny" & stationid=="D_C"
+(241 real changes made)
+
+.         replace beachcode= "Doheny-E" if beach=="Doheny" & stationid=="D_E"
+(630 real changes made)
+
+.         replace beachcode= "Malibu-ABDE" if beach=="Malibu" & stationid!="M_C"
+variable beachcode was str10 now str11
+(2,013 real changes made)
+
+.         replace beachcode= "Malibu-C" if beach=="Malibu" & stationid=="M_C"
+(301 real changes made)
+
+.         assert beachcode!= ""
+
+.         label var beachcode "Water quality sampling location beach code"
+
+. 
+. * creating temporary file for use in calculating daily averages below
+. tempfile adm
+
+. save `adm'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_29756.000003 saved
+
+.         
+. *----------------------------------------
+. * Create dataset with one row for each sample
+. * Subset to final variables and save data
+. *----------------------------------------
+. * calculate log 10 values for the indicator counts
+. capture drop log10
+
+. gen log10 = log10(result)
+(839 missing values generated)
+
+. 
+. * impute values below detection limit at 0.1
+. replace result = 0.1 if (qualifier=="ND" | qualifier=="<" | result==0 ) & inlist(indc
+> ode,"12ENT0411","02ENT2411","02ENT2412","02ENT2413","02ENT2414")
+(1,130 real changes made)
+
+. replace result = 0.1 if (qualifier=="<") & inlist(indcode,"14FMC0511","16FMC0811","14
+> FPC0511","16FPC0811")
+(1,441 real changes made)
+
+. 
+. replace log10 = log10(0.1) if (qualifier=="ND" | qualifier=="<" | result==0 ) & inlis
+> t(indcode,"12ENT0411","02ENT2411","02ENT2412","02ENT2413","02ENT2414")
+(534 real changes made)
+
+. replace log10 = log10(0.1) if (qualifier=="<") & inlist(indcode,"14FMC0511","16FMC081
+> 1","14FPC0511","16FPC0811")
+(1,441 real changes made)
+
+. 
+. * for one value at Doheny, replace a 0.09 F+ Coliphage 1601 value with 0.1
+. replace log10 = log10(0.1) if indcode=="14FPC0511" & result< 0.1
+(1 real change made)
+
+. 
+. 
+. rename sampledate coldate
+
+. gen marine = 1
+
+.         label var marine "Marine Beach"
+
+. order beach coldate marine
+
+. 
+. * drop columns with no water quality information
+. drop f26-f34 comments posneg
+
+. 
+. * drop columns that are not needed
+. drop year stationid
+
+. 
+. compress
+  variable marine was float now byte
+  variable sampletime2 was float now byte
+  variable am was float now byte
+  variable pm was float now byte
+  variable matrix was str11 now str8
+  variable indicator was str26 now str17
+  variable qualifier was str5 now str2
+  variable labcode was str8 now str7
+  variable analysismethod was str35 now str13
+  variable groupname was str39 now str35
+  (533,574 bytes saved)
+
+. label data "ADM water quality sample data, created by 6-format-adm-wq-sample.do"
+
+. save "~/dropbox/13beaches/data/final/adm-wq-samples.dta", replace
+file ~/dropbox/13beaches/data/final/adm-wq-samples.dta saved
+
+. 
+. desc
+
+Contains data from ~/dropbox/13beaches/data/final/adm-wq-samples.dta
+  obs:         9,881                          ADM water quality sample data, created
+                                                by 6-format-adm-wq-sample.do
+ vars:            29                          16 Jul 2015 14:43
+ size:     1,887,271                          
+---------------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+---------------------------------------------------------------------------------------
+beach           str6    %9s                   Beach
+coldate         int     %d                    Sample date
+marine          byte    %9.0g                 Marine Beach
+sampletime      str8    %9s                   Sample time
+sampleid        str8    %9s                   SampleID
+sampletype      str9    %9s                   SampleType
+sampledepth     float   %9.0g                 SampleDepth
+sampledepthun~s str1    %9s                   SampleDepthUnits
+fieldreplicate  byte    %8.0g                 FieldReplicate
+matrix          str8    %9s                   Matrix
+indicator       str17   %17s                  ParameterCode
+qualifier       str2    %9s                   Qualifier
+result          float   %9.0g                 Result
+units           str16   %16s                  Units
+labcode         str7    %9s                   LabCode
+analysismethod  str13   %13s                  AnalysisMethod
+groupindex      str13   %13s                  GroupIndex
+groupname       str35   %35s                  GroupName
+runid           byte    %8.0g                 RunID
+tier            str1    %9s                   Tier
+inhibition      str3    %9s                   Inhibition
+expectedvalue   str3    %9s                   ExpectedValue
+labreplicate    byte    %8.0g                 LabReplicate
+sampletime2     byte    %9.0g      lsampletime
+                                              Standardized sample time
+am              byte    %9.0g                 AM samples
+pm              byte    %9.0g                 Mid-day and PM samples
+indcode         str9    %9s                   
+beachcode       str11   %11s                  Water quality sampling location beach
+                                                code
+log10           float   %9.0g                 
+---------------------------------------------------------------------------------------
+Sorted by: 
+
+. 
+. 
+. *----------------------------------------
+. * impute values for non-detects
+. *----------------------------------------
+. use `adm', clear
+
+. 
+. * calculate log 10 values for the indicator counts
+. capture drop log10
+
+. gen log10 = log10(result)
+(839 missing values generated)
+
+. 
+. * impute values below detection limit at 0.1
+. replace log10 = log10(0.1) if (qualifier=="ND" | qualifier=="<" | result==0 ) & inlis
+> t(indcode,"12ENT0411","02ENT2411","02ENT2412","02ENT2413","02ENT2414")
+(1,130 real changes made)
+
+. 
+. replace log10 = log10(0.1) if (qualifier=="<") & inlist(indcode,"14FMC0511","16FMC081
+> 1","14FPC0511","16FPC0811")
+(1,441 real changes made)
+
+. 
+. * for one value at Doheny, replace a 0.09 F+ Coliphage 1601 value with 0.1
+. replace log10 = log10(0.1) if indcode=="14FPC0511" & result< 0.1
+(1 real change made)
+
+. 
+. 
+. *----------------------------------------
+. * calculate daily averages
+. *----------------------------------------
+. 
+. local inds "02ENT2411 02ENT2412 02ENT2413 02ENT2414 12ENT0411 14FMC0511 16FMC0811 14F
+> PC0511 16FPC0811"
+
+. sort beach beachcode sampledate
+
+. foreach ind of local inds {
+  2.         di as res "indicator: `ind'"
+  3.         * daily average
+.         by beach beachcode sampledate: egen _aa = mean(log10) if indcode=="`ind'"
+  4.         by beach beachcode sampledate: egen avgdy`ind' = max(_aa)
+  5. 
+.         * am average
+.         by beach beachcode sampledate: egen _bb = mean(log10) if indcode=="`ind'" & s
+> ampletime2==1
+  6.         by beach beachcode sampledate: egen avgam`ind' = max(_bb)
+  7.         
+.         * mid-day average
+.         by beach beachcode sampledate: egen _cc = mean(log10) if indcode=="`ind'" & s
+> ampletime2==2
+  8.         by beach beachcode sampledate: egen avgmd`ind' = max(_cc)
+  9.         
+.         * pm average
+.         by beach beachcode sampledate: egen _dd = mean(log10) if indcode=="`ind'" & s
+> ampletime2==3
+ 10.         by beach beachcode sampledate: egen avgpm`ind' = max(_dd)
+ 11.         
+.         drop _aa _bb _cc _dd
+ 12. }
+indicator: 02ENT2411
+(8650 missing values generated)
+(573 missing values generated)
+(9386 missing values generated)
+(676 missing values generated)
+(9396 missing values generated)
+(1306 missing values generated)
+(9630 missing values generated)
+(3269 missing values generated)
+indicator: 02ENT2412
+(8574 missing values generated)
+(513 missing values generated)
+(9355 missing values generated)
+(513 missing values generated)
+(9375 missing values generated)
+(1288 missing values generated)
+(9606 missing values generated)
+(3269 missing values generated)
+indicator: 02ENT2413
+(8650 missing values generated)
+(573 missing values generated)
+(9386 missing values generated)
+(676 missing values generated)
+(9396 missing values generated)
+(1306 missing values generated)
+(9630 missing values generated)
+(3269 missing values generated)
+indicator: 02ENT2414
+(8575 missing values generated)
+(513 missing values generated)
+(9355 missing values generated)
+(513 missing values generated)
+(9375 missing values generated)
+(1288 missing values generated)
+(9607 missing values generated)
+(3269 missing values generated)
+indicator: 12ENT0411
+(8354 missing values generated)
+(4 missing values generated)
+(9200 missing values generated)
+(4 missing values generated)
+(9342 missing values generated)
+(814 missing values generated)
+(9574 missing values generated)
+(2795 missing values generated)
+indicator: 14FMC0511
+(9462 missing values generated)
+(6619 missing values generated)
+(9761 missing values generated)
+(6619 missing values generated)
+(9691 missing values generated)
+(6658 missing values generated)
+(9772 missing values generated)
+(6684 missing values generated)
+indicator: 16FMC0811
+(9057 missing values generated)
+(9315 missing values generated)
+(9712 missing values generated)
+(4917 missing values generated)
+(9792 missing values generated)
+(4861 missing values generated)
+indicator: 14FPC0511
+(8669 missing values generated)
+(129 missing values generated)
+(9338 missing values generated)
+(129 missing values generated)
+(9507 missing values generated)
+(2927 missing values generated)
+(9586 missing values generated)
+(2935 missing values generated)
+indicator: 16FPC0811
+(9057 missing values generated)
+(9315 missing values generated)
+(9712 missing values generated)
+(4917 missing values generated)
+(9792 missing values generated)
+(4861 missing values generated)
+
+. 
+. keep beach beachcode sampledate avg*
+
+. by beach beachcode sampledate: keep if _n==1
+(9,614 observations deleted)
+
+. 
+. 
+. *----------------------------------------
+. * rename and label variables to be 
+. * consistent with NEEAR
+. *----------------------------------------
+. 
+. local inds "02ENT2411 02ENT2412 02ENT2413 02ENT2414 12ENT0411"
+
+. local names "pcr pcr2 pcr3 pcr4 cfu"
+
+. local vars "avgdy avgam avgmd avgpm"
+
+. local labs "Daily AM Mid-Day PM"
+
+. local i = 1
+
+. foreach var of local vars {
+  2.         local lab = word("`labs'",`i')
+  3.         rename `var'02ENT2411 `var'enteropcr
+  4.                 label var `var'enteropcr "`lab' Avg log10 Entero QPCR ddct"
+  5.         rename `var'02ENT2412 `var'enteropcr2
+  6.                 label var `var'enteropcr2 "`lab' Avg log10 Entero QPCR ddct w/i"
+  7.         rename `var'02ENT2413 `var'enteropcr3
+  8.                 label var `var'enteropcr3 "`lab' Avg log10 Entero QPCR dct"
+  9.         rename `var'02ENT2414 `var'enteropcr4
+ 10.                 label var `var'enteropcr4 "`lab' Avg log10 Entero QPCR dct w/i"
+ 11.         rename `var'12ENT0411 `var'entero1600
+ 12.                 label var `var'entero1600 "`lab' Avg log10 Entero EPA 1600"
+ 13.         
+.         rename `var'14FMC0511 `var'fmc1601
+ 14.                 label var `var'fmc1601 "`lab' Avg log10 F-minus Coliphage EPA 1601
+> "
+ 15.         rename `var'16FMC0811 `var'fmc1602
+ 16.                 label var `var'fmc1602 "`lab' Avg log10 F-minus Coliphage EPA 1602
+> "
+ 17.         rename `var'14FPC0511 `var'fpc1601
+ 18.                 label var `var'fpc1601 "`lab' Avg log10 F-plus Coliphage EPA 1601"
+ 19.         rename `var'16FPC0811 `var'fpc1602
+ 20.                 label var `var'fpc1602 "`lab' Avg log10 F-plus Coliphage EPA 1602"
+ 21.                         
+.         local i = `i'+1
+ 22. }
+
+. 
+. 
+. *----------------------------------------
+. * save file
+. *----------------------------------------
+. 
+. rename sampledate coldate
+
+. gen marine = 1
+
+.         label var marine "Marine Beach"
+
+. order beach coldate marine
+
+. 
+. compress
+  variable marine was float now byte
+  variable avgmdfpc1602 was float now byte
+  variable avgpmfpc1602 was float now byte
+  (2,403 bytes saved)
+
+. label data "ADM water quality data, created by 6-format-adm-wq.do"
+
+. save "~/dropbox/13beaches/data/final/adm-wq.dta", replace
+file ~/dropbox/13beaches/data/final/adm-wq.dta saved
+
+. 
+. desc
+
+Contains data from ~/dropbox/13beaches/data/final/adm-wq.dta
+  obs:           267                          ADM water quality data, created by
+                                                6-format-adm-wq.do
+ vars:            40                          16 Jul 2015 14:43
+ size:        42,186                          
+---------------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+---------------------------------------------------------------------------------------
+beach           str6    %9s                   Beach
+coldate         int     %d                    Sample date
+marine          byte    %9.0g                 Marine Beach
+beachcode       str11   %11s                  Water quality sampling location beach
+                                                code
+avgdyenteropcr  float   %9.0g                 Daily Avg log10 Entero QPCR ddct
+avgamenteropcr  float   %9.0g                 AM Avg log10 Entero QPCR ddct
+avgmdenteropcr  float   %9.0g                 Mid-Day Avg log10 Entero QPCR ddct
+avgpmenteropcr  float   %9.0g                 PM Avg log10 Entero QPCR ddct
+avgdyenteropcr2 float   %9.0g                 Daily Avg log10 Entero QPCR ddct w/i
+avgamenteropcr2 float   %9.0g                 AM Avg log10 Entero QPCR ddct w/i
+avgmdenteropcr2 float   %9.0g                 Mid-Day Avg log10 Entero QPCR ddct w/i
+avgpmenteropcr2 float   %9.0g                 PM Avg log10 Entero QPCR ddct w/i
+avgdyenteropcr3 float   %9.0g                 Daily Avg log10 Entero QPCR dct
+avgamenteropcr3 float   %9.0g                 AM Avg log10 Entero QPCR dct
+avgmdenteropcr3 float   %9.0g                 Mid-Day Avg log10 Entero QPCR dct
+avgpmenteropcr3 float   %9.0g                 PM Avg log10 Entero QPCR dct
+avgdyenteropcr4 float   %9.0g                 Daily Avg log10 Entero QPCR dct w/i
+avgamenteropcr4 float   %9.0g                 AM Avg log10 Entero QPCR dct w/i
+avgmdenteropcr4 float   %9.0g                 Mid-Day Avg log10 Entero QPCR dct w/i
+avgpmenteropcr4 float   %9.0g                 PM Avg log10 Entero QPCR dct w/i
+avgdyentero1600 float   %9.0g                 Daily Avg log10 Entero EPA 1600
+avgamentero1600 float   %9.0g                 AM Avg log10 Entero EPA 1600
+avgmdentero1600 float   %9.0g                 Mid-Day Avg log10 Entero EPA 1600
+avgpmentero1600 float   %9.0g                 PM Avg log10 Entero EPA 1600
+avgdyfmc1601    float   %9.0g                 Daily Avg log10 F-minus Coliphage EPA
+                                                1601
+avgamfmc1601    float   %9.0g                 AM Avg log10 F-minus Coliphage EPA 1601
+avgmdfmc1601    float   %9.0g                 Mid-Day Avg log10 F-minus Coliphage EPA
+                                                1601
+avgpmfmc1601    float   %9.0g                 PM Avg log10 F-minus Coliphage EPA 1601
+avgdyfmc1602    float   %9.0g                 Daily Avg log10 F-minus Coliphage EPA
+                                                1602
+avgamfmc1602    float   %9.0g                 AM Avg log10 F-minus Coliphage EPA 1602
+avgmdfmc1602    float   %9.0g                 Mid-Day Avg log10 F-minus Coliphage EPA
+                                                1602
+avgpmfmc1602    float   %9.0g                 PM Avg log10 F-minus Coliphage EPA 1602
+avgdyfpc1601    float   %9.0g                 Daily Avg log10 F-plus Coliphage EPA 1601
+avgamfpc1601    float   %9.0g                 AM Avg log10 F-plus Coliphage EPA 1601
+avgmdfpc1601    float   %9.0g                 Mid-Day Avg log10 F-plus Coliphage EPA
+                                                1601
+avgpmfpc1601    float   %9.0g                 PM Avg log10 F-plus Coliphage EPA 1601
+avgdyfpc1602    float   %9.0g                 Daily Avg log10 F-plus Coliphage EPA 1602
+avgamfpc1602    float   %9.0g                 AM Avg log10 F-plus Coliphage EPA 1602
+avgmdfpc1602    byte    %9.0g                 Mid-Day Avg log10 F-plus Coliphage EPA
+                                                1602
+avgpmfpc1602    byte    %9.0g                 PM Avg log10 F-plus Coliphage EPA 1602
+---------------------------------------------------------------------------------------
+Sorted by: beach  beachcode  coldate
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/jadederong/dropbox/13beaches/src/dm/6-format-adm-wq-sample.log
+  log type:  text
+ closed on:  16 Jul 2015, 14:43:21
+---------------------------------------------------------------------------------------

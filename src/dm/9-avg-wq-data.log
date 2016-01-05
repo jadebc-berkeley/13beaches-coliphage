@@ -1,0 +1,804 @@
+--------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/9-avg-wq-data.log
+  log type:  text
+ opened on:  17 Dec 2015, 13:58:34
+
+. 
+. *----------------------------------------
+. * 9-avg-wq-data.do
+. * ben arnold
+. *
+. * impute non-detect values in datasets
+. * calculate daily average log10 values
+. * 
+. * append the water quality datasets into
+. * a single file and calculate quantiles
+. * of indicator distributions
+. *
+. *
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * input files:
+. *       13beaches-wq-samples.dta
+. *
+. * output files:
+. *       13beaches-wq.dta / .csv
+. *
+. *----------------------------------------
+. 
+. 
+. *----------------------------------------
+. * Do the averaging separately by broad
+. * study type because of small differences
+. * in data collection
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * EPA NEEAR water quality data
+. * Calculate daily average values for
+. * Entero 1600
+. * Entero QPCR
+. * F-plus Coliphage 1601
+. *----------------------------------------
+. use "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", clear
+(13 beaches water quality data, created by 8-append-wq-data.do)
+
+. drop if inlist(beach,"Avalon","Doheny","Malibu","Mission Bay")
+(3,599 observations deleted)
+
+. 
+. * impute non-detects with 0.1
+. local vars "entero1600cfu enteroQPCRcce fpc1601mpn"
+
+. foreach var of local vars {
+  2.         di as res _n "Replacements of `var'"
+  3.         replace `var' = 0.1 if `var'_nd==1
+  4. }
+
+Replacements of entero1600cfu
+(340 real changes made)
+
+Replacements of enteroQPCRcce
+(750 real changes made)
+
+Replacements of fpc1601mpn
+(322 real changes made)
+
+. 
+. gen logentero1600 = log10(entero1600cfu)
+(14 missing values generated)
+
+.         label var logentero1600 "log10 Entero EPA 1600"
+
+. gen logenteropcr = log10(enteroQPCRcce)
+(77 missing values generated)
+
+.         label var logenteropcr "log10 Entero qPCR EPA 1611"
+
+. gen logfpc1601 = log10(fpc1601mpn)
+(3,343 missing values generated)
+
+.         label var logfpc1601 "log10 F+ Coliphage EPA 1601"
+
+.         
+. local stubs "entero1600 enteropcr fpc1601"
+
+. foreach stub of local stubs {
+  2.         sort beach coldate
+  3.         by beach coldate: egen _dy = mean(log`stub')
+  4.         by beach coldate: egen _am = mean(log`stub') if coltime==8
+  5.         by beach coldate: egen _md = mean(log`stub') if coltime==11
+  6.         by beach coldate: egen _pm = mean(log`stub') if coltime==15
+  7.         by beach coldate: egen _sh = mean(log`stub') if depth==1
+  8.         by beach coldate: egen _wt = mean(log`stub') if depth==2
+  9.         by beach coldate: egen avgdy`stub' = max(_dy)
+ 10.         by beach coldate: egen avgam`stub' = max(_am)
+ 11.         by beach coldate: egen avgmd`stub' = max(_md)
+ 12.         by beach coldate: egen avgpm`stub' = max(_pm)
+ 13.         by beach coldate: egen avgsh`stub' = max(_sh)
+ 14.         by beach coldate: egen avgwt`stub' = max(_wt)
+ 15.         drop _dy - _wt
+ 16.         local stublab : var label log`stub'
+ 17.         label var avgdy`stub' "Daily Avg `stublab'"
+ 18.         label var avgam`stub' "AM Avg `stublab'"
+ 19.         label var avgmd`stub' "Mid-Day Avg `stublab'"
+ 20.         label var avgpm`stub' "PM Avg `stublab'"
+ 21.         label var avgsh`stub' "shin Avg `stublab'"
+ 22.         label var avgwt`stub' "waist Avg `stublab'"
+ 23. }
+(2659 missing values generated)
+(2639 missing values generated)
+(2700 missing values generated)
+(1922 missing values generated)
+(2074 missing values generated)
+(54 missing values generated)
+(8 missing values generated)
+(131 missing values generated)
+(2 missing values generated)
+(2667 missing values generated)
+(2651 missing values generated)
+(2706 missing values generated)
+(1932 missing values generated)
+(2075 missing values generated)
+(2 missing values generated)
+(74 missing values generated)
+(44 missing values generated)
+(149 missing values generated)
+(20 missing values generated)
+(2 missing values generated)
+(3342 missing values generated)
+(3774 missing values generated)
+(3774 missing values generated)
+(3786 missing values generated)
+(3669 missing values generated)
+(3669 missing values generated)
+(3342 missing values generated)
+(3342 missing values generated)
+(3342 missing values generated)
+(3366 missing values generated)
+(3342 missing values generated)
+(3342 missing values generated)
+
+. 
+. 
+. by beach coldate: keep if _n==1
+(3,775 observations deleted)
+
+. keep beach coldate avg*
+
+. 
+. gen byte marine = !inlist(beach,"West","Washington Park","Silver","Huntington"
+> )
+
+.         label var marine "Marine beach"
+
+. 
+. order beach coldate marine
+
+. sort beach coldate
+
+. 
+. * store a daily average dataset
+. tempfile neearwq
+
+. save `neearwq'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03100.000001 saved
+
+. 
+. 
+. 
+. *----------------------------------------
+. * Avalon / Doheny / Malibu (ADM) water quality data
+. * Calculate daily average values for
+. * Entero 1600
+. * Entero QPCR 1611 ddct
+. * F-plus Coliphage 1601
+. * F-plus Coliphage 1602
+. * F-minus Coliphage 1601
+. * F-minus Coliphage 1602
+. *----------------------------------------
+. use "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", clear
+(13 beaches water quality data, created by 8-append-wq-data.do)
+
+. keep if inlist(beach,"Avalon","Doheny","Malibu")
+(6,102 observations deleted)
+
+. 
+. * impute non-detects with 0.1
+. local vars "entero1600cfu enteroQPCRcce fpc1601mpn fpc1602mpn fmc1601mpn fmc16
+> 02mpn"
+
+. foreach var of local vars {
+  2.         di as res _n "Replacements of `var'"
+  3.         replace `var' = 0.1 if `var'_nd==1
+  4. }
+
+Replacements of entero1600cfu
+(285 real changes made)
+
+Replacements of enteroQPCRcce
+(200 real changes made)
+
+Replacements of fpc1601mpn
+(493 real changes made)
+
+Replacements of fpc1602mpn
+(784 real changes made)
+
+Replacements of fmc1601mpn
+(203 real changes made)
+
+Replacements of fmc1602mpn
+(539 real changes made)
+
+. 
+. gen logentero1600 = log10(entero1600cfu)
+(2 missing values generated)
+
+.         label var logentero1600 "log10 Entero EPA 1600"
+
+. gen logenteropcr = log10(enteroQPCRcce)
+(262 missing values generated)
+
+.         label var logenteropcr "log10 Entero qPCR EPA 1611"
+
+. gen logfpc1601 = log10(fpc1601mpn)
+(281 missing values generated)
+
+.         label var logfpc1601 "log10 F+ Coliphage EPA 1601"
+
+. gen logfpc1602 = log10(fpc1602mpn)
+(669 missing values generated)
+
+.         label var logfpc1602 "log10 F+ Coliphage EPA 1602"
+
+. gen logfmc1601 = log10(fmc1601mpn)
+(1,074 missing values generated)
+
+.         label var logfmc1601 "log10 F- Coliphage EPA 1601"
+
+. gen logfmc1602 = log10(fmc1602mpn)
+(669 missing values generated)
+
+.         label var logfmc1602 "log10 F- Coliphage EPA 1602"
+
+.         
+. local stubs "entero1600 enteropcr fpc1601 fpc1602 fmc1601 fmc1602"
+
+. foreach stub of local stubs {
+  2.         sort beach beachcode coldate
+  3.         by beach beachcode coldate: egen _dy = mean(log`stub')
+  4.         by beach beachcode coldate: egen _am = mean(log`stub') if coltime==
+> 8
+  5.         by beach beachcode coldate: egen _md = mean(log`stub') if coltime==
+> 11
+  6.         by beach beachcode coldate: egen _pm = mean(log`stub') if coltime==
+> 15
+  7.         * not doing shin + waist summaries for these beaches - waist only c
+> ollected
+.         * for a few samples from Avalon
+.         * by beach beachcode coldate: egen _sh = mean(log`stub') if depth==1
+.         * by beach beachcode coldate: egen _wt = mean(log`stub') if depth==2
+.         by beach beachcode coldate: egen avgdy`stub' = max(_dy)
+  8.         by beach beachcode coldate: egen avgam`stub' = max(_am)
+  9.         by beach beachcode coldate: egen avgmd`stub' = max(_md)
+ 10.         by beach beachcode coldate: egen avgpm`stub' = max(_pm)
+ 11.         * by beach beachcode coldate: egen avgsh`stub' = max(_sh)
+.         * by beach beachcode coldate: egen avgwt`stub' = max(_wt)
+.         drop _dy - _pm
+ 12.         local stublab : var label log`stub'
+ 13.         label var avgdy`stub' "Daily Avg `stublab'"
+ 14.         label var avgam`stub' "AM Avg `stublab'"
+ 15.         label var avgmd`stub' "Mid-Day Avg `stublab'"
+ 16.         label var avgpm`stub' "PM Avg `stublab'"
+ 17.         * label var avgsh`stub' "shin Avg `stublab'"
+.         * label var avgwt`stub' "waist Avg `stublab'"
+. }
+(1 missing value generated)
+(847 missing values generated)
+(954 missing values generated)
+(1186 missing values generated)
+(1 missing value generated)
+(1 missing value generated)
+(107 missing values generated)
+(410 missing values generated)
+(114 missing values generated)
+(902 missing values generated)
+(987 missing values generated)
+(1218 missing values generated)
+(114 missing values generated)
+(132 missing values generated)
+(206 missing values generated)
+(506 missing values generated)
+(20 missing values generated)
+(858 missing values generated)
+(1112 missing values generated)
+(1194 missing values generated)
+(20 missing values generated)
+(20 missing values generated)
+(431 missing values generated)
+(434 missing values generated)
+(846 missing values generated)
+(1212 missing values generated)
+(1290 missing values generated)
+(731 missing values generated)
+(722 missing values generated)
+(984 missing values generated)
+(1291 missing values generated)
+(1299 missing values generated)
+(1382 missing values generated)
+(984 missing values generated)
+(984 missing values generated)
+(992 missing values generated)
+(998 missing values generated)
+(846 missing values generated)
+(1212 missing values generated)
+(1290 missing values generated)
+(731 missing values generated)
+(722 missing values generated)
+
+. 
+. 
+. by beach beachcode coldate: keep if _n==1
+(1,226 observations deleted)
+
+. keep beach beachcode coldate avg*
+
+. 
+. gen byte marine = 1
+
+.         label var marine "Marine beach"
+
+. 
+. order beach beachcode coldate marine
+
+. sort beach beachcode coldate
+
+. 
+. * store a daily average dataset
+. tempfile admwq
+
+. save `admwq'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03100.000002 saved
+
+. 
+. 
+. 
+. *----------------------------------------
+. * Mission Bay water quality data
+. * Calculate daily average values for
+. * Entero 1600
+. * Entero enterolert
+. * Entero QPCR
+. * F-plus Coliphage 1601
+. * F-minus Coliphage 1601
+. *----------------------------------------
+. use "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", clear
+(13 beaches water quality data, created by 8-append-wq-data.do)
+
+. keep if inlist(beach,"Mission Bay")
+(5,489 observations deleted)
+
+. 
+. * impute non-detects as 0.1 (consistent w/ other datasets)
+. local vlist "entero1600cfu enteroQPCRcce enteroELTmpn fpc1601mpn fmc1601mpn"
+
+. foreach var of local vlist {
+  2.         di as res _n "Imputing NDs for `var'"
+  3.         replace `var' = 0.1 if `var'_nd==1
+  4. }
+
+Imputing NDs for entero1600cfu
+(30 real changes made)
+
+Imputing NDs for enteroQPCRcce
+(46 real changes made)
+
+Imputing NDs for enteroELTmpn
+variable enteroELTmpn was long now double
+(627 real changes made)
+
+Imputing NDs for fpc1601mpn
+(125 real changes made)
+
+Imputing NDs for fmc1601mpn
+(45 real changes made)
+
+. 
+. * calculate log10 values for each indicator
+. gen logentero1600 = log10(entero1600cfu)
+(1,944 missing values generated)
+
+.         label var logentero1600 "log10 Entero EPA 1600"
+
+. gen logenteropcr = log10(enteroQPCRcce)
+(1,333 missing values generated)
+
+.         label var logenteropcr "log10 Entero qPCR EPA 1611"
+
+. gen logenteroELT = log10(enteroELTmpn)
+(162 missing values generated)
+
+.         label var logenteroELT "log10 Entero Enterolert"
+
+. gen logfpc1601 = log10(fpc1601mpn)
+(1,965 missing values generated)
+
+.         label var logfpc1601 "log10 F+ Coliphage EPA 1601"
+
+. gen logfmc1601 = log10(fmc1601mpn)
+(1,965 missing values generated)
+
+.         label var logfmc1601 "log10 F- Coliphage EPA 1601"
+
+.         
+. * calculate daily average log10 values
+. local stubs "entero1600 enteropcr enteroELT fpc1601 fmc1601"
+
+. foreach stub of local stubs {
+  2.         sort beach beachcode coldate
+  3.         by beach beachcode coldate: egen _dy = mean(log`stub')
+  4.         by beach beachcode coldate: egen avgdy`stub' = max(_dy)
+  5.         drop _dy
+  6.         local stublab : var label log`stub'
+  7.         label var avgdy`stub' "Daily Avg `stublab'"
+  8. }
+(390 missing values generated)
+(390 missing values generated)
+(269 missing values generated)
+(269 missing values generated)
+(269 missing values generated)
+(269 missing values generated)
+
+. 
+. * keep 1 obs per beach and day, and subset to relevant variables
+. bysort beach beachcode coldate: keep if _n==1
+(1,944 observations deleted)
+
+. 
+. * drop 3 days (may 24, 25, 26) with completely empty data
+. drop if coldate < mdy(5,27,2003)
+(0 observations deleted)
+
+. 
+. keep beach beachcode coldate avgdy*
+
+. 
+. gen marine = 1
+
+.         label var marine "Marine beach"
+
+. order beach beachcode marine coldate 
+
+. 
+. 
+. * store a daily average dataset
+. tempfile mbwq
+
+. save `mbwq'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03100.000003 saved
+
+. 
+. *----------------------------------------
+. * append averaged indicator data
+. *----------------------------------------
+. 
+. use `admwq', clear
+(13 beaches water quality data, created by 8-append-wq-data.do)
+
+. append using `mbwq'
+(note: variable marine was byte, now float to accommodate using data's values)
+
+. order beach beachcode marine coldate
+
+. append using `neearwq'
+
+. 
+. 
+. *----------------------------------------
+. * calculate quartiles of the indicator
+. * distribution
+. *----------------------------------------
+. 
+. * Enterococcus EPA 1600 quartiles
+. * exclude site C from Malibu and Doheny from the
+. * calculation because they are very different
+. *
+. * use Enterolert data from Mission Bay since that is used in the
+. * final calculation
+. *
+. gen entero = avgdyentero1600
+(1 missing value generated)
+
+. replace entero = avgdyenteroELT if beach=="Mission Bay"
+(159 real changes made)
+
+. sum entero
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      entero |        649    1.024187    1.048925         -1   4.612784
+
+. replace entero = . if inlist(beachcode,"Doheny-C","Malibu-C")
+(72 real changes made, 72 to missing)
+
+. sum entero, d
+
+                           entero
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%           -1             -1
+ 5%    -.5663233             -1
+10%      -.23299             -1       Obs                 577
+25%     .2114545             -1       Sum of Wgt.         577
+
+50%     .8373417                      Mean           .7868164
+                        Largest       Std. Dev.      .7879222
+75%     1.380984       2.618365
+90%     1.777805       3.017899       Variance       .6208214
+95%      1.93435       3.132492       Skewness      -.2103035
+99%     2.463414       3.133969       Kurtosis       2.783041
+
+.         local p25 = r(p25)
+
+.         local p50 = r(p50)
+
+.         local p75 = r(p75)
+
+. replace entero = avgdyentero1600 if inlist(beachcode,"Doheny-C","Malibu-C")
+(72 real changes made)
+
+. gen int qavgdyentero1600 = 1
+
+.         replace qavgdyentero1600 = 2 if (entero> `p25') & (entero<= `p50')
+(144 real changes made)
+
+.         replace qavgdyentero1600 = 3 if (entero> `p50') & (entero<= `p75')
+(144 real changes made)
+
+.         replace qavgdyentero1600 = 4 if (entero> `p75') 
+(215 real changes made)
+
+.         replace qavgdyentero1600 = . if entero==.
+(1 real change made, 1 to missing)
+
+.         label var qavgdyentero1600 "Quartiles of Enterococcus EPA 1600"
+
+.         tab qavgdyentero1600 if !inlist(beachcode,"Doheny-C","Malibu-C")
+
+  Quartiles |
+         of |
+Enterococcu |
+ s EPA 1600 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        145       25.13       25.13
+          2 |        144       24.96       50.09
+          3 |        143       24.78       74.87
+          4 |        145       25.13      100.00
+------------+-----------------------------------
+      Total |        577      100.00
+
+.         tab qavgdyentero1600
+
+  Quartiles |
+         of |
+Enterococcu |
+ s EPA 1600 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        147       22.65       22.65
+          2 |        144       22.19       44.84
+          3 |        144       22.19       67.03
+          4 |        214       32.97      100.00
+------------+-----------------------------------
+      Total |        649      100.00
+
+.         drop entero 
+
+. 
+. * Enterococcus QPCR quartiles
+. * exclude site C from Malibu and Doheny from the
+. * calculation because they are very different
+. sum avgdyenteropcr, d
+
+            Daily Avg log10 Entero qPCR EPA 1611
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%           -1             -1
+ 5%    -.2138392             -1
+10%     .3645584             -1       Obs                 585
+25%     1.034169             -1       Sum of Wgt.         585
+
+50%     1.704074                      Mean            1.61134
+                        Largest       Std. Dev.      .9545518
+75%     2.233996       3.864311
+90%     2.740494       3.872112       Variance       .9111692
+95%     2.984678       3.971452       Skewness      -.4489042
+99%     3.581618       4.218297       Kurtosis       3.284688
+
+. sum avgdyenteropcr if !inlist(beachcode,"Doheny-C","Malibu-C"), d
+
+            Daily Avg log10 Entero qPCR EPA 1611
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%           -1             -1
+ 5%    -.2633322             -1
+10%     .3092452             -1       Obs                 530
+25%     .9385747             -1       Sum of Wgt.         530
+
+50%     1.585241                      Mean           1.470643
+                        Largest       Std. Dev.      .8773644
+75%      2.09956       3.152512
+90%     2.448108       3.197376       Variance       .7697682
+95%     2.668651       3.507966       Skewness      -.6873379
+99%     2.984678       3.864311       Kurtosis       3.388075
+
+.         local p25 = r(p25)
+
+.         local p50 = r(p50)
+
+.         local p75 = r(p75)
+
+. gen int qavgdyenteropcr = 1
+
+.         replace qavgdyenteropcr = 2 if (avgdyenteropcr> `p25') & (avgdyenterop
+> cr <= `p50')
+(133 real changes made)
+
+.         replace qavgdyenteropcr = 3 if (avgdyenteropcr> `p50') & (avgdyenterop
+> cr <= `p75')
+(133 real changes made)
+
+.         replace qavgdyenteropcr = 4 if (avgdyenteropcr> `p75') 
+(251 real changes made)
+
+.         replace qavgdyenteropcr = . if avgdyenteropcr ==.
+(65 real changes made, 65 to missing)
+
+.         label var qavgdyenteropcr "Quartiles of Enterococcus EPA qPCR 1611"
+
+.         tab qavgdyenteropcr if !inlist(beachcode,"Doheny-C","Malibu-C")
+
+  Quartiles |
+         of |
+Enterococcu |
+ s EPA qPCR |
+       1611 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        133       25.09       25.09
+          2 |        132       24.91       50.00
+          3 |        133       25.09       75.09
+          4 |        132       24.91      100.00
+------------+-----------------------------------
+      Total |        530      100.00
+
+.         tab qavgdyenteropcr
+
+  Quartiles |
+         of |
+Enterococcu |
+ s EPA qPCR |
+       1611 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        133       22.74       22.74
+          2 |        133       22.74       45.47
+          3 |        133       22.74       68.21
+          4 |        186       31.79      100.00
+------------+-----------------------------------
+      Total |        585      100.00
+
+. 
+. 
+. *----------------------------------------
+. * save file
+. *----------------------------------------
+. note: 13-Beaches Averaged Water Quality Data, created by 9-avg-wq-data.do
+
+. note: samples below detection were imputed with 0.1 before calculating log10 a
+> verages
+
+. compress
+  variable marine was float now byte
+  variable avgmdfpc1602 was float now byte
+  variable avgpmfpc1602 was float now byte
+  variable qavgdyentero1600 was int now byte
+  variable qavgdyenteropcr was int now byte
+  (7,150 bytes saved)
+
+. note: All indicators are means of log10 values, summarized daily over all samp
+> les, or separately for AM, Mid-Day, PM, shin-depth, or waist-depth samples 
+
+. note: The enteropcr2-4 variables are alternative Enterococcus qPCR calculation
+> s at Avalon/Doheny/Malibu beaches only
+
+. note: The Mission Bay water quality data are separate for 6 beaches within the
+>  area and need to merge to individuals separately by beachcode
+
+. note: Avalon water quality data are summarized separately for sites A/B/C and 
+> D; site D is very different. See Yau et al 2014 Figs 1 and 2.
+
+. note: Doheny and Malibu water quality data are summarized separately for sites
+>  C; at both beaches site C was located in a lagoon. At Doheny, site E is also 
+> summarized separately, since it was nearly 1 mile from the other sampling site
+> s (See Fig 1 of Arnold et al. 2013 and SI Fig 1 of Colford et al. 2012)
+
+. note: Quartile categories for Entero 1600 and qPCR exclude water quality measu
+> rements from Doheny and Malibu sites C in the lagoons because they are not rep
+> resentative of the broader swimmer exposure. The Entero 1600 quartiles were ca
+> lculated using Enterolert data from Mission Bay
+
+. note: AM/Mid-Day/PM and shin/waist disaggregations were not available for Miss
+> ion Bay due to different sampling methods at that beach
+
+. 
+. 
+. compress
+  (0 bytes saved)
+
+. label data "13 beaches water quality data, created by 9-avg-wq-data.do"
+
+. saveold "~/dropbox/13beaches/data/final/13beaches-wq.dta", replace version(12)
+(saving in Stata 12 format, which can be read by Stata 11 or 12)
+file ~/dropbox/13beaches/data/final/13beaches-wq.dta saved
+
+. outsheet using "~/dropbox/13beaches/data/final/13beaches-wq.csv", comma replac
+> e
+
+. 
+. desc
+
+Contains data from ~/dropbox/13beaches/data/final/13beaches-wq.dta
+  obs:           650                          13 beaches water quality data,
+                                                created by 9-avg-wq-data.do
+ vars:            37                          17 Dec 2015 13:58
+ size:        98,150                          (_dta has notes)
+--------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+--------------------------------------------------------------------------------
+beach           str15   %15s                  Beach
+beachcode       str13   %13s                  Water quality sampling location
+                                                beach code
+marine          byte    %8.0g                 Marine beach
+coldate         int     %d                    Sample Collection Date
+avgdyentero1600 float   %9.0g                 Daily Avg log10 Entero EPA 1600
+avgamentero1600 float   %9.0g                 AM Avg log10 Entero EPA 1600
+avgmdentero1600 float   %9.0g                 Mid-Day Avg log10 Entero EPA 1600
+avgpmentero1600 float   %9.0g                 PM Avg log10 Entero EPA 1600
+avgdyenteropcr  float   %9.0g                 Daily Avg log10 Entero qPCR EPA
+                                                1611
+avgamenteropcr  float   %9.0g                 AM Avg log10 Entero qPCR EPA 1611
+avgmdenteropcr  float   %9.0g                 Mid-Day Avg log10 Entero qPCR EPA
+                                                1611
+avgpmenteropcr  float   %9.0g                 PM Avg log10 Entero qPCR EPA 1611
+avgdyfpc1601    float   %9.0g                 Daily Avg log10 F+ Coliphage EPA
+                                                1601
+avgamfpc1601    float   %9.0g                 AM Avg log10 F+ Coliphage EPA 1601
+avgmdfpc1601    float   %9.0g                 Mid-Day Avg log10 F+ Coliphage EPA
+                                                1601
+avgpmfpc1601    float   %9.0g                 PM Avg log10 F+ Coliphage EPA 1601
+avgdyfpc1602    float   %9.0g                 Daily Avg log10 F+ Coliphage EPA
+                                                1602
+avgamfpc1602    float   %9.0g                 AM Avg log10 F+ Coliphage EPA 1602
+avgmdfpc1602    byte    %9.0g                 Mid-Day Avg log10 F+ Coliphage EPA
+                                                1602
+avgpmfpc1602    byte    %9.0g                 PM Avg log10 F+ Coliphage EPA 1602
+avgdyfmc1601    float   %9.0g                 Daily Avg log10 F- Coliphage EPA
+                                                1601
+avgamfmc1601    float   %9.0g                 AM Avg log10 F- Coliphage EPA 1601
+avgmdfmc1601    float   %9.0g                 Mid-Day Avg log10 F- Coliphage EPA
+                                                1601
+avgpmfmc1601    float   %9.0g                 PM Avg log10 F- Coliphage EPA 1601
+avgdyfmc1602    float   %9.0g                 Daily Avg log10 F- Coliphage EPA
+                                                1602
+avgamfmc1602    float   %9.0g                 AM Avg log10 F- Coliphage EPA 1602
+avgmdfmc1602    float   %9.0g                 Mid-Day Avg log10 F- Coliphage EPA
+                                                1602
+avgpmfmc1602    float   %9.0g                 PM Avg log10 F- Coliphage EPA 1602
+avgdyenteroELT  float   %9.0g                 Daily Avg log10 Entero Enterolert
+avgshentero1600 float   %9.0g                 shin Avg log10 Entero EPA 1600
+avgwtentero1600 float   %9.0g                 waist Avg log10 Entero EPA 1600
+avgshenteropcr  float   %9.0g                 shin Avg log10 Entero qPCR EPA
+                                                1611
+avgwtenteropcr  float   %9.0g                 waist Avg log10 Entero qPCR EPA
+                                                1611
+avgshfpc1601    float   %9.0g                 shin Avg log10 F+ Coliphage EPA
+                                                1601
+avgwtfpc1601    float   %9.0g                 waist Avg log10 F+ Coliphage EPA
+                                                1601
+qavgdyente~1600 byte    %8.0g                 Quartiles of Enterococcus EPA 1600
+qavgdyenteropcr byte    %8.0g                 Quartiles of Enterococcus EPA qPCR
+                                                1611
+--------------------------------------------------------------------------------
+Sorted by: 
+
+. 
+. 
+. * write a codebook to separate file
+. log close
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/9-avg-wq-data.log
+  log type:  text
+ closed on:  17 Dec 2015, 13:58:35
+--------------------------------------------------------------------------------

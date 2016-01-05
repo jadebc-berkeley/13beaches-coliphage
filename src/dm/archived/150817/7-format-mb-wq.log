@@ -1,0 +1,638 @@
+--------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/7-format-mb-wq.log
+  log type:  text
+ opened on:  17 Aug 2015, 14:37:17
+
+. 
+. *----------------------------------------
+. * 7-format-mb-wq.do
+. * ben arnold
+. *
+. * format the Mission Bay water quality data
+. * water quality data.
+. * 
+. * calculate log averages using a standardized
+. * imputation approach for values at 
+. * the detection limits
+. * for values below LOD, use LOD/2
+. * for values at upper LOD, use upper LOD
+. *
+. * version 3 (17 aug 2015)
+. * major re-write to generate a sample-specific dataset
+. * 
+. * version 2 (21 feb 2015)
+. * updated the beach code
+. *
+. * version 1 (3 feb 2015)
+. *
+. *----------------------------------------
+. 
+. *----------------------------------------
+. * input files:
+. *       mb_analysis_final.dta
+. *
+. * output files:
+. *   mb-wq-samples.dta / .csv
+. *       mb-wq.dta / .csv
+. *
+. *----------------------------------------
+. 
+. 
+. *----------------------------------------
+. * read in the Mission Bay analysis dataset
+. * and subset it to the water quality
+. * indicators 
+. *----------------------------------------
+. use "~/dropbox/13beaches/data/untouched/missionbay/mb_analysis_final.dta", cle
+> ar
+(SD WET Microbiolgoical Data)
+
+. 
+. 
+. 
+. 
+. *----------------------------------------
+. * get 1 obs per day / beach / station
+. * restrict to water quality variables
+. *----------------------------------------
+. bysort sdate station: keep if _n==1
+(11,940 observations deleted)
+
+. 
+. keep sdate station sampletime_ecoli_comp - max_beach_bact_pcr
+
+. 
+. *----------------------------------------
+. * Need to restrict to samples slightly
+. * Differently because there were more
+. * samples for EPA qPCR than for 1600 or 
+. * for phage (see Colford 2007 Appendix)
+. *
+. * EPA qCPR   - 2 samples per day at each site
+. * Enterolert - 4 samples per station at each measuring point
+. * EPA 1600   - 1 composite sample per day per beach
+. * F- phage   - 1 composite sample per day per beach
+. * F+ phage   - 1 composite sample per day per beach
+. *----------------------------------------
+. 
+. * create a beach code
+. gen beachcode = "Mission Bay " + substr(station,1,1)
+
+.         label var beachcode "Mission bay beach code"
+
+. order beachcode station sdate
+
+. 
+. 
+. * all of the samples were collected around mid-day, so 
+. * but not standardized with the NEEAR or Avalon/Doheny/Malibu
+. * sampling times.  So just go with daily averages at this beach
+. sum sampletime_entero* sampletime_pcr, d
+
+       Sample Collection Time for Enterococcus Station
+                          Sample 1
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         1212           1202
+ 5%         1219           1207
+10%         1222           1210       Obs                 424
+25%         1228           1212       Sum of Wgt.         424
+
+50%         1235                      Mean            1239.42
+                        Largest       Std. Dev.      20.77478
+75%         1245           1326
+90%         1253           1327       Variance       431.5917
+95%         1302           1331       Skewness       2.332148
+99%         1323           1334       Kurtosis       9.277186
+
+       Sample Collection Time for Enterococcus Station
+                          Sample 2
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         1317           1316
+ 5%         1320           1316
+10%         1324           1317       Obs                 423
+25%         1328           1317       Sum of Wgt.         423
+
+50%         1335                      Mean           1337.359
+                        Largest       Std. Dev.      18.33207
+75%         1341           1427
+90%         1349           1431       Variance       336.0649
+95%         1356           1437       Skewness       3.264036
+99%         1426           1441       Kurtosis       15.55078
+
+       Sample Collection Time for Enterococcus Station
+                          Sample 3
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         1417           1415
+ 5%         1422           1416
+10%         1424           1416       Obs                 425
+25%         1429           1416       Sum of Wgt.         425
+
+50%         1435                      Mean           1439.064
+                        Largest       Std. Dev.      21.87859
+75%         1443           1551
+90%         1450           1555       Variance       478.6728
+95%         1458           1600       Skewness       4.180704
+99%         1542           1605       Kurtosis       24.87552
+
+       Sample Collection Time for Enterococcus Station
+                          Sample 4
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         1515           1512
+ 5%         1520           1513
+10%         1522           1513       Obs                 425
+25%         1526           1514       Sum of Wgt.         425
+
+50%         1533                      Mean           1536.814
+                        Largest       Std. Dev.      24.46437
+75%         1540           1700
+90%         1546           1704       Variance       598.5055
+95%         1555           1710       Skewness        4.62493
+99%         1653           1713       Kurtosis       28.28634
+
+      Sample Collection Time for Enterococcus Composite
+                           Sample
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         1210           1202
+ 5%         1215           1202
+10%         1218           1210       Obs                 458
+25%         1222           1210       Sum of Wgt.         458
+
+50%         1231                      Mean           1237.841
+                        Largest       Std. Dev.      24.39354
+75%         1240           1319
+90%         1256           1319       Variance       595.0446
+95%         1305           1319       Skewness       1.951984
+99%         1319           1319       Kurtosis       6.264563
+
+           Sample Collection Time for PCR Samples
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         1227           1222
+ 5%         1317           1225
+10%       1329.5           1225       Obs                 360
+25%         1417           1227       Sum of Wgt.         360
+
+50%         1430                      Mean           1406.347
+                        Largest       Std. Dev.      54.61258
+75%         1438           1452
+90%         1443           1452       Variance       2982.534
+95%         1446           1456       Skewness      -1.772671
+99%         1452           1501       Kurtosis       5.373073
+
+. 
+. 
+. * break off the Entero qPCR data and the enterolert data
+. preserve
+
+. keep sdate station beachcode result_entero_pcr  *entero1* *entero2* *entero3* 
+> *entero4*
+
+. 
+. * get beach / location averages for qPCR (only 1 sample per beach/location)
+. gen enteroQPCRcce = result_entero_pcr
+(169 missing values generated)
+
+.         label var enteroQPCRcce "Entero qPCR EPA 1611, CCE/100ml"
+
+. gen byte enteroQPCRcce_nd = enteroQPCRcce==0
+
+.         replace enteroQPCRcce_nd = . if enteroQPCRcce==.
+(169 real changes made, 169 to missing)
+
+.         label define ND 0 "Detected" 1 "Below detection"
+
+.         label values enteroQPCRcce_nd ND
+
+.         label var enteroQPCRcce_nd "Entero qPCR EPA 1611, below detection"
+
+. 
+. tempfile enteropcr
+
+. save `enteropcr'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_40536.000002 saved
+
+. 
+. 
+. 
+. * now, reshape the Enterolert data to long format
+. drop result_entero_pcr
+
+. keep beachcode station sdate sampletime_entero* result_entero* qualifier_enter
+> o*
+
+. reshape long sampletime_entero result_entero qualifier_entero, i(beachcode sta
+> tion sdate) j(samplenum)
+(note: j = 1 2 3 4)
+
+Data                               wide   ->   long
+-----------------------------------------------------------------------------
+Number of obs.                      529   ->    2116
+Number of variables                  15   ->       7
+j variable (4 values)                     ->   samplenum
+xij variables:
+sampletime_entero1 sampletime_entero2 ... sampletime_entero4->sampletime_entero
+result_entero1 result_entero2 ... result_entero4->result_entero
+qualifier_entero1 qualifier_entero2 ... qualifier_entero4->qualifier_entero
+-----------------------------------------------------------------------------
+
+. 
+. * create a sampleid variable
+. gen sampleid = station+"-"+string(samplenum)
+
+.         label var sampleid "Water sample ID"
+
+. 
+. * format the variable
+. rename result_entero enteroELTmpn
+
+.         label var enteroELTmpn "Entero Enterolert, MPN/100ml"
+
+. gen byte enteroELTmpn_nd = qualifier_entero=="<"
+
+.         label var enteroELTmpn_nd "Entero Enterolert, below detection"
+
+.         label values enteroELTmpn_nd ND
+
+. 
+. * drop empty observations and set ND values to 0 (consistent w/ other assays)
+. drop qualifier_entero
+
+. drop if enteroELTmpn==.
+(418 observations deleted)
+
+. replace enteroELTmpn=0 if enteroELTmpn_nd==1
+(549 real changes made)
+
+. rename sampletime_entero coltime
+
+. label var samplenum "Mission Bay sample number replicate (Enterolert)"
+
+. 
+. * append the qPCR data
+. append using `enteropcr'
+(label ND already defined)
+(label yesno already defined)
+
+. sort sdate beachcode station sampleid
+
+. 
+. 
+. keep sdate station beachcode sampleid enteroQPCRcce* enteroELTmpn*
+
+. keep if enteroQPCRcce!=. | enteroELTmpn!=.
+(169 observations deleted)
+
+. tempfile enterodata
+
+. save `enterodata'
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_40536.000003 saved
+
+. restore
+
+. 
+. * downsample data to just one obs per date and beach
+. bysort sdate beachcode: keep if _n==1
+(352 observations deleted)
+
+. 
+. * rename the stations for these composite samples
+. replace station = substr(station,1,1)+"0"
+(122 real changes made)
+
+. 
+. * Entero 1600 processing
+. gen entero1600cfu = result_entero_comp
+(21 missing values generated)
+
+.         label var entero1600cfu "Entero EPA 1600, CFU/100ml"
+
+. gen byte entero1600cfu_nd = 1 if qualifier_entero_comp=="<"
+(152 missing values generated)
+
+.         replace entero1600cfu_nd = 0 if entero1600cfu_nd==. & entero1600cfu!=.
+(131 real changes made)
+
+.         label values entero1600cfu_nd ND
+
+.         label var entero1600cfu_nd "Entero EPA 1600, below detection"
+
+.         replace entero1600cfu=0 if entero1600cfu_nd==1
+(25 real changes made)
+
+. 
+. * F+ Coliphage 1601
+. gen fpc1601mpn = result_phage_m
+(38 missing values generated)
+
+.         label var fpc1601mpn "F+ Coliphage EPA 1601, MPN/100ml"
+
+. gen byte fpc1601mpn_nd = 1 if qualifier_phage_m=="<"
+(53 missing values generated)
+
+.         replace fpc1601mpn_nd = 0 if fpc1601mpn_nd==. & fpc1601mpn!=.
+(15 real changes made)
+
+.         label values fpc1601mpn_nd ND
+
+.         label var fpc1601mpn_nd "F+ Coliphage EPA 1601, below detection"
+
+.         replace fpc1601mpn=0 if fpc1601mpn_nd==1
+(124 real changes made)
+
+.         
+. * F- Coliphage 1601
+. gen fmc1601mpn = result_phage_s
+(38 missing values generated)
+
+.         label var fmc1601mpn "F- Coliphage EPA 1601, MPN/100ml"
+
+. gen byte fmc1601mpn_nd = 1 if qualifier_phage_s=="<"
+(133 missing values generated)
+
+.         replace fmc1601mpn_nd = 0 if fmc1601mpn_nd==. & fmc1601mpn!=.
+(95 real changes made)
+
+.         label values fmc1601mpn_nd ND
+
+.         label var fmc1601mpn_nd "F- Coliphage EPA 1601, below detection"
+
+.         replace fmc1601mpn=0 if fmc1601mpn_nd==1
+(44 real changes made)
+
+.         
+. * restrict to variables of interest
+. keep sdate beachcode station entero1600* fpc1601* fmc1601*
+
+. 
+. * append the Entero qPCR data
+. append using `enterodata'
+
+. sort sdate beachcode station sampleid
+
+. 
+. 
+. 
+. *----------------------------------------
+. * final variable labeling for water sample
+. * dataset
+. *----------------------------------------
+. gen beach = "Mission Bay"
+
+.         label var beach "Study beach"
+
+. order beach beachcode sdate station sampleid
+
+. rename sdate coldate
+
+.         label var coldate "Sample collection date"
+
+. rename station stationid
+
+. 
+. notes: Careful: this is a weird dataset because it is in long format. Read all
+>  of the notes!
+
+. notes: Values below the detection limit for all indictors are set to 0
+
+. notes: Values are missing if a sample was not tested for a particular indicato
+> r
+
+. notes stationid: Water sample station - a 0 in Mission Bay station indicates a
+>  composite sample, whereas a letter (A, B,...) indicates station location
+
+. notes stationid: Some of the stationids are replicated within day for enterole
+> rt and qPCR samples. The unique identifier in the data is coldate/stationid/sa
+> mplenum
+
+. notes sampleid: Values 1-4 for enterolert assay only.
+
+. compress
+  variable coldate was float now int
+  variable entero1600cfu was float now int
+  variable enteroQPCRcce was float now int
+  variable stationid was str6 now str2
+  (22,350 bytes saved)
+
+. label data "Mission Bay water sample data, formatted by 7-format-mb-wq.do"
+
+. save "~/dropbox/13beaches/data/final/mb-wq-samples.dta", replace
+file ~/dropbox/13beaches/data/final/mb-wq-samples.dta saved
+
+. outsheet using "~/dropbox/13beaches/data/final/mb-wq-samples.csv", comma repla
+> ce
+
+. 
+. desc
+
+Contains data from ~/dropbox/13beaches/data/final/mb-wq-samples.dta
+  obs:         2,235                          Mission Bay water sample data,
+                                                formatted by 7-format-mb-wq.do
+ vars:            15                          17 Aug 2015 14:37
+ size:       118,455                          (_dta has notes)
+--------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+--------------------------------------------------------------------------------
+beach           str11   %11s                  Study beach
+beachcode       str13   %13s                  Mission bay beach code
+coldate         int     %td                   Sample collection date
+stationid       str2    %9s                 * Station ID consisting of Beach and
+                                                Station within Beach
+sampleid        str4    %9s                 * Water sample ID
+entero1600cfu   int     %9.0g                 Entero EPA 1600, CFU/100ml
+entero1600cfu~d byte    %8.0g      ND         Entero EPA 1600, below detection
+fpc1601mpn      float   %9.0g                 F+ Coliphage EPA 1601, MPN/100ml
+fpc1601mpn_nd   byte    %8.0g      ND         F+ Coliphage EPA 1601, below
+                                                detection
+fmc1601mpn      float   %9.0g                 F- Coliphage EPA 1601, MPN/100ml
+fmc1601mpn_nd   byte    %8.0g      ND         F- Coliphage EPA 1601, below
+                                                detection
+enteroELTmpn    float   %9.0g                 Entero Enterolert, MPN/100ml
+enteroELTmpn_nd byte    %15.0g     ND         Entero Enterolert, below detection
+enteroQPCRcce   int     %9.0g                 Entero qPCR EPA 1611, CCE/100ml
+enteroQPCRcce~d byte    %15.0g     ND         Entero qPCR EPA 1611, below
+                                                detection
+                                            * indicated variables have notes
+--------------------------------------------------------------------------------
+Sorted by: coldate  beachcode  stationid  sampleid
+
+. notes
+
+_dta:
+  1.  Careful: this is a weird dataset because it is in long format. Read all of
+      the notes!
+  2.  Values below the detection limit for all indictors are set to 0
+  3.  Values are missing if a sample was not tested for a particular indicator
+
+stationid:
+  1.  Water sample station - a 0 in Mission Bay station indicates a composite
+      sample, whereas a letter (A, B,...) indicates station location
+  2.  Some of the stationids are replicated within day for enterolert and qPCR
+      samples. The unique identifier in the data is coldate/stationid/samplenum
+
+sampleid:
+  1.  Values 1-4 for enterolert assay only.
+
+. 
+. 
+. *----------------------------------------
+. * calculate mean log10 values by day/beach
+. *----------------------------------------
+. use "~/dropbox/13beaches/data/final/mb-wq-samples.dta", clear
+(Mission Bay water sample data, formatted by 7-format-mb-wq.do)
+
+. 
+. 
+. * impute non-detects as 0.1 (consistent w/ other datasets)
+. local vlist "entero1600cfu enteroQPCRcce enteroELTmpn fpc1601mpn fmc1601mpn"
+
+. foreach var of local vlist {
+  2.         di as res _n "Imputing NDs for `var'"
+  3.         replace `var' = 0.1 if `var'_nd==1
+  4. }
+
+Imputing NDs for entero1600cfu
+variable entero1600cfu was int now float
+(25 real changes made)
+
+Imputing NDs for enteroQPCRcce
+variable enteroQPCRcce was int now float
+(13 real changes made)
+
+Imputing NDs for enteroELTmpn
+(549 real changes made)
+
+Imputing NDs for fpc1601mpn
+(124 real changes made)
+
+Imputing NDs for fmc1601mpn
+(44 real changes made)
+
+. 
+. * calculate log10 values for each indicator
+. gen logentero1600 = log10(entero1600cfu)
+(2,079 missing values generated)
+
+.         label var logentero1600 "log10 Entero EPA 1600"
+
+. gen logenteropcr = log10(enteroQPCRcce)
+(1,875 missing values generated)
+
+.         label var logenteropcr "log10 Entero qPCR EPA 1611"
+
+. gen logenteroELT = log10(enteroELTmpn)
+(537 missing values generated)
+
+.         label var logenteroELT "log10 Entero Enterolert"
+
+. gen logfpc1601 = log10(fpc1601mpn)
+(2,096 missing values generated)
+
+.         label var logfpc1601 "log10 F+ Coliphage EPA 1601"
+
+. gen logfmc1601 = log10(fmc1601mpn)
+(2,096 missing values generated)
+
+.         label var logfmc1601 "log10 F- Coliphage EPA 1601"
+
+.         
+. * calculate daily average log10 values
+. local stubs "entero1600 enteropcr enteroELT fpc1601 fmc1601"
+
+. foreach stub of local stubs {
+  2.         sort beach beachcode coldate
+  3.         by beach beachcode coldate: egen _dy = mean(log`stub')
+  4.         by beach beachcode coldate: egen avgdy`stub' = max(_dy)
+  5.         drop _dy
+  6.         local stublab : var label log`stub'
+  7.         label var avgdy`stub' "Daily Avg `stublab'"
+  8. }
+(25 missing values generated)
+(25 missing values generated)
+(300 missing values generated)
+(300 missing values generated)
+(21 missing values generated)
+(21 missing values generated)
+(265 missing values generated)
+(265 missing values generated)
+(265 missing values generated)
+(265 missing values generated)
+
+. 
+. * keep 1 obs per beach and day, and subset to relevant variables
+. bysort beach beachcode coldate: keep if _n==1
+(2,058 observations deleted)
+
+. 
+. * drop 3 days (may 24, 25, 26) with completely empty data
+. drop if coldate < mdy(5,27,2003)
+(18 observations deleted)
+
+. 
+. keep beach beachcode coldate avgdy*
+
+. 
+. gen marine = 1
+
+.         label var marine "Marine beach"
+
+. order beach beachcode marine coldate 
+
+. 
+. *----------------------------------------
+. *  save a daily log10 average dataset
+. *----------------------------------------
+. 
+. compress
+  variable marine was float now byte
+  (477 bytes saved)
+
+. label data "Mission Bay beach-level water quality data, created by 7-format-mb
+> -wq.do"
+
+. save "~/dropbox/13beaches/data/final/mb-wq.dta", replace
+file ~/dropbox/13beaches/data/final/mb-wq.dta saved
+
+. outsheet using "~/dropbox/13beaches/data/final/mb-wq.csv", comma replace
+
+. 
+. desc
+
+Contains data from ~/dropbox/13beaches/data/final/mb-wq.dta
+  obs:           159                          Mission Bay beach-level water
+                                                quality data, created by
+                                                7-format-mb-wq.do
+ vars:             9                          17 Aug 2015 14:37
+ size:         7,473                          (_dta has notes)
+--------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+--------------------------------------------------------------------------------
+beach           str11   %11s                  Study beach
+beachcode       str13   %13s                  Mission bay beach code
+marine          byte    %9.0g                 Marine beach
+coldate         int     %td                   Sample collection date
+avgdyentero1600 float   %9.0g                 Daily Avg log10 Entero EPA 1600
+avgdyenteropcr  float   %9.0g                 Daily Avg log10 Entero qPCR EPA
+                                                1611
+avgdyenteroELT  float   %9.0g                 Daily Avg log10 Entero Enterolert
+avgdyfpc1601    float   %9.0g                 Daily Avg log10 F+ Coliphage EPA
+                                                1601
+avgdyfmc1601    float   %9.0g                 Daily Avg log10 F- Coliphage EPA
+                                                1601
+--------------------------------------------------------------------------------
+Sorted by: beach  beachcode  coldate
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/benarnold/dropbox/13beaches/src/dm/7-format-mb-wq.log
+  log type:  text
+ closed on:  17 Aug 2015, 14:37:19
+--------------------------------------------------------------------------------

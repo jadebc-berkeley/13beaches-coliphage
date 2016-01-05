@@ -1,0 +1,206 @@
+# --------------------------------------
+# 3-aim1-swim-exposure-beach-forest.R
+# ben arnold (benarnold@berkeley.edu)
+#
+# description:
+# plot CIRs associated with swim exposure
+# using summary regression output
+# stratified by beach and by marine/freshwater
+#
+# --------------------------------------
+
+# --------------------------------------
+# input files:
+#	aim1-swim-exposure-regs-body.RData
+#	aim1-swim-exposure-regs-head.RData
+#	aim1-swim-exposure-regs-swall.RData
+#
+# output files:
+#	 aim1-swim-exposure-CIR-forest-beaches.pdf
+# --------------------------------------
+
+# --------------------------------------
+# preamble
+# --------------------------------------
+
+rm(list=ls())
+library(RColorBrewer)
+
+# --------------------------------------
+# Load the body immersion output 
+# and rename common objects
+# --------------------------------------
+load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-swim-exposure-regs-body.RData")
+Ns.body   <- Ns
+CIs.body  <- CIs
+CIRs.body <- CIRs
+
+# stratified beach output for forest plots
+blist.body <- list(hu.fit,si.fit,wp.fit,we.fit,av.fit,bo.fit,dh.fit,ed.fit,fa.fit,gd.fit,ma.fit,mb.fit,su.fit)
+
+
+# --------------------------------------
+# Load the head immersion output 
+# and rename common objects
+# --------------------------------------
+load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-swim-exposure-regs-head.RData")
+Ns.head   <- Ns
+CIs.head  <- CIs
+CIRs.head <- CIRs
+
+# stratified beach output for forest plots
+blist.head <- list(hu.fit,si.fit,wp.fit,we.fit,av.fit,bo.fit,dh.fit,ed.fit,fa.fit,gd.fit,ma.fit,mb.fit,su.fit)
+
+# --------------------------------------
+# Load the swallowed water output 
+# and rename common objects
+# --------------------------------------
+load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-swim-exposure-regs-swall.RData")
+Ns.swall   <- Ns
+CIs.swall  <- CIs
+CIRs.swall <- CIRs
+
+# stratified beach output for forest plots
+blist.swall <- list(hu.fit,si.fit,wp.fit,we.fit,av.fit,bo.fit,dh.fit,ed.fit,fa.fit,gd.fit,ma.fit,mb.fit,su.fit)
+
+
+# --------------------------------------
+# Forest Plot
+# Beach-specific CIR estimates 
+# for body immersion / head immersion /
+# swallowed water
+# --------------------------------------
+
+
+# extract the CIR estimates from the
+# stratified beach regression output
+# swim exposure regs w/o interactions
+# (need to sum 2 coefficients: anycontact + higher level of contact)
+CIR.swimex <- function(fit) {
+	# fit: list object returned from mpreg with two elements:
+	#      - fit : fit object returned from mpreg
+	#      - vcovCL: variance covariance matrix
+	fo <- fit$fit
+	vcv <- fit$vcovCL
+	nr <- nrow(vcv)
+	lc <- c(0,1,1,rep(0,nr-3)) # linear combination of betas for the estimate
+	est <- exp(t(lc)%*%fo[,1])
+	se <- sqrt( t(lc)%*%vcv%*%lc )
+	lb <- exp(log(est)-1.96*se)
+	ub <- exp(log(est)+1.96*se)
+	res <- c(est,lb,ub)
+	return(res)
+}
+bCIRs <- t(sapply(blist.body,CIR.swimex))
+hCIRs <- t(sapply(blist.head,CIR.swimex))
+sCIRs <- t(sapply(blist.swall,CIR.swimex))
+
+
+
+# Add beach labels
+# CAREFUL: this label corresponds to the order of the blist.body/head/swall lists earlier in the code
+fCIRlab <- c("Huntington","Silver","Washington Park","West","Avalon","Boqueron","Edgewater","Doheny","Fairhope","Goddard","Malibu","Mission Bay","Surfside")
+
+
+# Order beaches by fresh / marine, then by the body immersion CIR
+marinelab <- c(rep(0,4),rep(1,9))
+bord <- rev(order(marinelab,bCIRs[,1]))
+bCIRs <- bCIRs[bord,]
+hCIRs <- hCIRs[bord,]
+sCIRs <- sCIRs[bord,]
+fCIRlab <- fCIRlab[bord]
+
+# Add in the combined, summary estimates (subgroups + overall)
+bCIRs <- rbind(CIRs.body$CIRoverall[1,],CIRs.body$CIRmarine[1,],bCIRs[1:9,],CIRs.body$CIRfresh[1,],bCIRs[10:13,])
+hCIRs <- rbind(CIRs.head$CIRoverall[1,],CIRs.head$CIRmarine[1,],hCIRs[1:9,],CIRs.head$CIRfresh[1,],hCIRs[10:13,])
+sCIRs <- rbind(CIRs.swall$CIRoverall[1,],CIRs.swall$CIRmarine[1,],sCIRs[1:9,],CIRs.swall$CIRfresh[1,],sCIRs[10:13,])
+fCIRlab <- c("All Combined","Marine Combined",fCIRlab[1:9],"Freshwater Combined",fCIRlab[10:13])
+
+
+
+pdf("~/dropbox/13beaches/aim1-results/figs/aim1-swim-exposure-CIR-forest-beaches.pdf",height=6,width=11)
+
+lo <- layout(mat=matrix(1:4,nrow=1,ncol=4),widths=c(1.05,1,1,1))
+op <- par(mar=c(5,2,2,2)+0.1)
+
+fcol <- brewer.pal(11,"RdYlGn")[10]
+mcol <- brewer.pal(11,"Spectral")[10]
+scol <- brewer.pal(11,"Spectral")[11]
+cols <- c(scol,rep(mcol,10),rep(fcol,5))
+pchs <- c(5,5,rep(15,9),5,rep(15,4))
+
+xtics <- c(0.5,1,2,4,8)
+
+# Beach Labels
+bhs <- barplot(1:16,horiz=TRUE,xlim=c(0,1),xaxt="n",col=NA,border=NA)
+text(x=rep(1,length(bhs)),y=bhs,fCIRlab,cex=1.5,adj=1,col=c(scol,mcol,rep("gray40",9),fcol,rep("gray40",4)),font=c(2,2,rep(1,9),2,rep(1,4)) )
+
+# Body Immersion
+bhs <- barplot(1:16,horiz=TRUE,xlim=range(xtics),log="x",xaxt="n",col=NA,border=NA)
+axis(side=1,at=xtics,las=1)
+segments(x0=1,x1=1,y0=0,y1=max(bhs+1),lty=2)
+mtext("Adjusted CIR",side=1,line=3,las=1)
+mtext("Body Immersion",side=3,line=0,at=1,col="gray40",font=2)
+# scale the area of the point size by 1/SE of the estimates
+# calc 1/SE
+oneoverSE <- 1.96/(log(bCIRs[,3])-log(bCIRs[,1]))
+# now scale to area of a square rather than an edge
+# and further scale the cex factor so the smallest = 1
+cexscale <- sqrt(oneoverSE)
+cexscale <- cexscale/min(cexscale)
+# label the combined estimates
+segments(x0=bCIRs[1,1],x1=bCIRs[1,1],y0=0,y1=max(bhs)+1,lty=2,col=scol)
+text(x=bCIRs[c(1,2,12),1]+0.3,y=bhs[c(1,2,12)]+0.3,paste(sprintf("%1.2f",bCIRs[c(1,2,12),1])," (",sprintf("%1.2f",bCIRs[c(1,2,12),2]),", ", sprintf("%1.2f",bCIRs[c(1,2,12),3]) ,")",sep=""),pos=4,cex=0.8,col=c(scol,mcol,fcol) )
+# plot the estimates
+segments(y0=bhs,x0=bCIRs[,2],x1=bCIRs[,3],lwd=2,col=cols)
+points(bCIRs[,1],bhs,cex=1.5*cexscale,pch=pchs,lwd=2,bg="white",col=cols)
+
+
+# Head Immersion
+bhs <- barplot(1:16,horiz=TRUE,xlim=range(xtics),log="x",xaxt="n",col=NA,border=NA)
+axis(side=1,at=xtics,las=1)
+segments(x0=1,x1=1,y0=0,y1=max(bhs+1),lty=2)
+mtext("Adjusted CIR",side=1,line=3,las=1)
+# mtext(fCIRlab,side=2,line=0,at=bhs,cex=0.9,las=1)
+mtext("Head Immersion",side=3,line=0,at=1,col="gray40",font=2)
+# scale the area of the point size by 1/SE of the estimates
+# calc 1/SE
+oneoverSE <- 1.96/(log(hCIRs[,3])-log(hCIRs[,1]))
+# now scale to area of a square rather than an edge
+# and further scale the cex factor so the smallest = 1
+cexscale <- sqrt(oneoverSE)
+cexscale <- cexscale/min(cexscale)
+# label the combined estimates
+segments(x0=hCIRs[1,1],x1=hCIRs[1,1],y0=0,y1=max(bhs)+1,lty=2,col=scol)
+text(x=hCIRs[c(1,2,12),1]+0.3,y=bhs[c(1,2,12)]+0.3,paste(sprintf("%1.2f",hCIRs[c(1,2,12),1])," (",sprintf("%1.2f",hCIRs[c(1,2,12),2]),", ", sprintf("%1.2f",hCIRs[c(1,2,12),3]) ,")",sep=""),pos=4,cex=0.8,col=c(scol,mcol,fcol) )
+# plot the estimates
+segments(y0=bhs,x0=hCIRs[,2],x1=hCIRs[,3],lwd=2,col=cols)
+points(hCIRs[,1],bhs,cex=1.5*cexscale,pch=pchs,lwd=2,bg="white",col=cols)
+
+
+# Swallowed Water
+bhs <- barplot(1:16,horiz=TRUE,xlim=range(xtics),log="x",xaxt="n",col=NA,border=NA)
+axis(side=1,at=xtics,las=1)
+segments(x0=1,x1=1,y0=0,y1=max(bhs+1),lty=2)
+mtext("Adjusted CIR",side=1,line=3,las=1)
+# mtext(fCIRlab,side=2,line=0,at=bhs,cex=0.9,las=1)
+mtext("Swallowed Water",side=3,line=0,at=1,col="gray40",font=2)
+# scale the area of the point size by 1/SE of the estimates
+# calc 1/SE
+oneoverSE <- 1.96/(log(sCIRs[,3])-log(sCIRs[,1]))
+# now scale to area of a square rather than an edge
+# and further scale the cex factor so the smallest = 1
+cexscale <- sqrt(oneoverSE)
+cexscale <- cexscale/min(cexscale)
+# label the combined estimates
+segments(x0=sCIRs[1,1],x1=sCIRs[1,1],y0=0,y1=max(bhs)+1,lty=2,col=scol)
+text(x=sCIRs[c(1,2,12),1]+0.3,y=bhs[c(1,2,12)]+0.3,paste(sprintf("%1.2f",sCIRs[c(1,2,12),1])," (",sprintf("%1.2f",sCIRs[c(1,2,12),2]),", ", sprintf("%1.2f",sCIRs[c(1,2,12),3]) ,")",sep=""),pos=4,cex=0.8,col=c(scol,mcol,fcol) )
+# plot the estimates
+segments(y0=bhs,x0=sCIRs[,2],x1=sCIRs[,3],lwd=2,col=cols)
+points(sCIRs[,1],bhs,cex=1.5*cexscale,pch=pchs,lwd=2,bg="white",col=cols)
+
+par(op)
+dev.off()
+
+
+

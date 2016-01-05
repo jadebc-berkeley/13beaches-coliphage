@@ -1,0 +1,187 @@
+
+R version 3.0.3 (2014-03-06) -- "Warm Puppy"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin10.8.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> 
+> 
+> # --------------------------------------
+> # aim1-0-base-functions.R
+> # ben arnold (benarnold@berkeley.edu)
+> #
+> # description:
+> # base functions used in many Aim 1 analyses
+> #
+> # version 3 (17 apr 2015)
+> # updated the preprocess function to include more outcomes for Aim 2
+> #
+> # version 2 (27 mar 2015)
+> # culled unused functions
+> # added a standard water quality dataset pre-processing routine
+> # to use in all analysis programs (to ensure standardization + avoid errors)
+> #
+> # version 1 (9 feb 2015)
+> #
+> # --------------------------------------
+> 
+> 
+> 
+> # --------------------------------------
+> # Standard routine to load the 13 beaches
+> # analysis data and do any final processing
+> # required in R for the final water 
+> # quality analyses
+> # --------------------------------------
+> 
+> 
+> preprocess.13beaches <- function(dataset) {
++ 	# dataset: directory statement to the analysis .csv file:
++ 	# for example: "~/dropbox/13beaches/data/final/13beaches-analysis.csv"
++ 	
++ 	# --------------------------------------
++ 	# load the analysis dataset
++ 	# --------------------------------------
++ 	d <- read.csv(dataset)
++ 
++ 	# convert ID variables from factors to strings
++ 	d$hhid <- as.character(d$hhid)
++ 	d$indid <- as.character(d$indid)
++ 	
++ 	# --------------------------------------
++ 	# subset to observations for analysis
++ 	# --------------------------------------
++ 	
++ 	cat("\nSuccessfully loaded the data\n","Total sample size =",nrow(d),"\n")
++ 	
++ 	# drop individuals with baseline GI illness
++ 	cat("\nDropping individuals with GI illness at enrollment\n","N =",table(d$gibase)["Yes"],"\n")
++ 	d <- subset(d,gibase!="Yes")
++ 
++ 	
++ 	cat("\nFinal sample size =",nrow(d),"\n")
++ 	
++ 
++ 	# --------------------------------------
++ 	# subset dataset to variables of interest
++ 	# to speed up computations / processing
++ 	# --------------------------------------
++ 	
++ 	# included: agecat, female, racewhite, gichron, anim_any, gicontactbase, rawfood
++ 	# excluded: allergies (not relevant), frequency of beach visits (not measured at all beaches), digging in the sand (not measured at all beaches)
++ 	cat("\nSubsetting the data to relevant variables and completing final variable pre-processing")
++ 	ad <- subset(d,select=c("beach","pointsource","marine","hhid","indid","groundwater","berm","anycontact","bodycontact","headunder","swallwater","diarrheaci1","diarrheaci2","diarrheaci3","diarrheaci4","diarrheaci5","diarrheaci6","diarrheaci7","diarrheaci8","diarrheaci9","diarrheaci10","gici3","gici10","dailygi","workgi","medgi","medvisits","age","agecat","agestrat","female","race","gichron","anim_any","gicontactbase","rawfood","nowq","avgdyentero1600","qavgdyentero1600","avgdyenteropcr","qavgdyenteropcr"))
++ 	
++ 	
++ 	# create a race=white indicator
++ 	ad$racewhite <- factor(ifelse(ad$race=="white","Yes",NA),levels=c("No","Yes","Missing"))
++ 	ad$racewhite[ad$race=="missing"]<-"Missing"
++ 	ad$racewhite[ad$race!="white" & ad$race!="missing"] <- "No"
++ 	
++ 	# for some covariates, move missing category to the last factor category
++ 	levels(ad$gichron) <- c("Missing","No","Yes")
++ 		ad$gichron <- factor(ad$gichron,levels=c("No","Yes","Missing"))
++ 	ad$gicontactbase <- factor(ad$gicontactbase,levels=c("No","Yes","Missing"))
++ 	
++ 	# reorder groundwater factor for convenience w/ reg estimates
++ 	ad$groundwater <- factor(ad$groundwater,levels=c("Below median flow","Above median flow",""))
++ 	
++ 	# reorder agecat factor so they are in correct order
++ 	ad$agecat <- factor(ad$agecat,levels=c("0-4","5-14","15-24","25-34","35-44","45-54","55-64","65-74","75+","Missing"))
++ 	
++ 	# re-order the age stratification factor so that older ages are reference (for convenience, since younger children have higher CIRs)
++ 	ad$agestrat <- factor(ad$agestrat,levels=c(">10","(4, 10]","(0, 4]",""),labels=c(">10","(4, 10]","(0, 4]","Missing"))
++ 	
++ 	# create an indicator of >35 CFU/100ml for Entero EPA 1600
++ 	ad$entero35 <- ifelse(ad$avgdyentero1600>log10(35),1,0)
++ 	
++ 	# create an indicator of > 470
++ 	ad$entero470 <- ifelse(ad$avgdyenteropcr>log10(470),1,0)
++ 	
++ 	# create a shorter variable name for Entero for convenience
++ 	ad$entero1600 <- ad$avgdyentero1600
++ 	ad$qentero1600 <- factor(ad$qavgdyentero1600)
++ 	ad$enteroQPCR <- ad$avgdyenteropcr
++ 	ad$qenteroQPCR <- factor(ad$qavgdyenteropcr)
++ 
++ 	# drop the complete dataset to save memory and speed up computation
++ 	# return the analysis-ready data: ad
++ 	rm(d)
++ 	return(ad)
++ 	
++ }
+> 
+> 
+> # --------------------------------------
+> # Robust clustered SE function
+> # http://people.su.se/~ma/mcluster.R
+> # R (www.r-project.org) codes for computing multi-way clustered-standard errors
+> # Mahmood Arai, Jan 21, 2008. 
+> # See: Thompson (2006), Cameron, Gelbach and Miller (2006) and Petersen (2006).
+> #
+> # slightly modified to have it return the vcovCL object
+> # rather than the updated fit (since need the VC matrix)
+> # --------------------------------------
+> cl   <- function(dat,fm, cluster){
++ 	# dat: data used to fit the model
++ 	# fm : model fit (object)
++ 	# cluster : vector of cluster IDs
++ 	require(sandwich, quietly = TRUE)
++ 	require(lmtest, quietly = TRUE)
++ 	M <- length(unique(cluster))
++ 	N <- length(cluster)
++ 	K <- fm$rank
++ 	dfc <- (M/(M-1))*((N-1)/(N-K))
++ 	uj  <- apply(estfun(fm),2, function(x) tapply(x, cluster, sum));
++ 	vcovCL <- dfc*sandwich(fm, meat=crossprod(uj)/N)
++ 	return(vcovCL)
++ }
+> 
+> 
+> 
+> # --------------------------------------
+> # Convenience wrapper function to run 
+> # modified Poisson models and obtain 
+> # robust SEs (clusterd on hhid)
+> # this is the work horse of all the 
+> # regressions run in this analysis
+> # --------------------------------------
+> 
+> mpreg <- function(formula,dat,vcv=FALSE) {
++ 	# modified Poisson regression formula
++ 	# dataset used to fit the model	
++ 	fit <- glm(formula,family=poisson(link="log"),data=dat)
++ 	vcovCL <- cl(dat,fm=fit,cluster=dat$hhid)
++ 	rfit <- coeftest(fit, vcovCL)
++ 	print(summary(fit))
++ 	cat("\n\nRobust, Sandwich Standard Errors Account for Clustering:\n")
++ 	print(rfit) 
++ 	if(vcv==FALSE) {
++ 		return(rfit)
++ 	} else {
++ 		list(fit=rfit,vcovCL=vcovCL)
++ 	}
++ }
+> 
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  1.991   0.124   4.358 

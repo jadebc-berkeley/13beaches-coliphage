@@ -1,0 +1,309 @@
+
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> 
+> # ------------------------------------
+> # 10-aim1-wq-summary-tables.R
+> #
+> # Create summary statistics for
+> # water quality data by 
+> # beach and overall
+> # for Enterococcus EPA 1600 and qPCR 1611
+> #
+> # ------------------------------------
+> 
+> # ------------------------------------
+> # preamble
+> # ------------------------------------
+> rm(list=ls())
+> 
+> 
+> 
+> # ------------------------------------
+> # load the water quality sample data
+> # ------------------------------------
+> d <- read.csv("~/dropbox/13beaches/data/final/13beaches-wq-samples.csv",stringsAsFactors=F)
+> 
+> d$beachcode[d$beachcode==""] <- d$beach[d$beachcode==""]
+> 
+> # ------------------------------------
+> # At Mission Bay, recode the 
+> # EPA 1600 values with Enterolert,
+> # which is the assay used in the analysis
+> # at that beach
+> # ------------------------------------
+> d$entero1600cfu[d$beach=="Mission Bay"] <- d$enteroELTmpn[d$beach=="Mission Bay"]
+> d$entero1600cfu_nd[d$beach=="Mission Bay"] <- d$enteroELTmpn_nd[d$beach=="Mission Bay"]
+> 
+> 
+> # ------------------------------------
+> # Summarize non-detects by beach
+> # and sampling location
+> # ------------------------------------
+> nd.qpcr <- table(d$beachcode,d$enteroQPCRcce_nd)[,2:3]
+> nd.1600 <- table(d$beachcode,d$entero1600cfu_nd)[,2:3]
+> 
+> nd.qpcr
+                 
+                  Below detection Detected
+  Avalon-ABC                   63      467
+  Avalon-D                      9       21
+  Boqueron                    333      267
+  Doheny-ABD                   65      169
+  Doheny-C                      0       23
+  Doheny-E                     26       51
+  Edgewater                     1      395
+  Fairhope                     97      341
+  Goddard                      28      398
+  Huntington                   12      408
+  Malibu-ABDE                  37      268
+  Malibu-C                      0       32
+  Mission Bay 1                 8       78
+  Mission Bay 2                 4      125
+  Mission Bay 3                13      202
+  Mission Bay 4                 5       81
+  Mission Bay 5                14      115
+  Mission Bay 6                 2      126
+  Silver                       46      377
+  Surfside                    173      359
+  Washington Park              48      373
+  West                         12      324
+> nd.1600
+                 
+                  Below detection Detected
+  Avalon-ABC                   30      645
+  Avalon-D                     18       12
+  Boqueron                     63      537
+  Doheny-ABD                  116      190
+  Doheny-C                      2       31
+  Doheny-E                     52       50
+  Edgewater                    48      347
+  Fairhope                     29      402
+  Goddard                      78      348
+  Huntington                   17      403
+  Malibu-ABDE                  67      239
+  Malibu-C                      0       39
+  Mission Bay 1                63      153
+  Mission Bay 2               115      209
+  Mission Bay 3               145      395
+  Mission Bay 4                64      152
+  Mission Bay 5               164      160
+  Mission Bay 6                76      248
+  Silver                        5      418
+  Surfside                     61      469
+  Washington Park               0      421
+  West                         39      297
+> 
+> 
+> tot.nd.qpcr <- table(d$enteroQPCRcce_nd)[2:3]
+> tot.nd.1600 <- table(d$entero1600cfu_nd)[2:3]
+> 
+> 
+> # ------------------------------------
+> # impute non-detects at 0.1 before
+> # calculating summary statistics
+> # ------------------------------------
+> 
+> d$enteroQPCRcce[d$enteroQPCRcce_nd=="Below detection"] <- 0.1
+> d$entero1600cfu[d$entero1600cfu_nd=="Below detection"] <- 0.1
+> 
+> # ------------------------------------
+> # Summarize min and max by beach
+> # and sampling location
+> # ------------------------------------
+> 
+> min.qpcr <- tapply(d$enteroQPCRcce,d$beachcode,function(x) min(x,na.rm=T))
+> max.qpcr <- tapply(d$enteroQPCRcce,d$beachcode,function(x) max(x,na.rm=T))
+> 
+> min.1600 <- tapply(d$entero1600cfu,d$beachcode,function(x) min(x,na.rm=T))
+> max.1600 <- tapply(d$entero1600cfu,d$beachcode,function(x) max(x,na.rm=T))
+> 
+> round(cbind(min.qpcr, max.qpcr),1)
+                min.qpcr max.qpcr
+Avalon-ABC           0.1  14696.0
+Avalon-D             0.1    151.8
+Boqueron             0.1 983721.7
+Doheny-ABD           0.1   3197.8
+Doheny-C            25.7  16530.9
+Doheny-E             0.1    113.1
+Edgewater            0.1  10188.4
+Fairhope             0.1  98994.9
+Goddard              0.1  25621.5
+Huntington           0.1 114285.7
+Malibu-ABDE          0.1   2829.3
+Malibu-C           156.1   3656.4
+Mission Bay 1        0.1 141092.8
+Mission Bay 2        0.1   9003.6
+Mission Bay 3        0.1  46867.0
+Mission Bay 4        0.1  13837.4
+Mission Bay 5        0.1   4501.8
+Mission Bay 6        0.1   4309.0
+Silver               0.1 123483.2
+Surfside             0.1 109296.7
+Washington Park      0.1   1986.0
+West                 0.1  15777.9
+> round(cbind(min.1600, max.1600),1)
+                min.1600 max.1600
+Avalon-ABC           0.1    10000
+Avalon-D             0.1       20
+Boqueron             0.1      580
+Doheny-ABD           0.1     2000
+Doheny-C             0.1    41000
+Doheny-E             0.1     1900
+Edgewater            0.1      920
+Fairhope             0.1     3000
+Goddard              0.1      960
+Huntington           0.1    48100
+Malibu-ABDE          0.1     1740
+Malibu-C            18.0     6710
+Mission Bay 1        0.1      644
+Mission Bay 2        0.1     7030
+Mission Bay 3        0.1    57940
+Mission Bay 4        0.1     1043
+Mission Bay 5        0.1      487
+Mission Bay 6        0.1     1723
+Silver               0.1     2800
+Surfside             0.1      640
+Washington Park      1.0      750
+West                 0.1     3700
+> 
+> # overall min/max
+> tot.min.qpcr <- min(d$enteroQPCRcce,na.rm=T)
+> tot.max.qpcr <- max(d$enteroQPCRcce,na.rm=T)
+> 
+> tot.min.1600 <- min(d$entero1600cfu,na.rm=T)
+> tot.max.1600 <- max(d$entero1600cfu,na.rm=T)
+> 
+> # ------------------------------------
+> # Summarize geometric mean by beach
+> # and sampling location
+> # ------------------------------------
+> geomean <- function(x) {
++ 	logx   <- log(x)
++ 	mulogx <- mean(logx,na.rm=T)
++ 	return( exp(mulogx) )
++ }
+> mu.qpcr <- tapply(d$enteroQPCRcce,d$beachcode,geomean)
+> mu.1600 <- tapply(d$entero1600cfu,d$beachcode,geomean)
+> 
+> # overall means
+> tot.mu.qpcr <- geomean(d$enteroQPCRcce)
+> tot.mu.1600 <- geomean(d$entero1600cfu)
+> 
+> 
+> # ------------------------------------
+> # combine results into a single table
+> # for each of the 1600 and qPCR assays
+> # ------------------------------------
+> 
+> total.1600  <- c(sum(tot.nd.1600),tot.nd.1600[1],tot.min.1600,tot.max.1600,tot.mu.1600)
+> total.qpcr  <- c(sum(tot.nd.qpcr),tot.nd.qpcr[1],tot.min.qpcr,tot.max.qpcr,tot.mu.qpcr)
+> 
+> 
+> wqtab.1600 <- cbind(
++ 	rowSums(nd.1600),
++ 	nd.1600[,1],
++ 	min.1600,
++ 	max.1600,
++ 	mu.1600
++ )
+> 
+> wqtab.qpcr <- cbind(
++ 	rowSums(nd.qpcr),
++ 	nd.qpcr[,1],
++ 	min.qpcr,
++ 	max.qpcr,
++ 	mu.qpcr
++ )
+> 
+> colnames(wqtab.1600) <- colnames(wqtab.qpcr) <- c("Nsamples","NonDetects","Min","Max","Geomean")
+> names(total.1600) <- names(total.qpcr) <- c("Nsamples","NonDetects","Min","Max","Geomean")
+> 
+> round(wqtab.1600,1)
+                Nsamples NonDetects  Min   Max Geomean
+Avalon-ABC           675         30  0.1 10000    35.2
+Avalon-D              30         18  0.1    20     0.6
+Boqueron             600         63  0.1   580     5.6
+Doheny-ABD           306        116  0.1  2000     3.9
+Doheny-C              33          2  0.1 41000  1526.6
+Doheny-E             102         52  0.1  1900     1.3
+Edgewater            395         48  0.1   920     7.5
+Fairhope             431         29  0.1  3000    21.0
+Goddard              426         78  0.1   960     3.6
+Huntington           420         17  0.1 48100    25.1
+Malibu-ABDE          306         67  0.1  1740     2.3
+Malibu-C              39          0 18.0  6710   511.4
+Mission Bay 1        216         63  0.1   644     6.2
+Mission Bay 2        324        115  0.1  7030     4.7
+Mission Bay 3        540        145  0.1 57940     9.3
+Mission Bay 4        216         64  0.1  1043     7.1
+Mission Bay 5        324        164  0.1   487     1.3
+Mission Bay 6        324         76  0.1  1723    11.5
+Silver               423          5  0.1  2800    31.0
+Surfside             530         61  0.1   640     3.0
+Washington Park      421          0  1.0   750    24.8
+West                 336         39  0.1  3700     6.7
+> round(wqtab.qpcr,1)
+                Nsamples NonDetects   Min      Max Geomean
+Avalon-ABC           530         63   0.1  14696.0    63.7
+Avalon-D              30          9   0.1    151.8     4.5
+Boqueron             600        333   0.1 983721.7     1.7
+Doheny-ABD           234         65   0.1   3197.8     5.9
+Doheny-C              23          0  25.7  16530.9  1301.3
+Doheny-E              77         26   0.1    113.1     2.9
+Edgewater            396          1   0.1  10188.4   361.2
+Fairhope             438         97   0.1  98994.9    56.1
+Goddard              426         28   0.1  25621.5   111.0
+Huntington           420         12   0.1 114285.7   132.7
+Malibu-ABDE          305         37   0.1   2829.3    11.5
+Malibu-C              32          0 156.1   3656.4   726.6
+Mission Bay 1         86          8   0.1 141092.8    53.4
+Mission Bay 2        129          4   0.1   9003.6    87.5
+Mission Bay 3        215         13   0.1  46867.0    83.8
+Mission Bay 4         86          5   0.1  13837.4    45.9
+Mission Bay 5        129         14   0.1   4501.8    22.8
+Mission Bay 6        128          2   0.1   4309.0    58.3
+Silver               423         46   0.1 123483.2    34.6
+Surfside             532        173   0.1 109296.7    17.1
+Washington Park      421         48   0.1   1986.0    32.4
+West                 336         12   0.1  15777.9   119.4
+> 
+> round(total.1600,1)
+  Nsamples NonDetects        Min        Max    Geomean 
+    7417.0     1252.0        0.1    57940.0        8.7 
+> round(total.qpcr,1)
+  Nsamples NonDetects        Min        Max    Geomean 
+    5996.0      996.0        0.1   983721.7       37.6 
+> # ------------------------------------
+> # write summary tables to a file
+> # to be formatted in TeX
+> # ------------------------------------
+> 
+> save(wqtab.1600,total.1600,wqtab.qpcr,total.qpcr,file="~/dropbox/13beaches/aim1-results/rawoutput/aim1-wq-summary-tables.RData")
+> 
+> 
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.553   0.049   1.393 

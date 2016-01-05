@@ -1,0 +1,912 @@
+
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> # --------------------------------------
+> # 5-aim1-entero-regulatory-summary-figures.R
+> # ben arnold (benarnold@berkeley.edu)
+> #
+> # description:
+> # plot CIRs associated with Enterococcus
+> # EPA 1600  and EPA qPCR 1611 
+> # above and below regulatory guidelines
+> #
+> # version 6 (24 oct 2015)
+> # added age-stratified figures w/ non-swimmer reference group
+> #
+> # version 5 (17 sep 2015)
+> # changed the color for the Entero culture figure
+> #
+> # version 4 (5 aug 2015)
+> # create new figures that include non-swimmer
+> # data along with swimmer data, and a second
+> # set of CIRs with non-swimmers as the reference
+> #
+> # version 3 (24 apr 2015)
+> # streamlined code and condensed regulatory figs
+> # into the same script for 1600 and 1611
+> #
+> # version 2 (24 mar 2015)
+> # re-designed the main CIR figure to 
+> # report incidence in the figure with
+> # adjusted CIRs in the portion
+> #
+> # version 1 (20 feb 2015)
+> #
+> # --------------------------------------
+> 
+> # --------------------------------------
+> # input files:
+> #	aim1-entero1600-35cfu-regs-body.Rdata
+> # 	aim1-enteroQPCR-35cfu-regs-body.Rdata
+> #
+> # output files:
+> #	aim1-entero1600-35cfu-CI-bypointsource.pdf
+> #	aim1-entero1600-35cfu-CI-byage.pdf
+> #	aim1-enteroQPCR-470cce-CI-bypointsource.pdf
+> #	aim1-enteroQPCR-470cce-CI-byage.pdf
+> # --------------------------------------
+> 
+> # --------------------------------------
+> # preamble
+> # --------------------------------------
+> 
+> rm(list=ls())
+> library(RColorBrewer)
+> 
+> 
+> # --------------------------------------
+> # Plot Enterococcus 1600 <=35 / >35 Results
+> # All ages, stratified by beach type
+> # --------------------------------------
+> 
+> load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-entero1600-35cfu-regs-body.Rdata")
+> 
+> 
+> pdf("~/dropbox/13beaches/aim1-results/figs/aim1-entero1600-35cfu-CI-bypointsource.pdf",width=9,height=4)
+> op <- par(mar=c(5,9,8,0)+0.1,xpd=TRUE)
+> cols <- brewer.pal(9,"YlGnBu")[c(8,6)]
+> # cols <- brewer.pal(9,"YlGn")[c(8,6)]
+> ytics <- seq(0,80,by=20)
+> # set up an empty plot
+> MidPts <- barplot(1:3,names.arg=NA,border=NA,col=NA,
++ 	ylim=range(ytics),ylab="",yaxt="n",
++ 	las=1,bty="n"
++ )
+> segments(x0=0.1,x1=max(MidPts+0.5),y0=ytics,lty=2,lwd=1,col="gray80")
+> segments(x0=mean(MidPts[2:3]),y0=min(ytics)-8,y1=max(ytics)+18,lwd=2,col="gray80")
+> axis(2,at=ytics,las=1)
+> mtext("Diarrhea\nIncidence\nper 1000",side=2,line=3,las=1)
+> 
+> # calculate X coordinates relative to the mid points for each group
+> xspan <- 0.25
+> xplus <- c(-xspan, xspan)  # evenly distribute 2 datapoints around each midpoint
+> 
+> xps   <- xplus+MidPts[1]
+> xnps  <- xplus+MidPts[2]
+> xall    <- xplus+MidPts[3]
+> allxs   <- c(xps,xnps,xall)  # for table and category labels in header/footer
+> labx <- MidPts[1]-xspan*2.5  # for left-hand labels in the header/footer
+> 
+> # plot point source estimates
+> segments(x0=xps,y0=ci.ps[,"CIlb"]*1000,y1=ci.ps[,"CIub"]*1000,lwd=2,col=cols)
+> points(xps,ci.ps[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xps,y=ci.ps[,"CI"]*1000,sprintf("%1.0f",ci.ps[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # plot non-point source estimates
+> segments(x0=xnps,y0=ci.nps[,"CIlb"]*1000,y1=ci.nps[,"CIub"]*1000,lwd=2,col=cols)
+> points(xnps,ci.nps[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xnps,y=ci.nps[,"CI"]*1000,sprintf("%1.0f",ci.nps[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # plot all conditions estimates
+> segments(x0=xall,y0=ci.all[,"CIlb"]*1000,y1=ci.all[,"CIub"]*1000,lwd=2,col=cols)
+> points(xall,ci.all[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xall,y=ci.all[,"CI"]*1000,sprintf("%1.0f",ci.all[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # print header labels
+> mtext(c("Identified Point Source\nHuman Fecal Pollution","No Point Source\nHuman Fecal Pollution","All\nConditions"),at=MidPts,side=3,line=5.5  )
+> 
+> mtext(expression(paste(italic("Enterococcus"))),side=3,line=4,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext("Category",side=3,line=3,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext(expression(""<= 35,""> 35),side=3,line=4,at=allxs,col=cols,cex=1,font=2)
+> mtext("CFU/100ml",side=3,line=3,at=allxs,col=cols,cex=0.75)
+> 
+> 
+> # Print adjusted CIRs and 95% CIs (formatted)
+> cirform <- function(cirs) {
++ 	paste(sprintf("%1.2f",cirs),sep="")
++ }
+> circiform <- function(circi) {
++ 	paste("(",sprintf("%1.2f",circi["CIRlb"]),", ",sprintf("%1.2f",circi["CIRub"]),")",sep="")
++ }
+> mtext("Adjusted CIR",side=3,line=2,at=labx,adj=1,cex=0.8,col="gray30")
+> mtext(c("ref",cirform(cir.all[2,1]),"ref",cirform(cir.all[1,1]),"ref",cirform(cir.all[3,1])),side=3,line=2,at=allxs,cex=0.75)
+> 
+> mtext("(95% CI)",side=3,line=1,at=labx,adj=1,cex=0.8,col="gray30")
+> mtext(c("",circiform(cir.all[2,2:3]),"",circiform(cir.all[1,2:3]),"",circiform(cir.all[3,2:3])),side=3,line=1,at=allxs,cex=0.7)
+> 
+> 
+> # print footer labels
+> mtext(expression(""<= 35,""> 35),side=1,line=0.25,at=allxs,col=cols,cex=1,font=2)
+> mtext("CFU/100ml",side=1,line=1.25,at=allxs,col=cols,cex=0.75)
+> 
+> # print table with Ns
+> mtext("Incident Diarrhea Cases",side=1,line=2.25,at=labx,adj=1,cex=0.8,col="gray30")
+> ns <- c(N.ps[,1],N.nps[,1],N.all[,1])
+> mtext(  format(ns,big.mark=","),side=1,line=2.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> mtext("Population At Risk",side=1,line=3.25,at=labx,adj=1,cex=0.8,col="gray30")
+> Ns <- c(N.ps[,2],N.nps[,2],N.all[,2])
+> mtext(  format(Ns,big.mark=","),side=1,line=3.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> par(op)
+> dev.off()
+null device 
+          1 
+> 
+> 
+> # --------------------------------------
+> # Plot Enterococcus 1600 <=35 / >35 Results
+> # Age-stratified:
+> # --------------------------------------
+> 
+> ### Basic Figure Shell for Age-Stratified Entero 35 CFU plots
+> ### could be called repeatedly for different additional stratifications beyond age (point source, non-point source, overall)
+> ### the function is pretty idiosyncratic -- just trying to avoid repeating all 50+ lines of code 
+> ### don't end up actually using the generalization -- carryover from a legacy idea of presenting double-stratified results, but
+> ### the Ns  are really too small to justify that approach.
+> 
+> CIplot35cfu <- function(pdata,cols) {
++ 	
++ 	# pdata is a list of 12 data plotting objects in this order:
++ 		# ci.all    : Matrix of cumulative incidence estimates w/ 95% CIs -- All ages
++ 		# ci.0to4   : Matrix of cumulative incidence estimates w/ 95% CIs -- Age 0 to 4
++ 		# ci.5to10  : Matrix of cumulative incidence estimates w/ 95% CIs -- Age 5 to 10
++ 		# ci.11plus : Matrix of cumulative incidence estimates w/ 95% CIs -- Age 11 plus
++ 	ci.all    <- pdata[[1]]
++ 	ci.0to4   <- pdata[[2]]
++ 	ci.5to10  <- pdata[[3]]
++ 	ci.11plus <- pdata[[4]]
++ 		# cir.all       : Vector of CIR estimate w/ 95% CIs -- All ages
++ 		# cir.age0to4   : Vector of CIR estimate w/ 95% CIs -- Age 0 to 4
++ 		# cir.age5to10  : Vector of CIR estimate w/ 95% CIs -- Age 5 to 10
++ 		# cir.age11plus : Vector of CIR estimate w/ 95% CIs -- Age 11 plus
++ 	cir.all       <- pdata[[5]]
++ 	cir.age0to4   <- pdata[[6]]
++ 	cir.age5to10  <- pdata[[7]]
++ 	cir.age11plus <- pdata[[8]]
++ 		# N.all       : Matrix of N incident cases and N exposed -- All ages
++ 		# N.age0to4   : Matrix of N incident cases and N exposed -- Age 0 to 4
++ 		# N.age5to10  : Matrix of N incident cases and N exposed -- Age 5 to 10
++ 		# N.age11plus : Matrix of N incident cases and N exposed -- Age 11 plus
++ 	N.all       <- pdata[[9]]
++ 	N.age0to4   <- pdata[[10]]
++ 	N.age5to10  <- pdata[[11]]
++ 	N.age11plus <- pdata[[12]]
++ 	
++ 	op <- par(mar=c(5,8,8,0)+0.1,xpd=TRUE)
++ 	ytics <- seq(0,120,by=20)
++ 	# set up an empty plot
++ 	MidPts <- barplot(1:4,names.arg=NA,border=NA,col=NA,
++ 		ylim=range(ytics),ylab="",yaxt="n",
++ 		las=1,bty="n"
++ 	)
++ 	segments(x0=0,x1=max(MidPts+0.5),y0=ytics,lty=2,lwd=1,col="gray80")
++ 	segments(x0=mean(MidPts[3:4]),y0=min(ytics)-8,y1=max(ytics)+23,lwd=2,col="gray80")
++ 	axis(2,at=ytics,las=1)
++ 	mtext("Diarrhea\nIncidence\nper 1000",side=2,line=3,las=1)
++ 	
++ 	# calculate X coordinates relative to the mid points for each group
++ 	xspan <- 0.25
++ 	xplus <- c(-xspan, xspan)  # evenly distribute 2 datapoints around each midpoint
++ 	
++ 	x0to4   <- xplus+MidPts[1]
++ 	x5to10  <- xplus+MidPts[2]
++ 	x11plus <- xplus+MidPts[3]
++ 	xall    <- xplus+MidPts[4]
++ 	allxs   <- c(x0to4,x5to10,x11plus,xall)  # for table and category labels in header/footer
++ 	labx <- MidPts[1]-xspan*2.5  # for left-hand labels in the header/footer
++ 
++ 	
++ 	# plot age 0 to 4 estimates
++ 	segments(x0=x0to4,y0=ci.0to4[,"CIlb"]*1000,y1=ci.0to4[,"CIub"]*1000,lwd=2,col=cols)
++ 	points(x0to4,ci.0to4[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
++ 	text(x=x0to4,y=ci.0to4[,"CI"]*1000,sprintf("%1.0f",ci.0to4[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
++ 	
++ 	# plot age 5 to 10 estimates
++ 	segments(x0=x5to10,y0=ci.5to10[,"CIlb"]*1000,y1=ci.5to10[,"CIub"]*1000,lwd=2,col=cols)
++ 	points(x5to10,ci.5to10[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
++ 	text(x=x5to10,y=ci.5to10[,"CI"]*1000,sprintf("%1.0f",ci.5to10[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
++ 	
++ 	# plot age > 10 estimates
++ 	segments(x0=x11plus,y0=ci.11plus[,"CIlb"]*1000,y1=ci.11plus[,"CIub"]*1000,lwd=2,col=cols)
++ 	points(x11plus,ci.11plus[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
++ 	text(x=x11plus,y=ci.11plus[,"CI"]*1000,sprintf("%1.0f",ci.11plus[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
++ 	
++ 	# plot all age estimates
++ 	segments(x0=xall,y0=ci.all[,"CIlb"]*1000,y1=ci.all[,"CIub"]*1000,lwd=2,col=cols)
++ 	points(xall,ci.all[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
++ 	text(x=xall,y=ci.all[,"CI"]*1000,sprintf("%1.0f",ci.all[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
++ 	
++ 	
++ 	# print header labels
++ 	mtext(c("Ages\n0 to 4","Ages\n5 to 10","Ages\n>10","All\nAges"),at=MidPts,side=3,line=5.5  )
++ 	
++ 	mtext(expression(paste(italic("Enterococcus"))),side=3,line=4,at=labx,adj=1,col=cols[2],cex=0.8)
++ 	mtext("Category",side=3,line=3,at=labx,adj=1,col=cols[2],cex=0.8)
++ 	mtext(expression(""<= 35,""> 35),side=3,line=4,at=allxs,col=cols,cex=1,font=2)
++ 	mtext("CFU/100ml",side=3,line=3,at=allxs,col=cols,cex=0.75)
++ 	
++ 	
++ 	# Print adjusted CIRs and 95% CIs (formatted)
++ 	cirform <- function(cirs) {
++ 		paste(sprintf("%1.2f",cirs),sep="")
++ 	}
++ 	circiform <- function(circi) {
++ 		paste("(",sprintf("%1.2f",circi["CIRlb"]),", ",sprintf("%1.2f",circi["CIRub"]),")",sep="")
++ 	}
++ 	mtext("Adjusted CIR",side=3,line=2,at=labx,adj=1,cex=0.8,col="gray30")
++ 	mtext(c("ref",cirform(cir.age0to4[1]),"ref",cirform(cir.age5to10[1]),"ref",cirform(cir.age11plus[1]),"ref",cirform(cir.all[1])),side=3,line=2,at=allxs,cex=0.75)
++ 	
++ 	mtext("(95% CI)",side=3,line=1,at=labx,adj=1,cex=0.8,col="gray30")
++ 	mtext(c("",circiform(cir.age0to4[2:3]),"",circiform(cir.age5to10[2:3]),"",circiform(cir.age11plus[2:3]),"",circiform(cir.all[2:3])),side=3,line=1,at=allxs,cex=0.7)
++ 	
++ 
++ 	# print footer labels
++ 	mtext(expression(""<= 35,""> 35),side=1,line=0.25,at=allxs,col=cols,cex=1,font=2)
++ 	mtext("CFU/100ml",side=1,line=1.25,at=allxs,col=cols,cex=0.75)
++ 	
++ 	# print table with Ns
++ 	mtext("Incident Diarrhea Cases",side=1,line=2.25,at=labx,adj=1,cex=0.8,col="gray30")
++ 	ns <- c(N.age0to4[,1],N.age5to10[,1],N.age11plus[,1],N.all[,1])
++ 	mtext(  format(ns,big.mark=","),side=1,line=2.25,at=allxs+0.06,adj=1,cex=0.75    )
++ 	
++ 	mtext("Population At Risk",side=1,line=3.25,at=labx,adj=1,cex=0.8,col="gray30")
++ 	Ns <- c(N.age0to4[,2],N.age5to10[,2],N.age11plus[,2],N.all[,2])
++ 	mtext(  format(Ns,big.mark=","),side=1,line=3.25,at=allxs+0.06,adj=1,cex=0.75    )
++ 	
++ 	par(op)
++ 	
++ }  # end of CIplot35cfu function
+> 
+> ## Age-stratified Plot
+> all.pdata <- list(
++ 	ci.all, ci.0to4, ci.5to10, ci.11plus,
++ 	cir.all["Overall",], cir.age0to4["Overall",], cir.age5to10["Overall",], cir.age11plus["Overall",],
++ 	N.all, N.age0to4, N.age5to10, N.age11plus
++ )
+> pdf("~/dropbox/13beaches/aim1-results/figs/aim1-entero1600-35cfu-CI-byage.pdf",width=12,height=4)
+> cols <- brewer.pal(9,"YlGnBu")[c(8,6)]
+> CIplot35cfu(all.pdata,cols=cols)
+> dev.off()
+null device 
+          1 
+> 
+> 
+> # rename some objects for re-use below (regression output obj have same names)
+> cir35cfu.all <- cir.all
+> cir35cfu.ages <- rbind(cir.age0to4["Overall",],cir.age5to10["Overall",],cir.age11plus["Overall",],cir.all["Overall",])
+> 
+> # --------------------------------------
+> # Plot Enterococcus 1600 non-swimmers / <=35 / >35 Results
+> # All ages, stratified by beach type
+> # --------------------------------------
+> 
+> load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-entero1600-noswim35cfu-regs-body.Rdata")
+> 
+> 
+> pdf("~/dropbox/13beaches/aim1-results/figs/aim1-entero1600-noswim35cfu-CI-bypointsource.pdf",width=11,height=4)
+> op <- par(mar=c(5,10,8,0)+0.1,xpd=TRUE)
+> cols <- brewer.pal(9,"YlGnBu")[c(8,7,6)]
+> # cols <- brewer.pal(9,"YlGn")[c(8,7,6)]
+> ytics <- seq(0,100,by=20)
+> # set up an empty plot
+> MidPts <- barplot(1:3,names.arg=NA,border=NA,col=NA,
++ 	ylim=range(ytics),ylab="",yaxt="n",
++ 	las=1,bty="n"
++ )
+> segments(x0=0.1,x1=max(MidPts+0.5),y0=ytics,lty=2,lwd=1,col="gray80")
+> segments(x0=mean(MidPts[2:3]),y0=min(ytics)-8,y1=max(ytics)+10,lwd=2,col="gray80")
+> axis(2,at=ytics,las=1)
+> mtext("Diarrhea\nIncidence\nper 1000",side=2,line=3,las=1)
+> 
+> # calculate X coordinates relative to the mid points for each group
+> xspan <- 0.39
+> xplus <- c(-xspan, 0, xspan)  # evenly distribute 3 datapoints around each midpoint
+> 
+> xps   <- xplus+MidPts[1]
+> xnps  <- xplus+MidPts[2]
+> xall    <- xplus+MidPts[3]
+> allxs   <- c(xps,xnps,xall)  # for table and category labels in header/footer
+> labx <- MidPts[1]-xspan*1.5  # for left-hand labels in the header/footer
+> 
+> # plot point source estimates
+> segments(x0=xps,y0=ci.ps[,"CIlb"]*1000,y1=ci.ps[,"CIub"]*1000,lwd=2,col=cols)
+> points(xps,ci.ps[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xps,y=ci.ps[,"CI"]*1000,sprintf("%1.0f",ci.ps[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # plot non-point source estimates
+> segments(x0=xnps,y0=ci.nps[,"CIlb"]*1000,y1=ci.nps[,"CIub"]*1000,lwd=2,col=cols)
+> points(xnps,ci.nps[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xnps,y=ci.nps[,"CI"]*1000,sprintf("%1.0f",ci.nps[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # plot all conditions estimates
+> segments(x0=xall,y0=ci.all[,"CIlb"]*1000,y1=ci.all[,"CIub"]*1000,lwd=2,col=cols)
+> points(xall,ci.all[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xall,y=ci.all[,"CI"]*1000,sprintf("%1.0f",ci.all[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # print header labels
+> mtext(c("Identified Point Source\nHuman Fecal Pollution","No Point Source\nHuman Fecal Pollution","All\nConditions"),at=MidPts,side=3,line=5.5  )
+> 
+> mtext(expression(paste(italic("Enterococcus"))),side=3,line=4,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext("Exposure Category",side=3,line=3,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext(expression("Non",""<= 35,""> 35),side=3,line=4,at=allxs,col=cols,cex=c(0.75,1,1),font=2)
+> mtext(rep(c("Swimmers","CFU/100ml","CFU/100ml"),3),side=3,line=3,at=allxs,col=cols,cex=0.75)
+> 
+> 
+> # Print adjusted CIRs and 95% CIs (formatted)
+> circiform <- function(x) {
++ 	paste(sprintf("%1.2f",x[1])," (",sprintf("%1.2f",x[2]),",",sprintf("%1.2f",x[3]),")",sep="")
++ }
+> # Non-swimmers as reference group
+> mtext("Non-swimmer ref, aCIR (95% CI)",side=3,line=2,at=labx,adj=1,cex=0.75,col="gray30")
+> # mtext("(95% CI)",side=3,line=1,at=labx,adj=1,cex=0.8,col="gray30")
+> mtext(c("ref",circiform(cir.all[2,1:3]),circiform(cir.all[2,4:6]),"ref",circiform(cir.all[1,1:3]),circiform(cir.all[1,4:6]),"ref",circiform(cir.all[3,1:3]),circiform(cir.all[3,4:6])),side=3,line=2,at=allxs,cex=0.7)
+> 
+> # swimmers as reference group
+> mtext(expression(paste("Swimmers",""<= 35," ref, aCIR (95% CI)")),side=3,line=0.75,at=labx,adj=1,cex=0.75,col="gray30")
+> mtext(c("","ref",circiform(cir35cfu.all[2,]),"","ref",circiform(cir35cfu.all[1,]),"","ref",circiform(cir35cfu.all[3,])),side=3,line=0.75,at=allxs,cex=0.7)
+> 
+> # print footer labels
+> mtext(expression("Non",""<= 35,""> 35),side=1,line=0.25,at=allxs,col=cols,cex=c(0.75,1,1),font=2)
+> mtext(c("Swimmers","CFU/100ml","CFU/100ml"),side=1,line=1.25,at=allxs,col=cols,cex=0.75)
+> 
+> # print table with Ns
+> mtext("Incident Diarrhea Cases",side=1,line=2.25,at=labx,adj=1,cex=0.8,col="gray30")
+> ns <- c(N.ps[,1],N.nps[,1],N.all[,1])
+> mtext(  format(ns,big.mark=","),side=1,line=2.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> mtext("Population At Risk",side=1,line=3.25,at=labx,adj=1,cex=0.8,col="gray30")
+> Ns <- c(N.ps[,2],N.nps[,2],N.all[,2])
+> mtext(  format(Ns,big.mark=","),side=1,line=3.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> par(op)
+> dev.off()
+null device 
+          1 
+> 
+> 
+> # --------------------------------------
+> # Plot Enterococcus 1600 non-swimmers / <=35 / >35 Results
+> # Stratified by Age Group
+> # --------------------------------------
+> 
+> pdf("~/dropbox/13beaches/aim1-results/figs/aim1-entero1600-noswim35cfu-CI-byage.pdf",width=13,height=5)
+> op <- par(mar=c(5,10,8,0)+0.1,xpd=TRUE)
+> cols <- brewer.pal(9,"YlGnBu")[c(8,7,6)]
+> # cols <- brewer.pal(9,"YlGn")[c(8,7,6)]
+> ytics <- seq(0,120,by=20)
+> # set up an empty plot
+> MidPts <- barplot(1:4,names.arg=NA,border=NA,col=NA,
++ 	ylim=range(ytics),ylab="",yaxt="n",
++ 	las=1,bty="n"
++ )
+> segments(x0=0.1,x1=max(MidPts+0.5),y0=ytics,lty=2,lwd=1,col="gray80")
+> segments(x0=mean(MidPts[3:4]),y0=min(ytics)-8,y1=max(ytics)+30,lwd=2,col="gray80")
+> axis(2,at=ytics,las=1)
+> mtext("Diarrhea\nIncidence\nper 1000",side=2,line=3,las=1)
+> 
+> # calculate X coordinates relative to the mid points for each group
+> xspan <- 0.39
+> xplus <- c(-xspan, 0, xspan)  # evenly distribute 3 datapoints around each midpoint
+> x0to4   <- xplus+MidPts[1]
+> x5to10  <- xplus+MidPts[2]
+> x11plus <- xplus+MidPts[3]
+> xall    <- xplus+MidPts[4]
+> allxs   <- c(x0to4,x5to10,x11plus,xall)  # for table and category labels in header/footer
+> labx    <- MidPts[1]-xspan*1.5  # for left-hand labels in the header/footer
+> 
+> # age 0 to 4
+> segments(x0=x0to4,y0=ci.0to4[,"CIlb"]*1000,y1=ci.0to4[,"CIub"]*1000,lwd=2,col=cols)
+> points(x0to4,ci.0to4[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x= x0to4,y=ci.0to4[,"CI"]*1000,sprintf("%1.0f",ci.0to4[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # age 5 to 10
+> segments(x0=x5to10,y0=ci.5to10[,"CIlb"]*1000,y1=ci.5to10[,"CIub"]*1000,lwd=2,col=cols)
+> points(x5to10,ci.5to10[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=x5to10,y=ci.5to10[,"CI"]*1000,sprintf("%1.0f",ci.5to10[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # age >10
+> segments(x0=x11plus,y0=ci.11plus[,"CIlb"]*1000,y1=ci.11plus[,"CIub"]*1000,lwd=2,col=cols)
+> points(x11plus,ci.11plus[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=x11plus,y=ci.11plus[,"CI"]*1000,sprintf("%1.0f",ci.11plus[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # plot all conditions estimates
+> segments(x0=xall,y0=ci.all[,"CIlb"]*1000,y1=ci.all[,"CIub"]*1000,lwd=2,col=cols)
+> points(xall,ci.all[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xall,y=ci.all[,"CI"]*1000,sprintf("%1.0f",ci.all[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # print header labels
+> mtext(c("Ages\n0 to 4","Ages\n5 to 10","Ages\n>10","All\nAges"),at=MidPts,side=3,line=5.5  )
+> 
+> mtext(expression(paste(italic("Enterococcus"))),side=3,line=4,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext("Exposure Category",side=3,line=3,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext(expression("Non",""<= 35,""> 35),side=3,line=4,at=allxs,col=cols,cex=c(0.75,1,1),font=2)
+> mtext(rep(c("Swimmers","CFU/100ml","CFU/100ml"),3),side=3,line=3,at=allxs,col=cols,cex=0.75)
+> 
+> 
+> # Print adjusted CIRs and 95% CIs (formatted)
+> circiform <- function(x) {
++ 	paste(sprintf("%1.2f",x[1])," (",sprintf("%1.2f",x[2]),",",sprintf("%1.2f",x[3]),")",sep="")
++ }
+> cir.ages <- rbind(cir.age0to4["Overall",],cir.age5to10["Overall",],cir.age11plus["Overall",],cir.all["Overall",])
+> # Non-swimmers as reference group
+> mtext("Non-swimmer ref, aCIR (95% CI)",side=3,line=2,at=labx,adj=1,cex=0.75,col="gray30")
+> # mtext("(95% CI)",side=3,line=1,at=labx,adj=1,cex=0.8,col="gray30")
+> mtext(c("ref",circiform(cir.ages[1,1:3]),circiform(cir.ages[1,4:6]),"ref",circiform(cir.ages[2,1:3]),circiform(cir.ages[2,4:6]),"ref",circiform(cir.ages[3,1:3]),circiform(cir.ages[3,4:6]),"ref",circiform(cir.ages[4,1:3]),circiform(cir.ages[4,4:6])),side=3,line=2,at=allxs,cex=0.7)
+> 
+> # swimmers as reference group
+> mtext(expression(paste("Swimmers",""<= 35," ref, aCIR (95% CI)")),side=3,line=0.75,at=labx,adj=1,cex=0.75,col="gray30")
+> mtext(c("","ref",circiform(cir35cfu.ages[1,]),"","ref",circiform(cir35cfu.ages[2,]),"","ref",circiform(cir35cfu.ages[3,]),"","ref",circiform(cir35cfu.ages[4,])),side=3,line=0.75,at=allxs,cex=0.7)
+> 
+> # print footer labels
+> mtext(expression("Non",""<= 35,""> 35),side=1,line=0.25,at=allxs,col=cols,cex=c(0.75,1,1),font=2)
+> mtext(c("Swimmers","CFU/100ml","CFU/100ml"),side=1,line=1.25,at=allxs,col=cols,cex=0.75)
+> 
+> # print table with Ns
+> mtext("Incident Diarrhea Cases",side=1,line=2.25,at=labx,adj=1,cex=0.8,col="gray30")
+> ns <- c(N.age0to4[,1],N.age5to10[,1],N.age11plus[,1],N.all[,1])
+> mtext(  format(ns,big.mark=","),side=1,line=2.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> mtext("Population At Risk",side=1,line=3.25,at=labx,adj=1,cex=0.8,col="gray30")
+> Ns <- c(N.age0to4[,2],N.age5to10[,2],N.age11plus[,2],N.all[,2])
+> mtext(  format(Ns,big.mark=","),side=1,line=3.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> par(op)
+> dev.off()
+null device 
+          1 
+> 
+> #---------------------------------------
+> # QPCR PLOTS
+> #---------------------------------------
+> 
+> # --------------------------------------
+> # Plot Enterococcus qPCR <=470 / >470 Results
+> # All ages, stratified by beach type
+> # --------------------------------------
+> 
+> 
+> load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-enteroQPCR-470cce-regs-body.Rdata")
+> 
+> 
+> pdf("~/dropbox/13beaches/aim1-results/figs/aim1-enteroQPCR-470cce-CI-bypointsource.pdf",width=9,height=4)
+> op <- par(mar=c(5,9,8,0)+0.1,xpd=TRUE)
+> cols <- brewer.pal(9,"YlOrBr")[c(8,6)]
+> ytics <- seq(0,100,by=20)
+> # set up an empty plot
+> MidPts <- barplot(1:3,names.arg=NA,border=NA,col=NA,
++ 	ylim=range(ytics),ylab="",yaxt="n",
++ 	las=1,bty="n"
++ )
+> segments(x0=0.1,x1=max(MidPts+0.5),y0=ytics,lty=2,lwd=1,col="gray80")
+> segments(x0=mean(MidPts[2:3]),y0=min(ytics)-8,y1=max(ytics)+18,lwd=2,col="gray80")
+> axis(2,at=ytics,las=1)
+> mtext("Diarrhea\nIncidence\nper 1000",side=2,line=3,las=1)
+> 
+> # calculate X coordinates relative to the mid points for each group
+> xspan <- 0.25
+> xplus <- c(-xspan, xspan)  # evenly distribute 2 datapoints around each midpoint
+> 
+> xps   <- xplus+MidPts[1]
+> xnps  <- xplus+MidPts[2]
+> xall    <- xplus+MidPts[3]
+> allxs   <- c(xps,xnps,xall)  # for table and category labels in header/footer
+> labx <- MidPts[1]-xspan*2.5  # for left-hand labels in the header/footer
+> 
+> # plot point source estimates
+> segments(x0=xps,y0=ci.ps[,"CIlb"]*1000,y1=ci.ps[,"CIub"]*1000,lwd=2,col=cols)
+> points(xps,ci.ps[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xps,y=ci.ps[,"CI"]*1000,sprintf("%1.0f",ci.ps[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # plot non-point source estimates
+> segments(x0=xnps,y0=ci.nps[,"CIlb"]*1000,y1=ci.nps[,"CIub"]*1000,lwd=2,col=cols)
+> points(xnps,ci.nps[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xnps,y=ci.nps[,"CI"]*1000,sprintf("%1.0f",ci.nps[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # plot all conditions estimates
+> segments(x0=xall,y0=ci.all[,"CIlb"]*1000,y1=ci.all[,"CIub"]*1000,lwd=2,col=cols)
+> points(xall,ci.all[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xall,y=ci.all[,"CI"]*1000,sprintf("%1.0f",ci.all[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # print header labels
+> mtext(c("Identified Point Source\nHuman Fecal Pollution","No Point Source\nHuman Fecal Pollution","All\nConditions"),at=MidPts,side=3,line=5.5  )
+> 
+> mtext(expression(paste(italic("Enterococcus")," qPCR")),side=3,line=4,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext("Category",side=3,line=3,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext(expression(""<= 470,""> 470),side=3,line=4,at=allxs,col=cols,cex=1,font=2)
+> mtext("CCE/100ml",side=3,line=3,at=allxs,col=cols,cex=0.75)
+> 
+> 
+> # Print adjusted CIRs and 95% CIs (formatted)
+> cirform <- function(cirs) {
++ 	paste(sprintf("%1.2f",cirs),sep="")
++ }
+> circiform <- function(circi) {
++ 	paste("(",sprintf("%1.2f",circi["CIRlb"]),", ",sprintf("%1.2f",circi["CIRub"]),")",sep="")
++ }
+> mtext("Adjusted CIR",side=3,line=2,at=labx,adj=1,cex=0.8,col="gray30")
+> mtext(c("ref",cirform(cir.all[2,1]),"ref",cirform(cir.all[1,1]),"ref",cirform(cir.all[3,1])),side=3,line=2,at=allxs,cex=0.75)
+> 
+> mtext("(95% CI)",side=3,line=1,at=labx,adj=1,cex=0.8,col="gray30")
+> mtext(c("",circiform(cir.all[2,2:3]),"",circiform(cir.all[1,2:3]),"",circiform(cir.all[3,2:3])),side=3,line=1,at=allxs,cex=0.7)
+> 
+> 
+> # print footer labels
+> mtext(expression(""<= 470,""> 470),side=1,line=0.25,at=allxs,col=cols,cex=1,font=2)
+> mtext("CCE/100ml",side=1,line=1.25,at=allxs,col=cols,cex=0.75)
+> 
+> # print table with Ns
+> mtext("Incident Diarrhea Cases",side=1,line=2.25,at=labx,adj=1,cex=0.8,col="gray30")
+> ns <- c(N.ps[,1],N.nps[,1],N.all[,1])
+> mtext(  format(ns,big.mark=","),side=1,line=2.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> mtext("Population At Risk",side=1,line=3.25,at=labx,adj=1,cex=0.8,col="gray30")
+> Ns <- c(N.ps[,2],N.nps[,2],N.all[,2])
+> mtext(  format(Ns,big.mark=","),side=1,line=3.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> par(op)
+> dev.off()
+null device 
+          1 
+> 
+> 
+> # rename some objects for re-use below (regression output obj have same names)
+> cir470cce.all <- cir.all
+> cir470cce.ages <- rbind(cir.age0to4["Overall",],cir.age5to10["Overall",],cir.age11plus["Overall",],cir.all["Overall",])
+> 
+> # --------------------------------------
+> # Plot Enterococcus qPCR <=470 / >470 Results
+> # Age-stratified:
+> # --------------------------------------
+> 
+> 
+> ### Basic Figure Shell for the Entero qPCR 470 CCE plots
+> ### called repeatedly for different stratifications (point source, non-point source, overall)
+> ### the function is pretty idiosyncratic -- just trying to avoid repeating all 50+ lines of code 
+> ### don't end up actually using the generalization -- carryover from a legacy idea of presenting double-stratified results, but
+> ### the Ns  are really too small to justify that approach.
+> 
+> CIplot470cce <- function(pdata,cols) {
++ 	
++ 	# pdata is a list of 12 data plotting objects in this order:
++ 		# ci.all    : Matrix of cumulative incidence estimates w/ 95% CIs -- All ages
++ 		# ci.0to4   : Matrix of cumulative incidence estimates w/ 95% CIs -- Age 0 to 4
++ 		# ci.5to10  : Matrix of cumulative incidence estimates w/ 95% CIs -- Age 5 to 10
++ 		# ci.11plus : Matrix of cumulative incidence estimates w/ 95% CIs -- Age 11 plus
++ 	ci.all    <- pdata[[1]]
++ 	ci.0to4   <- pdata[[2]]
++ 	ci.5to10  <- pdata[[3]]
++ 	ci.11plus <- pdata[[4]]
++ 		# cir.all       : Vector of CIR estimate w/ 95% CIs -- All ages
++ 		# cir.age0to4   : Vector of CIR estimate w/ 95% CIs -- Age 0 to 4
++ 		# cir.age5to10  : Vector of CIR estimate w/ 95% CIs -- Age 5 to 10
++ 		# cir.age11plus : Vector of CIR estimate w/ 95% CIs -- Age 11 plus
++ 	cir.all       <- pdata[[5]]
++ 	cir.age0to4   <- pdata[[6]]
++ 	cir.age5to10  <- pdata[[7]]
++ 	cir.age11plus <- pdata[[8]]
++ 		# N.all       : Matrix of N incident cases and N exposed -- All ages
++ 		# N.age0to4   : Matrix of N incident cases and N exposed -- Age 0 to 4
++ 		# N.age5to10  : Matrix of N incident cases and N exposed -- Age 5 to 10
++ 		# N.age11plus : Matrix of N incident cases and N exposed -- Age 11 plus
++ 	N.all       <- pdata[[9]]
++ 	N.age0to4   <- pdata[[10]]
++ 	N.age5to10  <- pdata[[11]]
++ 	N.age11plus <- pdata[[12]]
++ 	
++ 	op <- par(mar=c(5,8,8,0)+0.1,xpd=FALSE)
++ 	ytics <- seq(0,120,by=20)
++ 	# set up an empty plot
++ 	MidPts <- barplot(1:4,names.arg=NA,border=NA,col=NA,
++ 		ylim=range(ytics),ylab="",yaxt="n",
++ 		las=1,bty="n"
++ 	)
++ 	segments(x0=0,x1=max(MidPts+0.5),y0=ytics,lty=2,lwd=1,col="gray80")
++ 	segments(x0=mean(MidPts[3:4]),y0=min(ytics)-8,y1=max(ytics)+23,lwd=2,col="gray80")
++ 	axis(2,at=ytics,las=1)
++ 	mtext("Diarrhea\nIncidence\nper 1000",side=2,line=3,las=1)
++ 	
++ 	# calculate X coordinates relative to the mid points for each group
++ 	xspan <- 0.25
++ 	xplus <- c(-xspan, xspan)  # evenly distribute 2 datapoints around each midpoint
++ 	
++ 	x0to4   <- xplus+MidPts[1]
++ 	x5to10  <- xplus+MidPts[2]
++ 	x11plus <- xplus+MidPts[3]
++ 	xall    <- xplus+MidPts[4]
++ 	allxs   <- c(x0to4,x5to10,x11plus,xall)  # for table and category labels in header/footer
++ 	labx <- MidPts[1]-xspan*2.5  # for left-hand labels in the header/footer
++ 
++ 	
++ 	# plot age 0 to 4 estimates
++ 	segments(x0=x0to4,y0=ci.0to4[,"CIlb"]*1000,y1=ci.0to4[,"CIub"]*1000,lwd=2,col=cols)
++ 	points(x0to4,ci.0to4[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
++ 	text(x=x0to4,y=ci.0to4[,"CI"]*1000,sprintf("%1.0f",ci.0to4[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
++ 	
++ 	# plot age 5 to 10 estimates
++ 	segments(x0=x5to10,y0=ci.5to10[,"CIlb"]*1000,y1=ci.5to10[,"CIub"]*1000,lwd=2,col=cols)
++ 	points(x5to10,ci.5to10[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
++ 	text(x=x5to10,y=ci.5to10[,"CI"]*1000,sprintf("%1.0f",ci.5to10[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
++ 	
++ 	# plot age > 10 estimates
++ 	segments(x0=x11plus,y0=ci.11plus[,"CIlb"]*1000,y1=ci.11plus[,"CIub"]*1000,lwd=2,col=cols)
++ 	points(x11plus,ci.11plus[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
++ 	text(x=x11plus,y=ci.11plus[,"CI"]*1000,sprintf("%1.0f",ci.11plus[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
++ 	
++ 	# plot all age estimates
++ 	segments(x0=xall,y0=ci.all[,"CIlb"]*1000,y1=ci.all[,"CIub"]*1000,lwd=2,col=cols)
++ 	points(xall,ci.all[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
++ 	text(x=xall,y=ci.all[,"CI"]*1000,sprintf("%1.0f",ci.all[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
++ 	
++ 	
++ 	# print header labels
++ 	mtext(c("Ages\n0 to 4","Ages\n5 to 10","Ages\n>10","All\nAges"),at=MidPts,side=3,line=5.5  )
++ 	
++ 	mtext(expression(paste(italic("Enterococcus")," qPCR")),side=3,line=4,at=labx,adj=1,col=cols[2],cex=0.8)
++ 	mtext("Category",side=3,line=3,at=labx,adj=1,col=cols[2],cex=0.8)
++ 	mtext(expression(""<= 470,""> 470),side=3,line=4,at=allxs,col=cols,cex=1,font=2)
++ 	mtext("CCE/100ml",side=3,line=3,at=allxs,col=cols,cex=0.75)
++ 	
++ 	
++ 	# Print adjusted CIRs and 95% CIs (formatted)
++ 	cirform <- function(cirs) {
++ 		paste(sprintf("%1.2f",cirs),sep="")
++ 	}
++ 	circiform <- function(circi) {
++ 		paste("(",sprintf("%1.2f",circi["CIRlb"]),", ",sprintf("%1.2f",circi["CIRub"]),")",sep="")
++ 	}
++ 	mtext("Adjusted CIR",side=3,line=2,at=labx,adj=1,cex=0.8,col="gray30")
++ 	mtext(c("ref",cirform(cir.age0to4[1]),"ref",cirform(cir.age5to10[1]),"ref",cirform(cir.age11plus[1]),"ref",cirform(cir.all[1])),side=3,line=2,at=allxs,cex=0.75)
++ 	
++ 	mtext("(95% CI)",side=3,line=1,at=labx,adj=1,cex=0.8,col="gray30")
++ 	mtext(c("",circiform(cir.age0to4[2:3]),"",circiform(cir.age5to10[2:3]),"",circiform(cir.age11plus[2:3]),"",circiform(cir.all[2:3])),side=3,line=1,at=allxs,cex=0.7)
++ 	
++ 	# print footer labels
++ 	mtext(expression(""<= 470,""> 470),side=1,line=0.25,at=allxs,col=cols,cex=1,font=2)
++ 	mtext("CCE/100ml",side=1,line=1.25,at=allxs,col=cols,cex=0.75)
++ 	
++ 	# print table with Ns
++ 	mtext("Incident Diarrhea Cases",side=1,line=2.25,at=labx,adj=1,cex=0.8,col="gray30")
++ 	ns <- c(N.age0to4[,1],N.age5to10[,1],N.age11plus[,1],N.all[,1])
++ 	mtext(  format(ns,big.mark=","),side=1,line=2.25,at=allxs+0.06,adj=1,cex=0.75    )
++ 	
++ 	mtext("Population At Risk",side=1,line=3.25,at=labx,adj=1,cex=0.8,col="gray30")
++ 	Ns <- c(N.age0to4[,2],N.age5to10[,2],N.age11plus[,2],N.all[,2])
++ 	mtext(  format(Ns,big.mark=","),side=1,line=3.25,at=allxs+0.06,adj=1,cex=0.75    )
++ 	
++ 	par(op)
++ 	
++ }  # end of CIplot35cfu function
+> 
+> 
+> ## Age-stratified Plot
+> all.pdata <- list(
++ 	ci.all, ci.0to4, ci.5to10, ci.11plus,
++ 	cir.all["Overall",], cir.age0to4["Overall",], cir.age5to10["Overall",], cir.age11plus["Overall",],
++ 	N.all, N.age0to4, N.age5to10, N.age11plus
++ )
+> 
+> pdf("~/dropbox/13beaches/aim1-results/figs/aim1-enteroQPCR-470cce-CI-byage.pdf",width=12,height=4)
+> cols <- brewer.pal(9,"YlOrBr")[c(8,6)]
+> CIplot470cce(all.pdata,cols=cols)
+> dev.off()
+null device 
+          1 
+> 
+> 
+> 
+> # --------------------------------------
+> # Plot Enterococcus qPCR 1611 non-swimmers / <=470 / >470 Results
+> # All ages, stratified by beach type
+> # --------------------------------------
+> 
+> load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-enteroQPCR-noswim470cce-regs-body.Rdata")
+> 
+> 
+> pdf("~/dropbox/13beaches/aim1-results/figs/aim1-enteroQPCR-noswim470cce-CI-bypointsource.pdf",width=11,height=4)
+> op <- par(mar=c(5,10,8,0)+0.1,xpd=TRUE)
+> cols <- brewer.pal(9,"YlOrBr")[c(8,7,6)]
+> ytics <- seq(0,100,by=20)
+> # set up an empty plot
+> MidPts <- barplot(1:3,names.arg=NA,border=NA,col=NA,
++ 	ylim=range(ytics),ylab="",yaxt="n",
++ 	las=1,bty="n"
++ )
+> segments(x0=0.1,x1=max(MidPts+0.5),y0=ytics,lty=2,lwd=1,col="gray80")
+> segments(x0=mean(MidPts[2:3]),y0=min(ytics)-8,y1=max(ytics)+10,lwd=2,col="gray80")
+> axis(2,at=ytics,las=1)
+> mtext("Diarrhea\nIncidence\nper 1000",side=2,line=3,las=1)
+> 
+> # calculate X coordinates relative to the mid points for each group
+> xspan <- 0.39
+> xplus <- c(-xspan, 0, xspan)  # evenly distribute 3 datapoints around each midpoint
+> 
+> xps   <- xplus+MidPts[1]
+> xnps  <- xplus+MidPts[2]
+> xall    <- xplus+MidPts[3]
+> allxs   <- c(xps,xnps,xall)  # for table and category labels in header/footer
+> labx <- MidPts[1]-xspan*1.5  # for left-hand labels in the header/footer
+> 
+> # plot point source estimates
+> segments(x0=xps,y0=ci.ps[,"CIlb"]*1000,y1=ci.ps[,"CIub"]*1000,lwd=2,col=cols)
+> points(xps,ci.ps[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xps,y=ci.ps[,"CI"]*1000,sprintf("%1.0f",ci.ps[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # plot non-point source estimates
+> segments(x0=xnps,y0=ci.nps[,"CIlb"]*1000,y1=ci.nps[,"CIub"]*1000,lwd=2,col=cols)
+> points(xnps,ci.nps[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xnps,y=ci.nps[,"CI"]*1000,sprintf("%1.0f",ci.nps[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # plot all conditions estimates
+> segments(x0=xall,y0=ci.all[,"CIlb"]*1000,y1=ci.all[,"CIub"]*1000,lwd=2,col=cols)
+> points(xall,ci.all[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xall,y=ci.all[,"CI"]*1000,sprintf("%1.0f",ci.all[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # print header labels
+> mtext(c("Identified Point Source\nHuman Fecal Pollution","No Point Source\nHuman Fecal Pollution","All\nConditions"),at=MidPts,side=3,line=5.5  )
+> 
+> mtext(expression(paste(italic("Enterococcus")," qPCR 1611")),side=3,line=4,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext("Exposure Category",side=3,line=3,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext(expression("Non",""<= 470,""> 470),side=3,line=4,at=allxs,col=cols,cex=c(0.75,1,1),font=2)
+> mtext(rep(c("Swimmers","CCE/100ml","CCE/100ml"),3),side=3,line=3,at=allxs,col=cols,cex=0.75)
+> 
+> 
+> # Print adjusted CIRs and 95% CIs (formatted)
+> circiform <- function(x) {
++ 	paste(sprintf("%1.2f",x[1])," (",sprintf("%1.2f",x[2]),",",sprintf("%1.2f",x[3]),")",sep="")
++ }
+> # Non-swimmers as reference group
+> mtext("Non-swimmer ref, aCIR (95% CI)",side=3,line=2,at=labx,adj=1,cex=0.75,col="gray30")
+> # mtext("(95% CI)",side=3,line=1,at=labx,adj=1,cex=0.8,col="gray30")
+> mtext(c("ref",circiform(cir.all[2,1:3]),circiform(cir.all[2,4:6]),"ref",circiform(cir.all[1,1:3]),circiform(cir.all[1,4:6]),"ref",circiform(cir.all[3,1:3]),circiform(cir.all[3,4:6])),side=3,line=2,at=allxs,cex=0.7)
+> 
+> # swimmers as reference group
+> mtext(expression(paste("Swimmers",""<= 470," ref, aCIR (95% CI)")),side=3,line=0.75,at=labx,adj=1,cex=0.75,col="gray30")
+> mtext(c("","ref",circiform(cir470cce.all[2,]),"","ref",circiform(cir470cce.all[1,]),"","ref",circiform(cir470cce.all[3,])),side=3,line=0.75,at=allxs,cex=0.7)
+> 
+> # print footer labels
+> mtext(expression("Non",""<= 470,""> 470),side=1,line=0.25,at=allxs,col=cols,cex=c(0.75,1,1),font=2)
+> mtext(c("Swimmers","CCE/100ml","CCE/100ml"),side=1,line=1.25,at=allxs,col=cols,cex=0.75)
+> 
+> # print table with Ns
+> mtext("Incident Diarrhea Cases",side=1,line=2.25,at=labx,adj=1,cex=0.8,col="gray30")
+> ns <- c(N.ps[,1],N.nps[,1],N.all[,1])
+> mtext(  format(ns,big.mark=","),side=1,line=2.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> mtext("Population At Risk",side=1,line=3.25,at=labx,adj=1,cex=0.8,col="gray30")
+> Ns <- c(N.ps[,2],N.nps[,2],N.all[,2])
+> mtext(  format(Ns,big.mark=","),side=1,line=3.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> par(op)
+> dev.off()
+null device 
+          1 
+> 
+> 
+> 
+> # --------------------------------------
+> # Plot Enterococcus qPCR non-swimmers / <=470 / >470 Results
+> # Stratified by Age Group
+> # --------------------------------------
+> 
+> pdf("~/dropbox/13beaches/aim1-results/figs/aim1-enteroQPCR-noswim470cce-CI-byage.pdf",width=13,height=5)
+> op <- par(mar=c(5,10,8,0)+0.1,xpd=FALSE)
+> cols <- brewer.pal(9,"YlOrBr")[c(8,7,6)]
+> ytics <- seq(0,120,by=20)
+> # set up an empty plot
+> MidPts <- barplot(1:4,names.arg=NA,border=NA,col=NA,
++ 	ylim=range(ytics),ylab="",yaxt="n",
++ 	las=1,bty="n"
++ )
+> segments(x0=0.1,x1=max(MidPts+0.5),y0=ytics,lty=2,lwd=1,col="gray80")
+> segments(x0=mean(MidPts[3:4]),y0=min(ytics)-8,y1=max(ytics)+30,lwd=2,col="gray80")
+> axis(2,at=ytics,las=1)
+> mtext("Diarrhea\nIncidence\nper 1000",side=2,line=3,las=1)
+> 
+> # calculate X coordinates relative to the mid points for each group
+> xspan <- 0.39
+> xplus <- c(-xspan, 0, xspan)  # evenly distribute 3 datapoints around each midpoint
+> x0to4   <- xplus+MidPts[1]
+> x5to10  <- xplus+MidPts[2]
+> x11plus <- xplus+MidPts[3]
+> xall    <- xplus+MidPts[4]
+> allxs   <- c(x0to4,x5to10,x11plus,xall)  # for table and category labels in header/footer
+> labx    <- MidPts[1]-xspan*1.5  # for left-hand labels in the header/footer
+> 
+> # age 0 to 4
+> segments(x0=x0to4,y0=ci.0to4[,"CIlb"]*1000,y1=ci.0to4[,"CIub"]*1000,lwd=2,col=cols)
+> points(x0to4,ci.0to4[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x= x0to4,y=ci.0to4[,"CI"]*1000,sprintf("%1.0f",ci.0to4[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # age 5 to 10
+> segments(x0=x5to10,y0=ci.5to10[,"CIlb"]*1000,y1=ci.5to10[,"CIub"]*1000,lwd=2,col=cols)
+> points(x5to10,ci.5to10[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=x5to10,y=ci.5to10[,"CI"]*1000,sprintf("%1.0f",ci.5to10[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # age >10
+> segments(x0=x11plus,y0=ci.11plus[,"CIlb"]*1000,y1=ci.11plus[,"CIub"]*1000,lwd=2,col=cols)
+> points(x11plus,ci.11plus[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=x11plus,y=ci.11plus[,"CI"]*1000,sprintf("%1.0f",ci.11plus[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # plot all conditions estimates
+> segments(x0=xall,y0=ci.all[,"CIlb"]*1000,y1=ci.all[,"CIub"]*1000,lwd=2,col=cols)
+> points(xall,ci.all[,"CI"]*1000,pch=16,cex=1.25,lwd=2,col=cols)
+> text(x=xall,y=ci.all[,"CI"]*1000,sprintf("%1.0f",ci.all[,"CI"]*1000),pos=4,cex=0.7,col=cols,font=2)
+> 
+> # print header labels
+> mtext(c("Ages\n0 to 4","Ages\n5 to 10","Ages\n>10","All\nAges"),at=MidPts,side=3,line=5.5  )
+> 
+> mtext(expression(paste(italic("Enterococcus")," qPCR 1611")),side=3,line=4,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext("Exposure Category",side=3,line=3,at=labx,adj=1,col=cols[2],cex=0.8)
+> mtext(expression("Non",""<= 470,""> 470),side=3,line=4,at=allxs,col=cols,cex=c(0.75,1,1),font=2)
+> mtext(rep(c("Swimmers","CCE/100ml","CCE/100ml"),3),side=3,line=3,at=allxs,col=cols,cex=0.75)
+> 
+> 
+> # Print adjusted CIRs and 95% CIs (formatted)
+> circiform <- function(x) {
++ 	paste(sprintf("%1.2f",x[1])," (",sprintf("%1.2f",x[2]),",",sprintf("%1.2f",x[3]),")",sep="")
++ }
+> cir.ages <- rbind(cir.age0to4["Overall",],cir.age5to10["Overall",],cir.age11plus["Overall",],cir.all["Overall",])
+> # Non-swimmers as reference group
+> mtext("Non-swimmer ref, aCIR (95% CI)",side=3,line=2,at=labx,adj=1,cex=0.75,col="gray30")
+> # mtext("(95% CI)",side=3,line=1,at=labx,adj=1,cex=0.8,col="gray30")
+> mtext(c("ref",circiform(cir.ages[1,1:3]),circiform(cir.ages[1,4:6]),"ref",circiform(cir.ages[2,1:3]),circiform(cir.ages[2,4:6]),"ref",circiform(cir.ages[3,1:3]),circiform(cir.ages[3,4:6]),"ref",circiform(cir.ages[4,1:3]),circiform(cir.ages[4,4:6])),side=3,line=2,at=allxs,cex=0.7)
+> 
+> # swimmers as reference group
+> mtext(expression(paste("Swimmers",""<= 470," ref, aCIR (95% CI)")),side=3,line=0.75,at=labx,adj=1,cex=0.75,col="gray30")
+> mtext(c("","ref",circiform(cir470cce.ages[1,]),"","ref",circiform(cir470cce.ages[2,]),"","ref",circiform(cir470cce.ages[3,]),"","ref",circiform(cir470cce.ages[4,])),side=3,line=0.75,at=allxs,cex=0.7)
+> 
+> # print footer labels
+> mtext(expression("Non",""<= 470,""> 470),side=1,line=0.25,at=allxs,col=cols,cex=c(0.75,1,1),font=2)
+> mtext(c("Swimmers","CCE/100ml","CCE/100ml"),side=1,line=1.25,at=allxs,col=cols,cex=0.75)
+> 
+> # print table with Ns
+> mtext("Incident Diarrhea Cases",side=1,line=2.25,at=labx,adj=1,cex=0.8,col="gray30")
+> ns <- c(N.age0to4[,1],N.age5to10[,1],N.age11plus[,1],N.all[,1])
+> mtext(  format(ns,big.mark=","),side=1,line=2.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> mtext("Population At Risk",side=1,line=3.25,at=labx,adj=1,cex=0.8,col="gray30")
+> Ns <- c(N.age0to4[,2],N.age5to10[,2],N.age11plus[,2],N.all[,2])
+> mtext(  format(Ns,big.mark=","),side=1,line=3.25,at=allxs+0.06,adj=1,cex=0.75    )
+> 
+> par(op)
+> dev.off()
+null device 
+          1 
+> 
+> 
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.537   0.056   2.010 
