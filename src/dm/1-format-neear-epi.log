@@ -1,8 +1,8 @@
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/1-format-neear-epi.log
+       log:  /Users/benarnold/13beaches/src/dm/1-format-neear-epi.log
   log type:  text
- opened on:  17 Dec 2015, 13:54:25
+ opened on:   7 Jan 2016, 15:21:28
 
 . 
 . *----------------------------------------
@@ -31,7 +31,8 @@
 . *----------------------------------------
 . * read in the dataset
 . *----------------------------------------
-. use "~/dropbox/13beaches/data/untouched/neear/healthfinalUCB.dta", clear
+. use "~/dropbox/13beaches/data/untouched/neear/healthfinalUCB.dta", clea
+> r
 (SAVASTATA created this dataset on 24JUN2009)
 
 . 
@@ -60,14 +61,15 @@
 . label values sex sex
 
 . 
-. gen watertime = (total*60 + water)/60
-(27,542 missing values generated)
+. gen watertime = water
+(307 missing values generated)
 
-.         label var watertime "Time in water (hrs)"
+.         label var watertime "Time in water (mins)"
 
 . 
-. local symps "stomach diarrhea nausea vomiting urinarytractinfection fever head
-> ache sorethroat cough cold runnynose earache wateryeyes eyeinfection cut rash"
+. local symps "stomach diarrhea nausea vomiting urinarytractinfection fev
+> er headache sorethroat cough cold runnynose earache wateryeyes eyeinfec
+> tion cut rash"
 
 . foreach symp of local symps {
   2.         rename `symp'startdate `symp'stdt
@@ -76,10 +78,10 @@
 
 . 
 . * rename some of the impact variables from "uri" to "uti"
-. local vlist "stayhome stayhomedays stopdaily stopdailydays othersmiss othersmi
-> ssdays phonedoc visitdoc visitdoctimes diagnosis emergencyroom visitertimes ho
-> spitalized hospitaldays anyprescrdrug ownmoneyfordrugs anyotcmeds ownmoneyforo
-> tc"
+. local vlist "stayhome stayhomedays stopdaily stopdailydays othersmiss o
+> thersmissdays phonedoc visitdoc visitdoctimes diagnosis emergencyroom v
+> isitertimes hospitalized hospitaldays anyprescrdrug ownmoneyfordrugs an
+> yotcmeds ownmoneyforotc"
 
 . foreach var of local vlist {
   2.         rename `var'_uri `var'_uti
@@ -134,11 +136,12 @@
 . label values sex sex
 
 . 
-. label var venfest "Silver Beach festival day with 1000s of food vendors"
+. label var venfest "Silver Beach festival day with 1000s of food vendors
+> "
 
 . 
-. label define beachtype 1 "Lake" 2 "River" 3 "Ocean" 6 "Other" 7 "Refused" 8 "D
-> on't know" 9 "N/A"
+. label define beachtype 1 "Lake" 2 "River" 3 "Ocean" 6 "Other" 7 "Refuse
+> d" 8 "Don't know" 9 "N/A"
 
 . label values beachtype beachtype
 
@@ -184,9 +187,10 @@
 . 
 . 
 . * label define yesno 0 "No" 1 "Yes"
-. local vlist "sandmouth seatdr sandwash algae algaemouth blockface wave *still 
-> *allergy stayhome_* stopdaily_* phonedoc_* visitdoc_* emergencyroom_* hospital
-> ized_* anyprescrdrug_* anyotcmeds_* prot sunburn sunburn1-sunburn7 blockface"
+. local vlist "sandmouth seatdr sandwash algae algaemouth blockface wave 
+> *still *allergy stayhome_* stopdaily_* phonedoc_* visitdoc_* emergencyr
+> oom_* hospitalized_* anyprescrdrug_* anyotcmeds_* prot sunburn sunburn1
+> -sunburn7 blockface"
 
 . foreach var of varlist `vlist' {
   2.         label values `var' yesno
@@ -197,11 +201,12 @@
 . * but for some reason didn't come through with the dataset
 . 
 . 
-. label var tanning "What happens when in sun repeatedly without sunscreen durin
-> g the summer?"
+. label var tanning "What happens when in sun repeatedly without sunscree
+> n during the summer?"
 
-. label define tanning 1 "Dark Tan" 2 "Some Tanning" 3 "No Tan, Some Freckles" 4
->  "Repeated Sunburns" 5 "Other (specify)" 6 "Never Go Out in the Sun"
+. label define tanning 1 "Dark Tan" 2 "Some Tanning" 3 "No Tan, Some Frec
+> kles" 4 "Repeated Sunburns" 5 "Other (specify)" 6 "Never Go Out in the 
+> Sun"
 
 . label values tanning tanning
 
@@ -245,8 +250,9 @@
 
 . label drop race
 
-. label define race 1 "white" 2 "white, hispanic" 3 "non-white, hispanic" 4 "bla
-> ck" 5 "asian" 6 "american indian" 7 "multiple races" 8 "other" 9 "missing"
+. label define race 1 "white" 2 "white, hispanic" 3 "non-white, hispanic"
+>  4 "black" 5 "asian" 6 "american indian" 7 "multiple races" 8 "other" 9
+>  "missing"
 
 . rename race2 race
 
@@ -272,7 +278,8 @@ delimiter now ;
 > comecat flag head3 mouth3 kindan* 
 > racewhite raceblack raceasian raceindian racehaw
 > 
-> /* variables dropped after cross-check with ADM -- not collected in ADM */
+> /* variables dropped after cross-check with ADM -- not collected in ADM
+>  */
 > aeatdr airmat
 > animunk*
 > anycuts
@@ -335,7 +342,7 @@ file ~/dropbox/13beaches/data/final/neear-epi.dta saved
 . 
 . log close
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/1-format-neear-epi.log
+       log:  /Users/benarnold/13beaches/src/dm/1-format-neear-epi.log
   log type:  text
- closed on:  17 Dec 2015, 13:54:29
---------------------------------------------------------------------------------
+ closed on:   7 Jan 2016, 15:21:29
+-------------------------------------------------------------------------

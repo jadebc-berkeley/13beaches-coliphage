@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/dropbox/13beaches/src/dm/2-format-adm-epi.log", text replace
+log using "~/13beaches/src/dm/2-format-adm-epi.log", text replace
 
 *----------------------------------------
 * 2-format-adm-epi.do
@@ -123,8 +123,9 @@ label var gichron "Chronic GI problems/Crohn's/IBS"
 rename ageyrx age
 label var age "age in years"
 
-gen watertime = (total*60 + water)/60
-	label var watertime "Time in water (hrs)"
+gen watertime = (total*60 + water)
+	label var watertime "Time in water (mins)"
+	replace watertime = 0 if anycontact==0
 	
 label var asth "chronic resp prob"
 

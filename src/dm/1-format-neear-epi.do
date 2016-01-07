@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/dropbox/13beaches/src/dm/1-format-neear-epi.log", text replace
+log using "~/13beaches/src/dm/1-format-neear-epi.log", text replace
 
 *----------------------------------------
 * 1-format-neear-epi.do
@@ -50,8 +50,8 @@ label var race "Racial category"
 label define sex 1 "Male" 2 "Female"
 label values sex sex
 
-gen watertime = (total*60 + water)/60
-	label var watertime "Time in water (hrs)"
+gen watertime = water
+	label var watertime "Time in water (mins)"
 
 local symps "stomach diarrhea nausea vomiting urinarytractinfection fever headache sorethroat cough cold runnynose earache wateryeyes eyeinfection cut rash"
 foreach symp of local symps {
@@ -211,7 +211,9 @@ save "~/dropbox/13beaches/data/temp/neear-epi-vars.dta", replace
 restore
 
 
-*---------------------------------------------* Save a dataset to combine with other beaches*---------------------------------------------
+*---------------------------------------------
+* Save a dataset to combine with other beaches
+*---------------------------------------------
 order beach indid hhid intdate teledate
 
 label data "NEEAR epi data, created by 1-format-neear-epi.do"

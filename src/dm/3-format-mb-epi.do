@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/dropbox/13beaches/src/dm/3-format-mb-epi.log", text replace
+log using "~/13beaches/src/dm/3-format-mb-epi.log", text replace
 
 *----------------------------------------
 * 3-format-mb-epi.do
@@ -107,13 +107,21 @@ rename gh7_h anyotcmeds_eye
 gen anyotcmeds_gas = (gh12_h==1) | (gh13_h==1) | (gh14_h==1) | (gh15_h==1)
 	replace anyotcmeds_gas = . if (gh12_h==.) & (gh13_h==.) & (gh14_h==.) & (gh15_h==.)
 	label var anyotcmeds_gas "Used OTC medications for syndrome (GI_illness)"
-	gen anyotcmeds_res = (gh16_h==1) | (gh17_h==1) | (gh18_h==1) | (gh19_h==1)
+	
+gen anyotcmeds_res = (gh16_h==1) | (gh17_h==1) | (gh18_h==1) | (gh19_h==1)
 	replace anyotcmeds_res = . if (gh16_h==.) & (gh17_h==.) & (gh18_h==.) & (gh19_h==.)
-	label var anyotcmeds_res "Used OTC medications for syndrome (Respiratory)"rename gh10_h anyotcmeds_skn
+	label var anyotcmeds_res "Used OTC medications for syndrome (Respiratory)"
+rename gh10_h anyotcmeds_skn
 	recode anyotcmeds_skn (5=0)
 	label var anyotcmeds_skn "Used OTC medications for syndrome (Skin_Rash)"
-	* Not Measured: aanyotcmeds_uti
-* Not Measured: aanyprescrdrug_ear* Not Measured: aanyprescrdrug_eye* Not Measured: aanyprescrdrug_gas* Not Measured: aanyprescrdrug_res* Not Measured: aanyprescrdrug_skn* Not Measured: aanyprescrdrug_uti
+	
+* Not Measured: aanyotcmeds_uti
+* Not Measured: aanyprescrdrug_ear
+* Not Measured: aanyprescrdrug_eye
+* Not Measured: aanyprescrdrug_gas
+* Not Measured: aanyprescrdrug_res
+* Not Measured: aanyprescrdrug_skn
+* Not Measured: aanyprescrdrug_uti
 
 rename chronresp asth
 	label var asth "chronic respiratory problems"
@@ -130,7 +138,11 @@ rename water_shoulders bodycontact
 rename buried bsand
 	label var bsand "Had body buried in sand (R)"
 
-* Not Measured: cold* Not Measured: coldallergy* Not Measured: colddays* Not Measured: coldstdt* Not Measured: coldstill
+* Not Measured: cold
+* Not Measured: coldallergy
+* Not Measured: colddays
+* Not Measured: coldstdt
+* Not Measured: coldstill
 
 * Not Measured: come
 
@@ -216,7 +228,12 @@ drop eggs_any
 gen eggs_any = (eggs_base==1)|(eggs_int==1)
 	label var eggs_any "Any undercooked eggs"
 
-* Not Measured: emergencyroom_ear* Not Measured: emergencyroom_eye* Not Measured: emergencyroom_gas* Not Measured: emergencyroom_res* Not Measured: emergencyroom_skn* Not Measured: emergencyroom_uti
+* Not Measured: emergencyroom_ear
+* Not Measured: emergencyroom_eye
+* Not Measured: emergencyroom_gas
+* Not Measured: emergencyroom_res
+* Not Measured: emergencyroom_skn
+* Not Measured: emergencyroom_uti
 
 rename eye_infection_past eyebase
 	label var eyebase "Eye infection at baseline"
@@ -246,7 +263,8 @@ rename food_e fish_int
 rename saq15g fish_base
 gen fish_any = (fish_base==1)|(fish_int==1)
 	label var fish_any "Any raw fish"
-
+
+
 rename saq10a food
 
 gen gibase = (diarrhea_past==1) | (vomiting_past==1)
@@ -265,7 +283,10 @@ rename saq16b gicontact_base
 
 * Not Measured: groundwater
 
-* Not Measured: headache* Not Measured: headachedays* Not Measured: headachestdt* Not Measured: headachestill
+* Not Measured: headache
+* Not Measured: headachedays
+* Not Measured: headachestdt
+* Not Measured: headachestill
 
 rename water_face_under headunder
 	label var headunder "Head under water"
@@ -276,9 +297,19 @@ rename water_face_under headunder
 rename isum hhinc_mb
 	label var hhinc_mb "Household Pre-tax income, 2002 (Mission Bay categories)"
 
-* Not Measured: hospitaldays_ear* Not Measured: hospitaldays_eye* Not Measured: hospitaldays_gas* Not Measured: hospitaldays_res* Not Measured: hospitaldays_skn* Not Measured: hospitaldays_uti
+* Not Measured: hospitaldays_ear
+* Not Measured: hospitaldays_eye
+* Not Measured: hospitaldays_gas
+* Not Measured: hospitaldays_res
+* Not Measured: hospitaldays_skn
+* Not Measured: hospitaldays_uti
 
-* Not Measured: hospitalized_ear* Not Measured: hospitalized_eye* Not Measured: hospitalized_gas* Not Measured: hospitalized_res* Not Measured: hospitalized_skn* Not Measured: hospitalized_uti
+* Not Measured: hospitalized_ear
+* Not Measured: hospitalized_eye
+* Not Measured: hospitalized_gas
+* Not Measured: hospitalized_res
+* Not Measured: hospitalized_skn
+* Not Measured: hospitalized_uti
 
 rename saq6d mask
 
@@ -293,11 +324,38 @@ gen nauseastdt = mdy(gh12_b1,gh12_b2,2003)
 
 rename saq6b noseplugs
 
-* Not Measured: othersmiss_ear* Not Measured: othersmiss_eye* Not Measured: othersmiss_gas* Not Measured: othersmiss_res* Not Measured: othersmiss_skn* Not Measured: othersmiss_uti* Not Measured: othersmissdays_ear* Not Measured: othersmissdays_eye* Not Measured: othersmissdays_gas* Not Measured: othersmissdays_res* Not Measured: othersmissdays_skn* Not Measured: othersmissdays_uti	
+* Not Measured: othersmiss_ear
+* Not Measured: othersmiss_eye
+* Not Measured: othersmiss_gas
+* Not Measured: othersmiss_res
+* Not Measured: othersmiss_skn
+* Not Measured: othersmiss_uti
+* Not Measured: othersmissdays_ear
+* Not Measured: othersmissdays_eye
+* Not Measured: othersmissdays_gas
+* Not Measured: othersmissdays_res
+* Not Measured: othersmissdays_skn
+* Not Measured: othersmissdays_uti	
 
-* Not Measured: ownmoneyfordrugs_ear* Not Measured: ownmoneyfordrugs_eye* Not Measured: ownmoneyfordrugs_gas* Not Measured: ownmoneyfordrugs_res* Not Measured: ownmoneyfordrugs_skn* Not Measured: ownmoneyfordrugs_uti* Not Measured: ownmoneyforotc_ear* Not Measured: ownmoneyforotc_eye* Not Measured: ownmoneyforotc_gas* Not Measured: ownmoneyforotc_res* Not Measured: ownmoneyforotc_skn* Not Measured: ownmoneyforotc_uti
+* Not Measured: ownmoneyfordrugs_ear
+* Not Measured: ownmoneyfordrugs_eye
+* Not Measured: ownmoneyfordrugs_gas
+* Not Measured: ownmoneyfordrugs_res
+* Not Measured: ownmoneyfordrugs_skn
+* Not Measured: ownmoneyfordrugs_uti
+* Not Measured: ownmoneyforotc_ear
+* Not Measured: ownmoneyforotc_eye
+* Not Measured: ownmoneyforotc_gas
+* Not Measured: ownmoneyforotc_res
+* Not Measured: ownmoneyforotc_skn
+* Not Measured: ownmoneyforotc_uti
 
-* Not Measured: phonedoc_ear* Not Measured: phonedoc_eye* Not Measured: phonedoc_gas* Not Measured: phonedoc_res* Not Measured: phonedoc_skn* Not Measured: phonedoc_uti
+* Not Measured: phonedoc_ear
+* Not Measured: phonedoc_eye
+* Not Measured: phonedoc_gas
+* Not Measured: phonedoc_res
+* Not Measured: phonedoc_skn
+* Not Measured: phonedoc_uti
 
 * Not Measured: pool
 
@@ -369,7 +427,9 @@ gen runnynosestdt = mdy(gh18_b1,gh18_b2,2003)
 gen samebeach = (sw1a_a==1) & (sw1a_b==1)
 	label var samebeach "Swim/wade: same beach"
 	
-* Not Measured: sanddry* Not Measured: sandmouth* Not Measured: sandwash
+* Not Measured: sanddry
+* Not Measured: sandmouth
+* Not Measured: sandwash
 
 gen shade = prot
 	label var shade "Use protective equipment (R)"
@@ -384,7 +444,8 @@ gen sorethroatstdt = mdy(gh19_b1,gh19_b2,2003)
 	format sorethroatstdt %d
 	label var sorethroatstdt "sore throat start date"
 
-* Not Measured: sorethroatallergy* Not Measured: sorethroatdays
+* Not Measured: sorethroatallergy
+* Not Measured: sorethroatdays
 * Not Measured: sorethroatstill
 
 gen byte stayhome_ear = (gh8_d==1) | (gh9_d==1)
@@ -394,19 +455,30 @@ gen byte stayhome_ear = (gh8_d==1) | (gh9_d==1)
 gen byte stayhome_eye = (gh7_d==1)
 	replace stayhome_eye = . if (gh7_d==.)
 	label var stayhome_eye "Missed work/school for syndrome (Eye_infec)"
-	gen byte stayhome_gas = (gh12_d==1) | (gh13_d==1) | (gh14_d==1) | (gh15_d==1)
+	
+gen byte stayhome_gas = (gh12_d==1) | (gh13_d==1) | (gh14_d==1) | (gh15_d==1)
 	replace stayhome_gas = . if (gh12_d==.) & (gh13_d==.) & (gh14_d==.) & (gh15_d==.)
-	label var stayhome_gas "Missed work/school for syndrome (GI_illness)"gen byte stayhome_res = (gh16_d==1) | (gh17_d==1) | (gh18_d==1) | (gh19_d==1)
-	replace stayhome_res = . if (gh16_d==.) & (gh17_d==.) & (gh18_d==.) & (gh19_d==.)gen byte stayhome_skn = (gh10_d==1)
+	label var stayhome_gas "Missed work/school for syndrome (GI_illness)"
+gen byte stayhome_res = (gh16_d==1) | (gh17_d==1) | (gh18_d==1) | (gh19_d==1)
+	replace stayhome_res = . if (gh16_d==.) & (gh17_d==.) & (gh18_d==.) & (gh19_d==.)
+gen byte stayhome_skn = (gh10_d==1)
 	replace stayhome_skn = . if (gh10_d==.)
-	label var stayhome_skn "Missed work/school for syndrome (Skin_rash)"* Not Measured: stayhome_uti
-gen stayhomedays_ear = max(gh8_e,gh9_e)
-	label var stayhomedays_ear "Number of days missed from work/school (Ear_infec)"gen stayhomedays_eye = gh7_e
-	label var stayhomedays_eye "Number of days missed from work/school (Eye_infec)"gen stayhomedays_gas = max(gh12_e,gh13_e,gh14_e,gh15_e)
-	label var stayhomedays_gas "Number of days missed from work/school (GI_illness)"gen stayhomedays_res = max(gh16_e,gh17_e,gh18_e,gh19_e)
-	label var stayhomedays_res "Number of days missed from work/school (Respiratory)"gen stayhomedays_skn = gh10_e
+	label var stayhome_skn "Missed work/school for syndrome (Skin_rash)"
+
+* Not Measured: stayhome_uti
+
+gen stayhomedays_ear = max(gh8_e,gh9_e)
+	label var stayhomedays_ear "Number of days missed from work/school (Ear_infec)"
+gen stayhomedays_eye = gh7_e
+	label var stayhomedays_eye "Number of days missed from work/school (Eye_infec)"
+gen stayhomedays_gas = max(gh12_e,gh13_e,gh14_e,gh15_e)
+	label var stayhomedays_gas "Number of days missed from work/school (GI_illness)"
+gen stayhomedays_res = max(gh16_e,gh17_e,gh18_e,gh19_e)
+	label var stayhomedays_res "Number of days missed from work/school (Respiratory)"
+gen stayhomedays_skn = gh10_e
 	label var stayhomedays_skn "Number of days missed from work/school (Skin_rash)"
-	* Not Measured: stayhomedays_uti
+	
+* Not Measured: stayhomedays_uti
 * Not Measured: stmatch
 
 rename cramps stomach
@@ -427,22 +499,37 @@ gen byte stopdaily_ear = (gh8_f==1) | (gh9_f==1)
 	label var stopdaily_ear "Missed other activities (Ear_infec)"
 gen byte stopdaily_eye = (gh7_f==1)
 	replace stopdaily_eye = . if (gh7_f==.)
-	label var stopdaily_eye "Missed other activities (Eye_infec)"gen byte stopdaily_gas = (gh12_f==1) | (gh13_f==1) | (gh14_f==1) | (gh15_f==1)
+	label var stopdaily_eye "Missed other activities (Eye_infec)"
+gen byte stopdaily_gas = (gh12_f==1) | (gh13_f==1) | (gh14_f==1) | (gh15_f==1)
 	replace stopdaily_gas = . if (gh12_f==.) & (gh13_f==.) & (gh14_f==.) & (gh15_f==.)
-	label var stopdaily_gas "Missed other activities (GI_illness)"gen byte stopdaily_res = (gh16_f==1) | (gh17_f==1) | (gh18_f==1) | (gh19_f==1)
+	label var stopdaily_gas "Missed other activities (GI_illness)"
+gen byte stopdaily_res = (gh16_f==1) | (gh17_f==1) | (gh18_f==1) | (gh19_f==1)
 	replace stopdaily_res = . if (gh16_f==.) & (gh17_f==.) & (gh18_f==.) & (gh19_f==.)
-	label var stopdaily_res "Missed other activities (Respiratory)"gen byte stopdaily_skn = gh10_f
+	label var stopdaily_res "Missed other activities (Respiratory)"
+gen byte stopdaily_skn = gh10_f
 	label var stopdaily_skn "Missed other activities (Skin_rash)"
-* Not Measured: stopdaily_utigen stopdailydays_ear = max(gh8_g,gh9_g)
-	label var stopdailydays_ear "Days missed from other activities (Ear_infec)"gen stopdailydays_eye = gh9_g
-	label var stopdailydays_eye "Days missed from other activities (Eye_infec)"gen stopdailydays_gas = max(gh12_g,gh13_g,gh14_g,gh15_g)
-	label var stopdailydays_gas "Days missed from other activities (GI_illness)"gen stopdailydays_res  = max(gh16_g,gh17_g,gh18_g,gh19_g)
-	label var stopdailydays_res "Days missed from other activities (Respiratory)"gen stopdailydays_skn = gh10_g
-	label var stopdailydays_skn "Days missed from other activities (Skin_rash)"* Not Measured: stopdailydays_uti
+
+* Not Measured: stopdaily_uti
+
+gen stopdailydays_ear = max(gh8_g,gh9_g)
+	label var stopdailydays_ear "Days missed from other activities (Ear_infec)"
+gen stopdailydays_eye = gh9_g
+	label var stopdailydays_eye "Days missed from other activities (Eye_infec)"
+gen stopdailydays_gas = max(gh12_g,gh13_g,gh14_g,gh15_g)
+	label var stopdailydays_gas "Days missed from other activities (GI_illness)"
+gen stopdailydays_res  = max(gh16_g,gh17_g,gh18_g,gh19_g)
+	label var stopdailydays_res "Days missed from other activities (Respiratory)"
+gen stopdailydays_skn = gh10_g
+	label var stopdailydays_skn "Days missed from other activities (Skin_rash)"
+
+* Not Measured: stopdailydays_uti
 
 rename sunburn_past sunbase
 
-* Not Measured: sunburn* Not Measured: sunburndays* Not Measured: sunburnstdt* Not Measured: sunburnstill
+* Not Measured: sunburn
+* Not Measured: sunburndays
+* Not Measured: sunburnstdt
+* Not Measured: sunburnstill
 
 rename water_swallow swallwater
 
@@ -451,7 +538,11 @@ gen swam = anycontact
 
 * Not Measured: totdays
 
-* Not Measured: urinarytractinfection* Not Measured: urinarytractinfectiondays* Not Measured: urinarytractinfectionstdt* Not Measured: urinarytractinfectionstill* Not Measured: utibase
+* Not Measured: urinarytractinfection
+* Not Measured: urinarytractinfectiondays
+* Not Measured: urinarytractinfectionstdt
+* Not Measured: urinarytractinfectionstill
+* Not Measured: utibase
 
 
 gen byte visitdoc_ear = (gh8_c==1) | (gh9_c==1)
@@ -459,27 +550,51 @@ gen byte visitdoc_ear = (gh8_c==1) | (gh9_c==1)
 	label var visitdoc_ear "Visited doctor/nurse/clinic (Ear_infec)"
 gen byte visitdoc_eye = (gh7_c==1)
 	replace visitdoc_eye = . if (gh7_c==.)
-	label var visitdoc_eye "Visited doctor/nurse/clinic (Eye_infec)"gen byte visitdoc_gas =  (gh12_c==1) | (gh13_c==1) | (gh14_c==1) | (gh15_c==1)
+	label var visitdoc_eye "Visited doctor/nurse/clinic (Eye_infec)"
+gen byte visitdoc_gas =  (gh12_c==1) | (gh13_c==1) | (gh14_c==1) | (gh15_c==1)
 	replace visitdoc_gas = . if (gh12_c==.) & (gh13_c==.) & (gh14_c==.) & (gh15_c==.)
-	label var visitdoc_gas "Visited doctor/nurse/clinic (GI_illness)"gen byte visitdoc_res = (gh16_c==1) | (gh17_c==1) | (gh18_c==1) | (gh19_c==1)
+	label var visitdoc_gas "Visited doctor/nurse/clinic (GI_illness)"
+gen byte visitdoc_res = (gh16_c==1) | (gh17_c==1) | (gh18_c==1) | (gh19_c==1)
 	replace visitdoc_res =. if (gh16_c==.) & (gh17_c==.) & (gh18_c==.) & (gh19_c==.)
-	label var visitdoc_res "Visited doctor/nurse/clinic (Respiratory)"gen byte visitdoc_skn = (gh10_c==1)
+	label var visitdoc_res "Visited doctor/nurse/clinic (Respiratory)"
+gen byte visitdoc_skn = (gh10_c==1)
 	replace visitdoc_skn = . if (gh10_c==.)
-	label var visitdoc_skn "Visited doctor/nurse/clinic (Skin_rash)"* Not Measured: visitdoc_uti
-* Not Measured: visitdoctimes_ear* Not Measured: visitdoctimes_eye* Not Measured: visitdoctimes_gas* Not Measured: visitdoctimes_res* Not Measured: visitdoctimes_skn* Not Measured: visitdoctimes_uti
-* Not Measured: visitertimes_ear* Not Measured: visitertimes_eye* Not Measured: visitertimes_gas* Not Measured: visitertimes_res* Not Measured: visitertimes_skn* Not Measured: visitertimes_uti
+	label var visitdoc_skn "Visited doctor/nurse/clinic (Skin_rash)"
+
+* Not Measured: visitdoc_uti
+
+* Not Measured: visitdoctimes_ear
+* Not Measured: visitdoctimes_eye
+* Not Measured: visitdoctimes_gas
+* Not Measured: visitdoctimes_res
+* Not Measured: visitdoctimes_skn
+* Not Measured: visitdoctimes_uti
+
+* Not Measured: visitertimes_ear
+* Not Measured: visitertimes_eye
+* Not Measured: visitertimes_gas
+* Not Measured: visitertimes_res
+* Not Measured: visitertimes_skn
+* Not Measured: visitertimes_uti
 
 rename vomiting_past vomitingbase
 gen vomitingstdt = mdy(gh13_b1,gh13_b2,2003)
 	format vomitingstdt %d
 	label var vomitingstdt "vomiting start date"
 
-* Not Measured: vomitingdays* Not Measured: vomitingnumber* Not Measured: vomitingstill
+* Not Measured: vomitingdays
+* Not Measured: vomitingnumber
+* Not Measured: vomitingstill
 
-gen watertime = water_minutes/60
-	label var watertime "Time in water (hrs)"
+gen watertime = water_minutes
+	label var watertime "Time in water (mins)"
+	replace watertime = 0 if anycontact==0
 
-* Not Measured: wateryeyes* Not Measured: wateryeyesallergy* Not Measured: wateryeyesdays* Not Measured: wateryeyesstdt* Not Measured: wateryeyesstill
+* Not Measured: wateryeyes
+* Not Measured: wateryeyesallergy
+* Not Measured: wateryeyesdays
+* Not Measured: wateryeyesstdt
+* Not Measured: wateryeyesstill
 
 * NOTE: in MB the wave variable only includes windsurfing and "boarding"
 gen byte wave = (saq5c==1) | (saq5f==1)
@@ -491,22 +606,40 @@ rename work working
 
 * Not Measured: beachtype
 * Not Measured: blockface
-* Not Measured: diagnosis_ear* Not Measured: diagnosis_eye* Not Measured: diagnosis_gas* Not Measured: diagnosis_res* Not Measured: diagnosis_skn* Not Measured: diagnosis_uti
-* Not Measured: gicontact_any* Not Measured: gicontact_int
-* Not Measured: lat* Not Measured: longi
+* Not Measured: diagnosis_ear
+* Not Measured: diagnosis_eye
+* Not Measured: diagnosis_gas
+* Not Measured: diagnosis_res
+* Not Measured: diagnosis_skn
+* Not Measured: diagnosis_uti
+* Not Measured: gicontact_any
+* Not Measured: gicontact_int
+* Not Measured: lat
+* Not Measured: longi
 * Not Measured: meanbathers
 * Not Measured: miles
 
-* Not Measured: protbrim* Not Measured: protslv
+* Not Measured: protbrim
+* Not Measured: protslv
 * Not Measured: reapp
 * Not Measured: seatdr
 * Not Measured: spf
 * Not Measured: statusc
 
-* Not Measured: sunburn1* Not Measured: sunburn2* Not Measured: sunburn3* Not Measured: sunburn4* Not Measured: sunburn5* Not Measured: sunburn6* Not Measured: sunburn7
+* Not Measured: sunburn1
+* Not Measured: sunburn2
+* Not Measured: sunburn3
+* Not Measured: sunburn4
+* Not Measured: sunburn5
+* Not Measured: sunburn6
+* Not Measured: sunburn7
 * Not Measured: sunburnother
 
-* Not Measured: swimloc* Not Measured: tanning* Not Measured: tanos* Not Measured: transect* Not Measured: venfest
+* Not Measured: swimloc
+* Not Measured: tanning
+* Not Measured: tanos
+* Not Measured: transect
+* Not Measured: venfest
 
 recode sex 0=2
 label define sex 1 "Male" 2 "Female"
