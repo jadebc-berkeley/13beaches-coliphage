@@ -1,5 +1,5 @@
 
-R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+R version 3.2.1 (2015-06-18) -- "World-Famous Astronaut"
 Copyright (C) 2015 The R Foundation for Statistical Computing
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
 
@@ -26,16 +26,6 @@ Type 'q()' to quit R.
 > # description:
 > # summarize population characteristics
 > # overall and at each beach
-> #
-> # version 3 (12 jun 2015)
-> # corrected incident diarrhea numerator calculations 
-> # to exclude those with baseline illness
-> #
-> # version 2 (18 mar 2015)
-> # included incident diarrhea rather than incident GI illness 
-> # since diarrhea is primary outcome
-> #
-> # version 1 (14 feb 2015)
 > #
 > # --------------------------------------
 > 
@@ -123,18 +113,20 @@ Type 'q()' to quit R.
 + 	Nswallw <- length(d$swallwater[d$swallwater=="Yes"])
 + 	Pswallw <- 100*mean(ifelse(d$swallwater=="Yes",1,0))
 + 	
-+ 	# time spent in water, hours, median[iqr]
-+ 	medwt <- median(d$watertime,na.rm=TRUE)
-+ 	p25wt <- quantile(d$watertime,0.25,na.rm=T)
-+ 	p75wt <- quantile(d$watertime,0.75,na.rm=T)
++ 	# time spent in water among swimmers, hours, median[iqr]
++   d$watertime[d$bodycontact=="No" & d$headunder=="No" & d$swallwater=="No"] <- NA
++ 	medwt <- median(d$watertime/60,na.rm=TRUE)
++ 	p25wt <- quantile(d$watertime/60,0.25,na.rm=T)
++ 	p75wt <- quantile(d$watertime/60,0.75,na.rm=T)
 + 	wtsum <- paste(sprintf("%1.1f",medwt)," (",sprintf("%1.1f",p25wt),",",sprintf("%1.1f",p75wt),")",sep="")
 + 	
 + 	# time spent in water, hours, category
 + 	# flag as missing individuals with anycontact="Yes" with no
 + 	# estimate of the time spent in the water
-+ 	watcat <- cut(d$watertime,c(-1,1,2,3,4,5,24))
++ 	watcat <- cut(d$watertime/60,c(-1,1,2,3,4,5,24))
++ 	watcat[d$bodycontact=="No" & d$headunder=="No" & d$swallwater=="No"] <- NA
 + 	watcat <- factor(watcat,levels=c(levels(watcat),"Missing"))
-+ 	watcat[d$anycontact=="Yes" & is.na(watcat)==TRUE] <- "Missing"
++ 	watcat[(d$bodycontact=="Yes"|d$headunder=="Yes"|d$swallwater=="Yes") & is.na(d$watertime)==TRUE] <- "Missing"
 + 	watcat[d$anycontact=="No"] <- NA
 + 	watcat <- factor(watcat,levels=levels(watcat),labels=c("0 -- 1","1.1 -- 2","2.1 -- 3","3.1 -- 4","4.1 -- 5",">5","Missing"))
 + 	Nwatcat <- table(watcat)
@@ -197,4 +189,4 @@ Type 'q()' to quit R.
 > 
 > proc.time()
    user  system elapsed 
- 72.997   6.114  81.156 
+ 54.367   3.421  58.588 

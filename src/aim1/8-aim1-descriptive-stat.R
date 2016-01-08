@@ -92,18 +92,20 @@ sumtab <- function(d) {
 	Nswallw <- length(d$swallwater[d$swallwater=="Yes"])
 	Pswallw <- 100*mean(ifelse(d$swallwater=="Yes",1,0))
 	
-	# time spent in water, hours, median[iqr]
-	medwt <- median(d$watertime,na.rm=TRUE)
-	p25wt <- quantile(d$watertime,0.25,na.rm=T)
-	p75wt <- quantile(d$watertime,0.75,na.rm=T)
+	# time spent in water among swimmers, hours, median[iqr]
+  d$watertime[d$bodycontact=="No" & d$headunder=="No" & d$swallwater=="No"] <- NA
+	medwt <- median(d$watertime/60,na.rm=TRUE)
+	p25wt <- quantile(d$watertime/60,0.25,na.rm=T)
+	p75wt <- quantile(d$watertime/60,0.75,na.rm=T)
 	wtsum <- paste(sprintf("%1.1f",medwt)," (",sprintf("%1.1f",p25wt),",",sprintf("%1.1f",p75wt),")",sep="")
 	
 	# time spent in water, hours, category
 	# flag as missing individuals with anycontact="Yes" with no
 	# estimate of the time spent in the water
-	watcat <- cut(d$watertime,c(-1,1,2,3,4,5,24))
+	watcat <- cut(d$watertime/60,c(-1,1,2,3,4,5,24))
+	watcat[d$bodycontact=="No" & d$headunder=="No" & d$swallwater=="No"] <- NA
 	watcat <- factor(watcat,levels=c(levels(watcat),"Missing"))
-	watcat[d$anycontact=="Yes" & is.na(watcat)==TRUE] <- "Missing"
+	watcat[(d$bodycontact=="Yes"|d$headunder=="Yes"|d$swallwater=="Yes") & is.na(d$watertime)==TRUE] <- "Missing"
 	watcat[d$anycontact=="No"] <- NA
 	watcat <- factor(watcat,levels=levels(watcat),labels=c("0 -- 1","1.1 -- 2","2.1 -- 3","3.1 -- 4","4.1 -- 5",">5","Missing"))
 	Nwatcat <- table(watcat)
@@ -112,7 +114,7 @@ sumtab <- function(d) {
 	
 	
 	# collate the estimates together
-	rowlab <- c("Number of Participants","GI illness at enrollment","Individuals at risk of GI illness","Incident diarrhea within 3 days","Incident diarrhea within 10 days","Age in years", "Female","Race",paste("~~~",levels(d$race),sep=""),	"No water contact","Any water contact","Body immersion","Head immersion","Swallowed water", "Hours spent in the water","Hours spent in the water (cat)",paste("~~~",levels(watcat),sep=""))
+	rowlab <- c("Number of Participants","Gastrointestinal illness at enrollment","Individuals at risk for gastrointestinal illness","Incident diarrhea within 3 days","Incident diarrhea within 10 days","Age in years", "Female","Race",paste("~~~",levels(d$race),sep=""),	"No water contact","Any water contact","Body immersion","Head immersion","Swallowed water", "Hours spent in the water","Hours spent in the water (cat)",paste("~~~",levels(watcat),sep=""))
 	
 	Ns <- c(Ntot,Ngibase,Natrisk,Ngi3,Ngi10,NA,Nfem,NA,Nrace,Nnoswim,Nanyc,Nbodyim,Nheadim,Nswallw,NA,NA,Nwatcat)
 	Ns <- format(Ns,big.mark=",")
