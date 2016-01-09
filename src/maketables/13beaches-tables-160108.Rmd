@@ -60,7 +60,7 @@ rowtable <- function(x,digits) {
 \begin{footnotesize}
 \begin{tabular}{l rrr rrr rrr rrr}
  & \\
-  & \multicolumn{3}{c}{All Ages} & \multicolumn{3}{c}{Age 0 to 4 Years} & \multicolumn{3}{c}{Age 5 to 10 Years} & \multicolumn{3}{c}{Age >10 Years}   \\
+  & \multicolumn{3}{c}{All Ages \textsuperscript{a}} & \multicolumn{3}{c}{Age 0 to 4 Years} & \multicolumn{3}{c}{Age 5 to 10 Years} & \multicolumn{3}{c}{Age >10 Years}   \\
  % & N & \% & Median (IQR) &  N & \% & Median (IQR) & N & \% & Median (IQR) & N & \% & Median (IQR) \\
     & N & \% & Median &  N & \% & Median & N & \% & Median  & N & \% & Median \\
   &  &  & (IQR) &  &  &  (IQR) &  &  &  (IQR) &  &  &  (IQR) \\
@@ -70,12 +70,20 @@ rowtable <- function(x,digits) {
 # Study participant table
 # ----------------------------
 load("~/dropbox/13beaches/aim1-results/rawoutput/aim1-descriptive-stat-tables.Rdata")
+# add footnotes to rows
+tab.res[21,1] <- paste(tab.res[21,1],"\\textsuperscript{b}")
+tab.res[22,1] <- paste(tab.res[22,1],"\\textsuperscript{b}")
 cleantable(tab.res,0)
 ```
 \hline
 \end{tabular}
 \end{footnotesize}
 \end{center}
+\begin{scriptsize}
+\medskip
+\textsuperscript{a} All ages category includes 1,219 individuals with no age information. \\
+\textsuperscript{b} Time spent in the water limited to beachgoers with body immersion, head immersion, or swallowed water exposure.
+\end{scriptsize}
 \end{table}
 \elandscape
 

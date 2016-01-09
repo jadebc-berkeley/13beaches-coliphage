@@ -30,7 +30,12 @@ d$indid <- as.character(d$indid)
 # --------------------------------------
 # reorder and rename the race variable
 # --------------------------------------
-d$race <- factor(d$race,levels=c("white","non-white, hispanic","white, hispanic","black","asian","american indian","multiple races","other","missing"),labels=c("White","Non-White, Hispanic","White, Hispanic","African American","Asian","American Indian","Multiple Races","Other","Missing"))
+d$race <- factor(d$race,levels=c("white","non-white, hispanic","white, hispanic","black","asian","american indian","multiple races","other","missing"),labels=c("White/caucasian","Non-White, Hispanic","White, Hispanic","African American","Asian","American Indian","Multiple Races","Other","Missing"))
+
+# combine all hispanic individuals into the same category
+d$race[d$race=="White, Hispanic"] <- "Non-White, Hispanic"
+d$race <- factor(d$race)
+levels(d$race) <- c(levels(d$race)[1],"Hispanic",levels(d$race)[3:8])
 
 
 # --------------------------------------
@@ -54,9 +59,9 @@ sumtab <- function(d) {
 	# Individuals at risk of GI illness
 	Natrisk <- nrow(d)-Ngibase
 	Patrisk <- 100-Pgibase
-	# Incident Diarrhea within 3 days
-	Ngi3 <- sum(d$gici3[d$gibase!="Yes"])
-	Pgi3 <- 100*mean(d$diarrheaci3[d$gibase!="Yes"])
+	# Incident Diarrhea within 3 days (not used - drop to shorten table)
+# 	Ngi3 <- sum(d$gici3[d$gibase!="Yes"])
+# 	Pgi3 <- 100*mean(d$diarrheaci3[d$gibase!="Yes"])
 	# Incident Diarrhea within 10 days
 	Ngi10 <- sum(d$diarrheaci10[d$gibase!="Yes"])
 	Pgi10 <- 100*mean(d$diarrheaci10[d$gibase!="Yes"])
@@ -114,15 +119,15 @@ sumtab <- function(d) {
 	
 	
 	# collate the estimates together
-	rowlab <- c("Number of Participants","Gastrointestinal illness at enrollment","Individuals at risk for gastrointestinal illness","Incident diarrhea within 3 days","Incident diarrhea within 10 days","Age in years", "Female","Race",paste("~~~",levels(d$race),sep=""),	"No water contact","Any water contact","Body immersion","Head immersion","Swallowed water", "Hours spent in the water","Hours spent in the water (cat)",paste("~~~",levels(watcat),sep=""))
+	rowlab <- c("Number of Participants","Gastrointestinal illness at enrollment","Individuals at risk for gastrointestinal illness","Incident diarrhea within 10 days","Age in years", "Female","Race/ethnicity",paste("~~~",levels(d$race),sep=""),	"No water contact","Any water contact","Body immersion","Head immersion","Swallowed water", "Hours spent in the water","Hours spent in the water (cat)",paste("~~~",levels(watcat),sep=""))
 	
-	Ns <- c(Ntot,Ngibase,Natrisk,Ngi3,Ngi10,NA,Nfem,NA,Nrace,Nnoswim,Nanyc,Nbodyim,Nheadim,Nswallw,NA,NA,Nwatcat)
+	Ns <- c(Ntot,Ngibase,Natrisk,Ngi10,NA,Nfem,NA,Nrace,Nnoswim,Nanyc,Nbodyim,Nheadim,Nswallw,NA,NA,Nwatcat)
 	Ns <- format(Ns,big.mark=",")
 	
-	Ps <- c(NA,Pgibase,NA,Pgi3,Pgi10,NA,Pfem,NA,Prace,Pnoswim,Panyc,Pbodyim,Pheadim,Pswallw,NA,NA,Pwatcat)
+	Ps <- c(NA,Pgibase,NA,Pgi10,NA,Pfem,NA,Prace,Pnoswim,Panyc,Pbodyim,Pheadim,Pswallw,NA,NA,Pwatcat)
 	Ps <- sprintf("%1.1f",Ps)
 	
-	Ms <- c(rep(NA,5),agesum,rep(NA,16),wtsum,rep(NA,8))
+	Ms <- c(rep(NA,4),agesum,rep(NA,15),wtsum,rep(NA,8))
 	
 	res <- matrix(c(rowlab,Ns,Ps,Ms), nrow=length(rowlab),ncol=4)
 
@@ -150,11 +155,6 @@ for(i in 1:ncol(tab.res)) {
   tab.res[nai,i] <- ""
   tab.res[naii==TRUE,i] <-""
 }
-
-
-# --------------------------------------
-# water quality summary statistics
-# --------------------------------------
 
 
 # --------------------------------------
