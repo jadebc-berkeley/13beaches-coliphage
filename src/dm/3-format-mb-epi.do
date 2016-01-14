@@ -44,6 +44,10 @@ log using "~/13beaches/src/dm/3-format-mb-epi.log", text replace
 use "~/dropbox/13beaches/data/untouched/missionbay/mb_analysis_final.dta", clear
 
 
+* drop individuals with no follow-up data
+keep if catiyn==1
+
+
 *----------------------------------------
 * rename variables and subset to be
 * consistent with the NEEAR data
