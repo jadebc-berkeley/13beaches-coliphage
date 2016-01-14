@@ -34,7 +34,7 @@ Notes:
       name:  <unnamed>
        log:  /Users/benarnold/dropbox/13beaches/src/dm/4-append-epi-data.log
   log type:  text
- opened on:  14 Jan 2016, 11:13:48
+ opened on:  14 Jan 2016, 12:15:49
 
 . 
 . *----------------------------------------
@@ -712,7 +712,7 @@ file ~/dropbox/13beaches/data/final/13beaches-epi.dta saved
       name:  <unnamed>
        log:  /Users/benarnold/dropbox/13beaches/src/dm/4-append-epi-data.log
   log type:  text
- closed on:  14 Jan 2016, 11:14:39
+ closed on:  14 Jan 2016, 12:16:33
 --------------------------------------------------------------------------------
 
 . log using "~/dropbox/13beaches/data/final/13beaches-epi-codebook.txt", text re
@@ -722,21 +722,21 @@ file ~/dropbox/13beaches/data/final/13beaches-epi.dta saved
        log:  /Users/benarnold/dropbox/13beaches/data/final/13beaches-epi-codeboo
 > k.txt
   log type:  text
- opened on:  14 Jan 2016, 11:14:39
+ opened on:  14 Jan 2016, 12:16:33
 
 . desc, s
 
 Contains data from ~/dropbox/13beaches/data/final/13beaches-epi.dta
   obs:        84,411                          13 beaches epi data, created by
                                                 4-append-epi-data.do
- vars:           294                          14 Jan 2016 11:14
+ vars:           294                          14 Jan 2016 12:16
  size:    63,055,017                          
 Sorted by: 
 
 . notes
 
 _dta:
-  1.  14 Jan 2016 11:13 13-Beaches Epidemiology Data, created by
+  1.  14 Jan 2016 12:15 13-Beaches Epidemiology Data, created by
       4-append-epi-data.do
   2.  Please contact Ben Arnold (benarnold@berkeley.edu) and Tim Wade
       (wade.tim@epa.gov) if you have specific questions about the dataset
@@ -1155,12 +1155,12 @@ sunburn                -->Have you had a sunburn since the interview? (Derived)
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  23,653/84,411
+         unique values:  2                        missing .:  8,994/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        48,990         0  No
+                        63,649         0  No
                         11,768         1  Yes
-                        23,653         .  
+                         8,994         .  
 
 --------------------------------------------------------------------------------
 age                                                                age in years 
@@ -1891,12 +1891,12 @@ stomach                                -->Have you had a stomachache or
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  27,741/84,411
+         unique values:  2                        missing .:  9,007/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        52,331         0  No
+                        71,065         0  No
                          4,339         1  Yes
-                        27,741         .  
+                         9,007         .  
 
 --------------------------------------------------------------------------------
 diarrhea                               -->Have you had diarrhea or loose bowels
@@ -1907,12 +1907,12 @@ diarrhea                               -->Have you had diarrhea or loose bowels
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  19,015/84,411
+         unique values:  2                        missing .:  256/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        61,483         0  No
+                        80,242         0  No
                          3,913         1  Yes
-                        19,015         .  
+                           256         .  
 
 --------------------------------------------------------------------------------
 nausea                    -->Have you had nausea since the interview? (Derived) 
@@ -1922,12 +1922,12 @@ nausea                    -->Have you had nausea since the interview? (Derived)
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  20,261/84,411
+         unique values:  2                        missing .:  261/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        61,729         0  No
+                        81,729         0  No
                          2,421         1  Yes
-                        20,261         .  
+                           261         .  
 
 --------------------------------------------------------------------------------
 vomiting                               -->Have you had throwing up or vomiting
@@ -1938,12 +1938,12 @@ vomiting                               -->Have you had throwing up or vomiting
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  20,637/84,411
+         unique values:  2                        missing .:  236/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        62,501         0  No
+                        82,902         0  No
                          1,273         1  Yes
-                        20,637         .  
+                           236         .  
 
 --------------------------------------------------------------------------------
 urinarytractinfection                  -->Have you had a urinary tract infection
@@ -1954,12 +1954,12 @@ urinarytractinfection                  -->Have you had a urinary tract infection
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  29,960/84,411
+         unique values:  2                        missing .:  9,001/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        53,848         0  No
+                        74,807         0  No
                            603         1  Yes
-                        29,960         .  
+                         9,001         .  
 
 --------------------------------------------------------------------------------
 fever                    -->Have you had a fever since the interview? (Derived) 
@@ -1969,12 +1969,12 @@ fever                    -->Have you had a fever since the interview? (Derived)
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  20,266/84,411
+         unique values:  2                        missing .:  241/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        62,063         0  No
+                        82,088         0  No
                          2,082         1  Yes
-                        20,266         .  
+                           241         .  
 
 --------------------------------------------------------------------------------
 headache                               -->Have you had a headache lasting more
@@ -1985,12 +1985,12 @@ headache                               -->Have you had a headache lasting more
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  27,771/84,411
+         unique values:  2                        missing .:  9,018/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        51,733         0  No
+                        70,486         0  No
                          4,907         1  Yes
-                        27,771         .  
+                         9,018         .  
 
 --------------------------------------------------------------------------------
 sorethroat         -->Have you had a sore throat since the interview? (Derived) 
@@ -2000,12 +2000,12 @@ sorethroat         -->Have you had a sore throat since the interview? (Derived)
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  19,280/84,411
+         unique values:  2                        missing .:  244/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        60,472         0  No
+                        79,508         0  No
                          4,659         1  Yes
-                        19,280         .  
+                           244         .  
 
 --------------------------------------------------------------------------------
 cough                -->Have you had a bad cough since the interview? (Derived) 
@@ -2015,12 +2015,12 @@ cough                -->Have you had a bad cough since the interview? (Derived)
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  20,191/84,411
+         unique values:  2                        missing .:  215/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        61,543         0  No
+                        81,519         0  No
                          2,677         1  Yes
-                        20,191         .  
+                           215         .  
 
 --------------------------------------------------------------------------------
 cold                      -->Have you had a cold since the interview? (Derived) 
@@ -2030,12 +2030,12 @@ cold                      -->Have you had a cold since the interview? (Derived)
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  28,537/84,411
+         unique values:  2                        missing .:  9,038/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        52,443         0  No
+                        71,942         0  No
                          3,431         1  Yes
-                        28,537         .  
+                         9,038         .  
 
 --------------------------------------------------------------------------------
 runnynose                              -->Have you had a runny or stuffy nose
@@ -2046,12 +2046,12 @@ runnynose                              -->Have you had a runny or stuffy nose
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  18,381/84,411
+         unique values:  2                        missing .:  277/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        58,649         0  No
+                        76,753         0  No
                          7,381         1  Yes
-                        18,381         .  
+                           277         .  
 
 --------------------------------------------------------------------------------
 earache                                -->Have you had an earache, ear
@@ -2063,12 +2063,12 @@ earache                                -->Have you had an earache, ear
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  20,496/84,411
+         unique values:  2                        missing .:  226/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        62,277         0  No
+                        82,547         0  No
                          1,638         1  Yes
-                        20,496         .  
+                           226         .  
 
 --------------------------------------------------------------------------------
 wateryeyes           -->Have you had watery eyes since the interview? (Derived) 
@@ -2078,12 +2078,12 @@ wateryeyes           -->Have you had watery eyes since the interview? (Derived)
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  29,466/84,411
+         unique values:  2                        missing .:  8,986/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        53,101         0  No
+                        73,581         0  No
                          1,844         1  Yes
-                        29,466         .  
+                         8,986         .  
 
 --------------------------------------------------------------------------------
 eyeinfection    -->Have you had an eye infection since the interview? (Derived) 
@@ -2093,12 +2093,12 @@ eyeinfection    -->Have you had an eye infection since the interview? (Derived)
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  21,307/84,411
+         unique values:  2                        missing .:  265/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        62,297         0  No
+                        83,339         0  No
                            807         1  Yes
-                        21,307         .  
+                           265         .  
 
 --------------------------------------------------------------------------------
 cut              -->Have you had an infected cut since the interview? (Derived) 
@@ -2108,12 +2108,12 @@ cut              -->Have you had an infected cut since the interview? (Derived)
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  21,206/84,411
+         unique values:  2                        missing .:  224/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        62,842         0  No
+                        83,824         0  No
                            363         1  Yes
-                        21,206         .  
+                           224         .  
 
 --------------------------------------------------------------------------------
 rash        -->Have you had a rash or itchy skin since the interview? (Derived) 
@@ -2123,12 +2123,12 @@ rash        -->Have you had a rash or itchy skin since the interview? (Derived)
                  label:  yesno
 
                  range:  [0,1]                        units:  1
-         unique values:  2                        missing .:  19,786/84,411
+         unique values:  2                        missing .:  227/84,411
 
             tabulation:  Freq.   Numeric  Label
-                        61,549         0  No
+                        81,108         0  No
                          3,076         1  Yes
-                        19,786         .  
+                           227         .  
 
 --------------------------------------------------------------------------------
 anim_int                                             Animal contact (interview) 
@@ -5426,7 +5426,7 @@ hhinc_mb                 Household Pre-tax income, 2002 (Mission Bay categories)
        log:  /Users/benarnold/dropbox/13beaches/data/final/13beaches-epi-codeboo
 > k.txt
   log type:  text
- closed on:  14 Jan 2016, 11:16:10
+ closed on:  14 Jan 2016, 12:17:59
 --------------------------------------------------------------------------------
 
 . 
@@ -5440,7 +5440,7 @@ hhinc_mb                 Household Pre-tax income, 2002 (Mission Bay categories)
       name:  <unnamed>
        log:  /Users/benarnold/dropbox/13beaches/src/dm/4-append-epi-data.log
   log type:  text
- opened on:  14 Jan 2016, 11:16:10
+ opened on:  14 Jan 2016, 12:17:59
 
 . 
 . 
@@ -5452,7 +5452,7 @@ hhinc_mb                 Household Pre-tax income, 2002 (Mission Bay categories)
 . tempfile neear
 
 . save `neear'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_06928.000001 saved
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_07740.000001 saved
 
 . 
 . use "~/dropbox/13beaches/data/temp/adm-epi-vars.dta", clear
@@ -5488,7 +5488,7 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_06928.000001 saved
 
 . 
 . save `neear', replace
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_06928.000001 saved
+file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_07740.000001 saved
 
 . 
 . use "~/dropbox/13beaches/data/temp/mb-epi-vars.dta", clear
@@ -5833,7 +5833,7 @@ file ~/dropbox/13beaches/data/final/13beaches-epi-varlist.dta saved
       name:  <unnamed>
        log:  /Users/benarnold/dropbox/13beaches/src/dm/4-append-epi-data.log
   log type:  text
- closed on:  14 Jan 2016, 11:16:10
+ closed on:  14 Jan 2016, 12:18:00
 --------------------------------------------------------------------------------
 
 . exit

@@ -263,6 +263,18 @@ replace stopdaily_ear = 0 if stopdaily_ear==9
 replace stopdaily_uti = 0 if stopdaily_uti==9
 replace stopdaily_skn = 0 if stopdaily_skn==9
 
+* recode missing values for aggregate symptoms to 0 for filter No questions
+rename anycuts anycut 
+rename anystomachache anystomach
+local symps "diarrhea nausea vomiting fever headache sorethroat cough cold runnynose earache wateryeyes eyeinfection cut rash sunburn stomach"
+foreach symp of local symps {
+	replace `symp'=0 if any`symp'==2
+}
+* no filter for urinary tract infection, so assume missing values are no
+replace urinarytractinfection=0 if urinarytractinfection==.
+
+
+
 *----------------------------------------
 * subset the dataset to relevant variables
 *----------------------------------------
