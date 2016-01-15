@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/13beaches-coliphage/src/dm/3-format-mb-epi.log", text replace
+log using "~/Documents/CRG/coliphage/13beaches-coliphage/src/dm/3-format-mb-epi.log", text replace
 
 *----------------------------------------
 * 3-format-mb-epi.do
@@ -41,7 +41,7 @@ log using "~/13beaches-coliphage/src/dm/3-format-mb-epi.log", text replace
 *----------------------------------------
 
 
-use "~/13beaches-data/untouched/missionbay/mb_analysis_final.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/untouched/missionbay/mb_analysis_final.dta", clear
 
 
 * drop individuals with no follow-up data
@@ -708,7 +708,7 @@ swam samebeach differentbeach
 preserve
 desc, replace clear
 label data "variables for mb-epi.dta"
-save "~/13beaches-data/temp/mb-epi-vars.dta", replace
+save "~/Documents/CRG/coliphage/13beaches-data/temp/mb-epi-vars.dta", replace
 restore
 
 
@@ -718,7 +718,7 @@ restore
 * other beaches
 *----------------------------------------
 label data "Mission Bay epi data, created by 3-format-mb-epi.do"
-save "~/13beaches-data/final/mb-epi.dta", replace
+save "~/Documents/CRG/coliphage/13beaches-data/final/mb-epi.dta", replace
 
 codebook, c
 
@@ -726,7 +726,7 @@ log close
 
 
 * write a codebook
-log using "~/13beaches-data/final/mb-epi-codebook.txt", text replace
+log using "~/Documents/CRG/coliphage/13beaches-data/final/mb-epi-codebook.txt", text replace
 desc, s
 *aorder
 codebook

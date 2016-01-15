@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/13beaches-coliphage/src/dm/6-format-adm-wq.log", text replace
+log using "~/Documents/CRG/coliphage/13beaches-coliphage/src/dm/6-format-adm-wq.log", text replace
 
 *----------------------------------------
 * 6-format-adm-wq.do
@@ -39,19 +39,19 @@ log using "~/13beaches-coliphage/src/dm/6-format-adm-wq.log", text replace
 * create an indicator code that 
 * excludes beach and year info
 *----------------------------------------
-use "~/13beaches-data/untouched/adm/avalon_inddata.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/untouched/adm/avalon_inddata.dta", clear
 gen indcode = substr(groupindex,1,8) + substr(groupindex,13,1)
 keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","12ENT0411","14FMC0511","16FMC0811","14FPC0511","16FPC0811")
 tempfile avalon
 save `avalon'
 
-use "~/13beaches-data/untouched/adm/doheny_inddata.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/untouched/adm/doheny_inddata.dta", clear
 gen indcode = substr(groupindex,1,8) + substr(groupindex,13,1)
 keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","15ENT0411","14FMC0511","16FMC0811","14FPC0511","16FPC0811")
 tempfile doheny
 save `doheny'
 
-use "~/13beaches-data/untouched/adm/malibu_inddata.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/untouched/adm/malibu_inddata.dta", clear
 gen indcode = substr(groupindex,1,8) + substr(groupindex,13,1)
 keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","12ENT0411","14FMC0511","16FMC0811","14FPC0511","16FPC0811")
 
@@ -183,8 +183,8 @@ order beach beachcode stationid sampleid coldate coltime depth
 notes: Values below the detection limit for all indictors are set to 0
 notes: Values are missing if a sample was not tested for a particular indicator
 label data "Avalon/Doheny/Malibu water sample data, formatted by 6-format-adm-wq.do"
-save "~/13beaches-data/final/adm-wq-samples.dta", replace
-outsheet using "~/13beaches-data/final/adm-wq-samples.csv", comma replace
+save "~/Documents/CRG/coliphage/13beaches-data/final/adm-wq-samples.dta", replace
+outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/adm-wq-samples.csv", comma replace
 
 
 log close

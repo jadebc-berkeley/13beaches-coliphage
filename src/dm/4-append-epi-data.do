@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/13beaches-coliphage/src/dm/4-append-epi-data.log", text replace
+log using "~/Documents/CRG/coliphage/13beaches-coliphage/src/dm/4-append-epi-data.log", text replace
 
 *----------------------------------------
 * 4-append-epi-data.do
@@ -28,11 +28,11 @@ log using "~/13beaches-coliphage/src/dm/4-append-epi-data.log", text replace
 *----------------------------------------
 * read in NEEAR and append ADM
 *----------------------------------------
-use "~/13beaches-data/final/neear-epi.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/final/neear-epi.dta", clear
 
 desc, s
 
-append using "~/13beaches-data/final/adm-epi.dta"
+append using "~/Documents/CRG/coliphage/13beaches-data/final/adm-epi.dta"
 
 desc, s
 
@@ -40,7 +40,7 @@ desc, s
 * append Mission Bay
 *----------------------------------------
 
-append using "~/13beaches-data/final/mb-epi.dta"
+append using "~/Documents/CRG/coliphage/13beaches-data/final/mb-epi.dta"
 
 desc, s
 
@@ -123,12 +123,12 @@ note hhinc_mb: "Household income categories collected at Mission Bay, different 
 order beach beachcode hhid indid intdate teledate
 compress
 label data "13 beaches epi data, created by 4-append-epi-data.do"
-saveold "~/dropbox/13beaches/data/final/13beaches-epi.dta", replace version(12)
-outsheet using "~/dropbox/13beaches/data/final/13beaches-epi.csv", comma replace
+saveold "~/Documents/CRG/coliphage/dropbox/13beaches/data/final/13beaches-epi.dta", replace version(12)
+outsheet using "~/Documents/CRG/coliphage/dropbox/13beaches/data/final/13beaches-epi.csv", comma replace
 
 * write a codebook to separate file
 log close
-log using "~/dropbox/13beaches/data/final/13beaches-epi-codebook.txt", text replace
+log using "~/Documents/CRG/coliphage/dropbox/13beaches/data/final/13beaches-epi-codebook.txt", text replace
 desc, s
 notes
 codebook
@@ -139,15 +139,15 @@ log close
 * variable reconciliation
 *---------------------------------------------
 
-log using "~/13beaches-coliphage/src/dm/4-append-epi-data.log", text append
+log using "~/Documents/CRG/coliphage/13beaches-coliphage/src/dm/4-append-epi-data.log", text append
 
 
-use "~/13beaches-data/temp/neear-epi-vars.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/temp/neear-epi-vars.dta", clear
 sort name
 tempfile neear
 save `neear'
 
-use "~/13beaches-data/temp/adm-epi-vars.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/temp/adm-epi-vars.dta", clear
 sort name
 merge 1:1 name using `neear'
 
@@ -159,7 +159,7 @@ gen byte inADM = inlist(_merge,1,3)
 
 save `neear', replace
 
-use "~/13beaches-data/temp/mb-epi-vars.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/temp/mb-epi-vars.dta", clear
 sort name
 merge 1:1 name using `neear'
 gen byte inMB = inlist(_merge,1,3)
@@ -185,7 +185,7 @@ list name if inMB & !(inNEEAR | inADM)
 
 
 label data "13 beaches variable list, created by 4-append-epi-data.do"
-saveold "~/13beaches-data/final/13beaches-epi-varlist.dta", replace version(12)
+saveold "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-epi-varlist.dta", replace version(12)
 outsheet using "13beaches-data/final/13beaches-epi-varlist.csv", comma replace
 
 

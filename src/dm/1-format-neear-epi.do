@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/13beaches-coliphage/src/dm/1-format-neear-epi.log", text replace
+log using "~/Documents/CRG/coliphage/13beaches-coliphage/src/dm/1-format-neear-epi.log", text replace
 
 *----------------------------------------
 * 1-format-neear-epi.do
@@ -30,7 +30,7 @@ log using "~/13beaches-coliphage/src/dm/1-format-neear-epi.log", text replace
 *----------------------------------------
 * read in the dataset
 *----------------------------------------
-use "~/13beaches-data/data/untouched/neear/healthfinalUCB.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/healthfinalUCB.dta", clear
 
 *----------------------------------------
 * rename and if necessary label 
@@ -207,7 +207,7 @@ transect
 preserve
 desc, replace clear
 label data "variables for neear-epi.dta"
-save "~/13beaches-coliphage/data/temp/neear-epi-vars.dta", replace
+save "~/Documents/CRG/coliphage/13beaches-data/temp/neear-epi-vars.dta", replace
 restore
 
 
@@ -217,14 +217,14 @@ restore
 order beach indid hhid intdate teledate
 
 label data "NEEAR epi data, created by 1-format-neear-epi.do"
-save "~/13beaches-coliphage/data/final/neear-epi.dta", replace
+save "~/Documents/CRG/coliphage/13beaches-data/final/neear-epi.dta", replace
 
 log close
 
 
 
 * write a codebook
-log using "~/13beaches-data/data/final/neear-epi-codebook.txt", text replace
+log using "~/Documents/CRG/coliphage/13beaches-data/final/neear-epi-codebook.txt", text replace
 *aorder
 codebook
 log close

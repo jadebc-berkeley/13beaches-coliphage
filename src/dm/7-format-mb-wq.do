@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/13beaches-coliphage/src/dm/7-format-mb-wq.log", text replace
+log using "~/Documents/CRG/coliphage/13beaches-coliphage/src/dm/7-format-mb-wq.log", text replace
 
 
 *----------------------------------------
@@ -39,7 +39,7 @@ log using "~/13beaches-coliphage/src/dm/7-format-mb-wq.log", text replace
 * and prune out empty rows
 *------------------------------------------
 
-insheet using "~/13beaches-data/untouched/missionbay/wq/tblMicrobiologyData.csv", comma clear
+insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/missionbay/wq/tblMicrobiologyData.csv", comma clear
 
 ren station stationid
 
@@ -146,7 +146,7 @@ save `culture'
 * load the qPCR sample data
 *------------------------------------------
 
-insheet using "~/13beaches-data/untouched/missionbay/wq/PCR Data All.csv", comma clear
+insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/missionbay/wq/PCR Data All.csv", comma clear
 
 * extract sample date
 gen coldate = date(substr(sampledate,1,8),"MDY",2020)
@@ -245,7 +245,7 @@ save `qpcr'
 * load the coliphage sample data
 *------------------------------------------
 
-insheet using "~/13beaches-data/untouched/missionbay/wq/tblPhageData.csv", comma clear
+insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/missionbay/wq/tblPhageData.csv", comma clear
 
 * extract sample date
 gen coldate = date(substr(sampledate,1,8),"MDY",2020)
@@ -388,8 +388,8 @@ notes fmc1601mpn: only analyzed in daily composite samples
 
 compress
 label data "Mission Bay water sample data, formatted by 7-format-mb-wq.do"
-save "~/13beaches-data/final/mb-wq-samples.dta", replace
-outsheet using "~/13beaches-data/final/mb-wq-samples.csv", comma replace
+save "~/Documents/CRG/coliphage/13beaches-data/final/mb-wq-samples.dta", replace
+outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/mb-wq-samples.csv", comma replace
 
 desc
 codebook, c

@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/13beaches-coliphage/src/dm/10-make-analysis-dataset.log", text replace
+log using "~/Documents/CRG/coliphage/13beaches-coliphage/src/dm/10-make-analysis-dataset.log", text replace
 
 *----------------------------------------
 * 10-make-analysis-dataset.do
@@ -47,7 +47,7 @@ log using "~/13beaches-coliphage/src/dm/10-make-analysis-dataset.log", text repl
 * Load the combined epidemiology dataset
 *----------------------------------------
 
-use "~/13beaches-data/final/13beaches-epi.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-epi.dta", clear
 
 
 *---------------------------------------------
@@ -419,7 +419,7 @@ sort beach beachcode intdate
 tempfile epi
 save `epi'
 
-use "~/13beaches-data/final/13beaches-wq.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq.dta", clear
 rename coldate intdate
 drop marine
 sort beach beachcode intdate
@@ -451,15 +451,15 @@ drop _merge
 
 compress
 label data "13 Beaches NIH-R03 analysis dataset, created by 10-make-analysis.dataset.do"
-saveold "~/13beaches-data/final/13beaches-analysis.dta", replace version(12)
-outsheet using "~/13beaches-data/final/13beaches-analysis.csv", comma replace
+saveold "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.dta", replace version(12)
+outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv", comma replace
 
 desc, s
 notes
 
 * write a codebook to separate file
 log close
-log using "~/13beaches-data/final/13beaches-analysis-codebook.txt", text replace
+log using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis-codebook.txt", text replace
 desc, s
 notes
 codebook

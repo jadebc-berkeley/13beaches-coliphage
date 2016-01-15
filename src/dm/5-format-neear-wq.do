@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/13beaches-coliphage/src/dm/5-format-neear-wq.log", text replace
+log using "~/Documents/CRG/coliphage/13beaches-coliphage/src/dm/5-format-neear-wq.log", text replace
 
 *----------------------------------------
 * 5-format-neear-wq.do
@@ -43,7 +43,7 @@ log using "~/13beaches-coliphage/src/dm/5-format-neear-wq.log", text replace
 
 *------------------------------
 * Freshwater Entero 1600 data
-insheet using "~/13beaches-data/untouched/neear/cfudata.txt", clear
+insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/cfudata.txt", clear
 
 * reformat collection date
 gen coldate = date(collectiondate,"MDY")
@@ -67,7 +67,7 @@ save `fresh1600'
 
 *------------------------------
 * Marine Entero 1600 data
-insheet using "~/13beaches-data/untouched/neear/wqentero1600marine.txt", clear
+insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqentero1600marine.txt", clear
 
 * reformat collection date
 gen coldate = date(collection_date,"MDY")
@@ -87,7 +87,7 @@ save `marine1600'
 
 *------------------------------
 * 2009 studies Entero 1600 data
-insheet using "~/13beaches-data/untouched/neear/wqentero16002009.txt", clear
+insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqentero16002009.txt", clear
 
 * reformat collection date
 gen coldate = date(collection_date,"MDY")
@@ -144,13 +144,13 @@ save `neearentero'
 * merge to the existing dataset
 *----------------------------------------
 
-insheet using "~/13beaches-data/untouched/neear/wqepcrddctfresh.txt", clear
+insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqepcrddctfresh.txt", clear
 tempfile freshqpcr
 save `freshqpcr'
-insheet using "~/13beaches-data/untouched/neear/wqepcrddctmarine.txt", clear
+insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqepcrddctmarine.txt", clear
 tempfile marineqpcr
 save `marineqpcr'
-insheet using "~/13beaches-data/untouched/neear/wqepcrddct2009.txt", clear
+insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqepcrddct2009.txt", clear
 append using `freshqpcr'
 append using `marineqpcr'
 
@@ -211,7 +211,7 @@ save `neearentero', replace
 * merge to the existing dataset
 *----------------------------------------
 
-use "~/13beaches-data/untouched/neear/wqphagemarine.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqphagemarine.dta", clear
 
 rename sample_id sampleid_neearphage
 	label var sampleid_neearphage "Water Sample ID, NEEAR Coliphage Data"
@@ -311,8 +311,8 @@ order beach coldate coltime sampleid_neear1600 sampleid_neearqpcr sampleid_neear
 note: for Entero QPCR samples that failed QC criteron, the value was imputed based on the average of the other two samples at the same depth and time
 compress
 label data "NEEAR water sample data, formatted by 5-format-neear-wq.do"
-save "~/13beaches-data/final/neear-wq-samples.dta", replace
-outsheet using "~/13beaches-data/final/neear-wq-samples.csv", comma replace
+save "~/Documents/CRG/coliphage/13beaches-data/final/neear-wq-samples.dta", replace
+outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/neear-wq-samples.csv", comma replace
 
 desc
 notes

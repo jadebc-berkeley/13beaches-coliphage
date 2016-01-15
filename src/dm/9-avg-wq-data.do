@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/13beaches-coliphage/src/dm/9-avg-wq-data.log", text replace
+log using "~/Documents/CRG/coliphage/13beaches-coliphage/src/dm/9-avg-wq-data.log", text replace
 
 *----------------------------------------
 * 9-avg-wq-data.do
@@ -41,7 +41,7 @@ log using "~/13beaches-coliphage/src/dm/9-avg-wq-data.log", text replace
 * Entero QPCR
 * F-plus Coliphage 1601
 *----------------------------------------
-use "~/13beaches-data/final/13beaches-wq-samples.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-samples.dta", clear
 drop if inlist(beach,"Avalon","Doheny","Malibu","Mission Bay")
 
 * impute non-detects with 0.1
@@ -119,7 +119,7 @@ save `neearwq'
 * F-minus Coliphage 1601
 * F-minus Coliphage 1602
 *----------------------------------------
-use "~/13beaches-data/final/13beaches-wq-samples.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-samples.dta", clear
 keep if inlist(beach,"Avalon","Doheny","Malibu")
 
 * impute non-detects with 0.1
@@ -214,7 +214,7 @@ save `admwq'
 * F-plus Coliphage 1601
 * F-minus Coliphage 1601
 *----------------------------------------
-use "~/13beaches-data/final/13beaches-wq-samples.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-samples.dta", clear
 keep if inlist(beach,"Mission Bay")
 
 * impute non-detects as 0.1 (consistent w/ other datasets)
@@ -363,15 +363,15 @@ note: AM/Mid-Day/PM and shin/waist disaggregations were not available for Missio
 
 compress
 label data "13 beaches water quality data, created by 9-avg-wq-data.do"
-saveold "~/13beaches-data/final/13beaches-wq.dta", replace version(12)
-outsheet using "~/13beaches-data/final/13beaches-wq.csv", comma replace
+saveold "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq.dta", replace version(12)
+outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq.csv", comma replace
 
 desc
 
 
 * write a codebook to separate file
 log close
-log using "~/13beaches-data/final/13beaches-wq-codebook.txt", text replace
+log using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-codebook.txt", text replace
 desc, s
 notes
 codebook
