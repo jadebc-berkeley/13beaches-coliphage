@@ -12,18 +12,16 @@
 
 rm(list=ls())
 
-setwd("~/Dropbox/Coliphage/")
-
 # --------------------------------------
 # load the and pre-preprocess the 
 # analysis dataset
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-beaches13=read.csv("~/Dropbox/13beaches/data/final/13beaches-analysis.csv")
+beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
 
 # load base functions
-source("Programs/Analysis/0-base-functions.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
 
 data=preprocess.6beaches(beaches13)
 
@@ -232,7 +230,7 @@ save(
   aic.fmc.low.int, aic.fmc.high.int,
   aic.fpc.low.int, aic.fpc.high.int, 
 
-  file="~/dropbox/coliphage/results/rawoutput/regress-10day-body-joint-pool.Rdata"
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-joint-pool.Rdata"
 )
 
 

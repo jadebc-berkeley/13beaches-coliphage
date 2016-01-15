@@ -13,9 +13,6 @@
 
 rm(list=ls())
 library(foreign)
-library(readstata13)
-
-setwd("~/Dropbox/Coliphage/")
 
 # --------------------------------------
 # load the and pre-preprocess the 
@@ -23,10 +20,10 @@ setwd("~/Dropbox/Coliphage/")
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-beaches13=read.csv("~/Dropbox/13beaches/data/final/13beaches-analysis.csv")
+beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
 
 # load base functions
-source("Programs/Analysis/0-base-functions.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
 
 data=preprocess.6beaches(beaches13)
 
@@ -196,7 +193,7 @@ save(
   nc.VC10.entero.low.fmc1602,nc.VC10.entero.low.fpc1601,
   nc.VC10.entero.low.fpc1602,
 
-  file="~/dropbox/coliphage/results/rawoutput/regress-10day-continuous-body-entero-negcontrol.Rdata"
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-entero-negcontrol.Rdata"
 )
 
 

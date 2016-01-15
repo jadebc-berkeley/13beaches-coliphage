@@ -14,10 +14,10 @@ rm(list=ls())
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-beaches13=read.csv("~/Dropbox/13beaches/data/final/13beaches-analysis.csv")
+beaches13=read.csv("~~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
 
 # load base functions
-source("Programs/Analysis/0-base-functions.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
 
 data=preprocess.6beaches(beaches13)
 
@@ -97,7 +97,7 @@ save(ns, se.ns, lb.ns, ub.ns,
      s.som.ent, se.som.ent, lb.som.ent, ub.som.ent,
      s.male.ent, se.male.ent, lb.male.ent, ub.male.ent, 
      
-     file="~/dropbox/coliphage/results/rawoutput/bargraph-output.Rdata")
+     file="~~/Documents/CRG/coliphage/results/rawoutput/bargraph-output.Rdata")
 
 
 

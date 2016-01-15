@@ -16,18 +16,16 @@
 rm(list=ls())
 library(foreign)
 
-setwd("~/Dropbox/Coliphage/")
-
 # --------------------------------------
 # load the and pre-preprocess the 
 # analysis dataset
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-beaches13=read.csv("~/Dropbox/13beaches/data/final/13beaches-analysis.csv")
+beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
 
 # load base functions
-source("Programs/Analysis/0-base-functions.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
 
 data=preprocess.6beaches(beaches13)
 
@@ -248,7 +246,7 @@ save(
   aic.nc.entero.low.fmc1602,aic.nc.entero.low.fpc1601,aic.nc.entero.low.fpc1602,
   aic.nc.entero.high.fmc1602,aic.nc.entero.high.fpc1601,aic.nc.entero.high.fpc1602,
   
-  file="~/dropbox/coliphage/results/rawoutput/regress-10day-body-entero-negcontrol.Rdata"
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-entero-negcontrol.Rdata"
 )
 
 

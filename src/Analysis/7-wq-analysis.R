@@ -11,10 +11,7 @@ library(ggplot2)
 library(grid)
 library(gridExtra)
 library(reshape2)
-source("~/dropbox/coliphage/programs/figures/theme_complete_bw.R")
-
-
-setwd("~/Dropbox/Coliphage/")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/figures/theme_complete_bw.R")
 
 # --------------------------------------
 # load the and pre-preprocess the 
@@ -22,7 +19,7 @@ setwd("~/Dropbox/Coliphage/")
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-load("~/dropbox/coliphage/data/temp/beaches-coli-ent-wq.RData")
+load("~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.RData")
 
 wq$logfmc1601=log(wq$fmc1601,base=10)
 wq$logfmc1602=log(wq$fmc1602,base=10)
