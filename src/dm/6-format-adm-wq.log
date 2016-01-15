@@ -1,8 +1,9 @@
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/6-format-adm-wq.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/6-f
+> ormat-adm-wq.log
   log type:  text
- opened on:  17 Dec 2015, 13:58:29
+ opened on:  14 Jan 2016, 16:49:53
 
 . 
 . *----------------------------------------
@@ -40,56 +41,55 @@
 . * create an indicator code that 
 . * excludes beach and year info
 . *----------------------------------------
-. use "~/dropbox/13beaches/data/untouched/adm/avalon_inddata.dta", clear
+. use "~/Documents/CRG/coliphage/13beaches-data/untouched/adm/avalon_inddata.dta", cl
+> ear
 
 . gen indcode = substr(groupindex,1,8) + substr(groupindex,13,1)
 
-. keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","12ENT0
-> 411","14FMC0511","16FMC0811","14FPC0511","16FPC0811")
+. keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","12ENT0411",
+> "14FMC0511","16FMC0811","14FPC0511","16FPC0811")
 (18,954 observations deleted)
 
 . tempfile avalon
 
 . save `avalon'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03094.000001 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000001 saved
 
 . 
-. use "~/dropbox/13beaches/data/untouched/adm/doheny_inddata.dta", clear
+. use "~/Documents/CRG/coliphage/13beaches-data/untouched/adm/doheny_inddata.dta", cl
+> ear
 
 . gen indcode = substr(groupindex,1,8) + substr(groupindex,13,1)
 
-. keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","15ENT0
-> 411","14FMC0511","16FMC0811","14FPC0511","16FPC0811")
+. keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","15ENT0411",
+> "14FMC0511","16FMC0811","14FPC0511","16FPC0811")
 (10,217 observations deleted)
 
 . tempfile doheny
 
 . save `doheny'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03094.000002 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000002 saved
 
 . 
-. use "~/dropbox/13beaches/data/untouched/adm/malibu_inddata.dta", clear
+. use "~/Documents/CRG/coliphage/13beaches-data/untouched/adm/malibu_inddata.dta", cl
+> ear
 
 . gen indcode = substr(groupindex,1,8) + substr(groupindex,13,1)
 
-. keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","12ENT0
-> 411","14FMC0511","16FMC0811","14FPC0511","16FPC0811")
+. keep if inlist(indcode,"02ENT2411","02ENT2412","02ENT2413","02ENT2414","12ENT0411",
+> "14FMC0511","16FMC0811","14FPC0511","16FPC0811")
 (10,233 observations deleted)
 
 . 
 . append using `avalon'
-(note: variable sampleid was str6, now str8 to accommodate using data's
-       values)
-(note: variable qualifier was str2, now str5 to accommodate using data's
-       values)
+(note: variable sampleid was str6, now str8 to accommodate using data's values)
+(note: variable qualifier was str2, now str5 to accommodate using data's values)
 (note: variable labcode was str7, now str8 to accommodate using data's values)
-(note: variable comments was str55, now str66 to accommodate using data's
-       values)
+(note: variable comments was str55, now str66 to accommodate using data's values)
 (label lsampletime already defined)
 
 . append using `doheny'
-(note: variable comments was str66, now str124 to accommodate using data's
-       values)
+(note: variable comments was str66, now str124 to accommodate using data's values)
 (label lsampletime already defined)
 
 . 
@@ -133,8 +133,8 @@ variable beachcode was str1 now str10
 .         replace beachcode = "Avalon-D" if beach=="Avalon" & stationid=="A_D"
 (240 real changes made)
 
-.         replace beachcode= "Doheny-ABD" if beach=="Doheny" & (stationid!="D_C"
->  & stationid!="D_E")
+.         replace beachcode= "Doheny-ABD" if beach=="Doheny" & (stationid!="D_C" & st
+> ationid!="D_E")
 (1,910 real changes made)
 
 .         replace beachcode= "Doheny-C" if beach=="Doheny" & stationid=="D_C"
@@ -211,8 +211,7 @@ Duplicates in terms of beach stationid beachcode coldate coltime depth indcode
         2 |           70            35
 --------------------------------------
 
-. duplicates tag beach stationid beachcode coldate coltime depth indcode, gen(du
-> ps)
+. duplicates tag beach stationid beachcode coldate coltime depth indcode, gen(dups)
 
 Duplicates in terms of beach stationid beachcode coldate coltime depth indcode
 
@@ -231,8 +230,8 @@ Duplicates in terms of beach stationid beachcode coldate coltime depth indcode
 . drop if dups==1 & qualifier=="<"
 (7 observations deleted)
 
-. bysort beach stationid beachcode coldate coltime depth indcode: egen _x = mean
-> (result)
+. bysort beach stationid beachcode coldate coltime depth indcode: egen _x = mean(resu
+> lt)
 
 . replace result = _x if dups==1
 (52 real changes made)
@@ -259,14 +258,13 @@ Duplicates in terms of beach stationid beachcode coldate coltime depth indcode
 . *----------------------------------------
 . rename qualifier nd
 
-. keep beach stationid beachcode sampleid coldate coltime depth nd result indcod
-> e
+. keep beach stationid beachcode sampleid coldate coltime depth nd result indcode
 
 . 
-. reshape wide result nd, i(beach stationid beachcode sampleid coldate coltime d
-> epth) j(indcode, string)
-(note: j = 02ENT2411 02ENT2412 02ENT2413 02ENT2414 12ENT0411 14FMC0511 14FPC0511
->  16FMC0811 16FPC0811)
+. reshape wide result nd, i(beach stationid beachcode sampleid coldate coltime depth)
+>  j(indcode, string)
+(note: j = 02ENT2411 02ENT2412 02ENT2413 02ENT2414 12ENT0411 14FMC0511 14FPC0511 16FM
+> C0811 16FPC0811)
 
 Data                               long   ->   wide
 -----------------------------------------------------------------------------
@@ -274,10 +272,10 @@ Number of obs.                     9845   ->    1493
 Number of variables                  10   ->      25
 j variable (9 values)           indcode   ->   (dropped)
 xij variables:
-                                 result   ->   result02ENT2411 result02ENT2412 .
-> .. result16FPC0811
-                                     nd   ->   nd02ENT2411 nd02ENT2412 ... nd16F
-> PC0811
+                                 result   ->   result02ENT2411 result02ENT2412 ... re
+> sult16FPC0811
+                                     nd   ->   nd02ENT2411 nd02ENT2412 ... nd16FPC081
+> 1
 -----------------------------------------------------------------------------
 
 . 
@@ -286,11 +284,11 @@ xij variables:
 . * rename the variables so they are no longer encoded
 . *----------------------------------------
 . 
-. local codenames "02ENT2411 02ENT2412 02ENT2413 02ENT2414 12ENT0411 14FMC0511 1
-> 6FMC0811 14FPC0511 16FPC0811"
+. local codenames "02ENT2411 02ENT2412 02ENT2413 02ENT2414 12ENT0411 14FMC0511 16FMC0
+> 811 14FPC0511 16FPC0811"
 
-. local newnames "enteroQPCRcce enteroQPCRcce2 enteroQPCRcce3 enteroQPCRcce4 ent
-> ero1600cfu fmc1601mpn fmc1602mpn fpc1601mpn fpc1602mpn"
+. local newnames "enteroQPCRcce enteroQPCRcce2 enteroQPCRcce3 enteroQPCRcce4 entero16
+> 00cfu fmc1601mpn fmc1602mpn fpc1601mpn fpc1602mpn"
 
 . capture label drop ND
 
@@ -301,8 +299,8 @@ xij variables:
 . foreach var of local codenames {
   2.         local newname = word("`newnames'",`i')
   3.         gen `newname' =  result`var'
-  4.         gen byte `newname'_nd = 1 if (nd`var'!="" & nd`var'!=">") | (`newna
-> me'==0)
+  4.         gen byte `newname'_nd = 1 if (nd`var'!="" & nd`var'!=">") | (`newname'==
+> 0)
   5.                 replace `newname'_nd = 0 if `newname'_nd==. & `newname' !=.
   6.                 label values `newname'_nd ND
   7.         replace `newname' = 0 if `newname'_nd==1
@@ -400,23 +398,27 @@ xij variables:
 
 . notes: Values below the detection limit for all indictors are set to 0
 
-. notes: Values are missing if a sample was not tested for a particular indicato
-> r
+. notes: Values are missing if a sample was not tested for a particular indicator
 
-. label data "Avalon/Doheny/Malibu water sample data, formatted by 6-format-adm-
-> wq.do"
+. label data "Avalon/Doheny/Malibu water sample data, formatted by 6-format-adm-wq.do
+> "
 
-. save "~/dropbox/13beaches/data/final/adm-wq-samples.dta", replace
-file ~/dropbox/13beaches/data/final/adm-wq-samples.dta saved
+. save "~/Documents/CRG/coliphage/13beaches-data/final/adm-wq-samples.dta", replace
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/adm-wq-sam
+> ples.dta not found)
+file ~/Documents/CRG/coliphage/13beaches-data/final/adm-wq-samples.dta saved
 
-. outsheet using "~/dropbox/13beaches/data/final/adm-wq-samples.csv", comma repl
-> ace
+. outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/adm-wq-samples.csv",
+>  comma replace
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/adm-wq-sam
+> ples.csv not found)
 
 . 
 . 
 . log close
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/6-format-adm-wq.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/6-f
+> ormat-adm-wq.log
   log type:  text
- closed on:  17 Dec 2015, 13:58:31
---------------------------------------------------------------------------------
+ closed on:  14 Jan 2016, 16:49:54
+-------------------------------------------------------------------------------------

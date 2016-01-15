@@ -1,8 +1,9 @@
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/7-format-mb-wq.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/7-f
+> ormat-mb-wq.log
   log type:  text
- opened on:  17 Dec 2015, 13:58:31
+ opened on:  14 Jan 2016, 16:50:00
 
 . 
 . 
@@ -40,8 +41,8 @@
 . * and prune out empty rows
 . *------------------------------------------
 . 
-. insheet using "~/dropbox/13beaches/data/untouched/missionbay/wq/tblMicrobiolog
-> yData.csv", comma clear
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/missionbay/wq/tbl
+> MicrobiologyData.csv", comma clear
 (10 vars, 12,636 obs)
 
 . 
@@ -50,50 +51,49 @@
 . 
 . * confirm Entero EPA 1600 and E.coli IDEXX and Total Coliforms IDEXX 
 . * were only run on composite samples, then drop non-composite records
-. assert result == -99 if analysismethod=="EPA 1600" & strpos(stationid,"COMP")=
-> =0
+. assert result == -99 if analysismethod=="EPA 1600" & strpos(stationid,"COMP")==0
 
-. assert result == -99 if parametercode=="E. Coli" & analysismethod=="Colilert (
-> 96 Well Tray)" & strpos(stationid,"COMP")==0
+. assert result == -99 if parametercode=="E. Coli" & analysismethod=="Colilert (96 We
+> ll Tray)" & strpos(stationid,"COMP")==0
 
-. assert result == -99 if parametercode=="Total Coliforms" & analysismethod=="Co
-> lilert (96 Well Tray)" & strpos(stationid,"COMP")==0
+. assert result == -99 if parametercode=="Total Coliforms" & analysismethod=="Coliler
+> t (96 Well Tray)" & strpos(stationid,"COMP")==0
 
 . 
 . drop if analysismethod=="EPA 1600" & strpos(stationid,"COMP")==0
 (1,944 observations deleted)
 
-. drop if parametercode=="E. Coli" & analysismethod=="Colilert (96 Well Tray)" &
->  strpos(stationid,"COMP")==0
+. drop if parametercode=="E. Coli" & analysismethod=="Colilert (96 Well Tray)" & strp
+> os(stationid,"COMP")==0
 (1,944 observations deleted)
 
-. drop if parametercode=="Total Coliforms" & analysismethod=="Colilert (96 Well 
-> Tray)" & strpos(stationid,"COMP")==0
+. drop if parametercode=="Total Coliforms" & analysismethod=="Colilert (96 Well Tray)
+> " & strpos(stationid,"COMP")==0
 (1,944 observations deleted)
 
 . 
 . * confirm Entero Enterolert IDEXX, MF-Fecal Colif and MF-Total COlif 
 . * were not run on composite samples, then drop those composite records
-. assert result == -99 if parametercode=="Enterococcus" & analysismethod=="Colil
-> ert (96 Well Tray)" & strpos(stationid,"COMP")>0
+. assert result == -99 if parametercode=="Enterococcus" & analysismethod=="Colilert (
+> 96 Well Tray)" & strpos(stationid,"COMP")>0
 
-. assert result == -99 if parametercode=="Fecal Coliforms" & analysismethod=="MF
-> -Fecal Coliform (APHA 9" & strpos(stationid,"COMP")>0
+. assert result == -99 if parametercode=="Fecal Coliforms" & analysismethod=="MF-Feca
+> l Coliform (APHA 9" & strpos(stationid,"COMP")>0
 
-. assert result == -99 if parametercode=="Total Coliforms" & analysismethod=="MF
-> -Total Coliform (APHA 9" & strpos(stationid,"COMP")>0
+. assert result == -99 if parametercode=="Total Coliforms" & analysismethod=="MF-Tota
+> l Coliform (APHA 9" & strpos(stationid,"COMP")>0
 
 . 
-. drop if parametercode=="Enterococcus" & analysismethod=="Colilert (96 Well Tra
-> y)" & strpos(stationid,"COMP")>0
+. drop if parametercode=="Enterococcus" & analysismethod=="Colilert (96 Well Tray)" &
+>  strpos(stationid,"COMP")>0
 (162 observations deleted)
 
-. drop if parametercode=="Fecal Coliforms" & analysismethod=="MF-Fecal Coliform 
-> (APHA 9" & strpos(stationid,"COMP")>0
+. drop if parametercode=="Fecal Coliforms" & analysismethod=="MF-Fecal Coliform (APHA
+>  9" & strpos(stationid,"COMP")>0
 (162 observations deleted)
 
-. drop if parametercode=="Total Coliforms" & analysismethod=="MF-Total Coliform 
-> (APHA 9" & strpos(stationid,"COMP")>0
+. drop if parametercode=="Total Coliforms" & analysismethod=="MF-Total Coliform (APHA
+>  9" & strpos(stationid,"COMP")>0
 (162 observations deleted)
 
 . 
@@ -111,35 +111,35 @@
 . * then reshape the data to wide format
 . *------------------------------------------     
 . 
-. keep stationid coldate sampletime parametercode qualifier result units analysi
-> smethod
+. keep stationid coldate sampletime parametercode qualifier result units analysismeth
+> od
 
-. order stationid coldate sampletime parametercode qualifier result units analys
-> ismethod
+. order stationid coldate sampletime parametercode qualifier result units analysismet
+> hod
 
 . 
 . * compress indicator and analysis method into a single field for reshaping
 . gen ind = "entero1600cfu" if analysismethod=="EPA 1600"
 (6,156 missing values generated)
 
-.         replace ind = "enteroELTmpn" if parametercode=="Enterococcus" & analys
-> ismethod=="Colilert (96 Well Tray)"
+.         replace ind = "enteroELTmpn" if parametercode=="Enterococcus" & analysismet
+> hod=="Colilert (96 Well Tray)"
 (1,944 real changes made)
 
-.         replace ind = "ecoliCLTmpn" if parametercode=="E. Coli" & analysismeth
-> od=="Colilert (96 Well Tray)"
+.         replace ind = "ecoliCLTmpn" if parametercode=="E. Coli" & analysismethod=="
+> Colilert (96 Well Tray)"
 (162 real changes made)
 
-.         replace ind = "tcolCLTmpn" if parametercode=="Total Coliforms" & analy
-> sismethod=="Colilert (96 Well Tray)"
+.         replace ind = "tcolCLTmpn" if parametercode=="Total Coliforms" & analysisme
+> thod=="Colilert (96 Well Tray)"
 (162 real changes made)
 
-.         replace ind = "fcolifcfu" if parametercode=="Fecal Coliforms" & analys
-> ismethod=="MF-Fecal Coliform (APHA 9"
+.         replace ind = "fcolifcfu" if parametercode=="Fecal Coliforms" & analysismet
+> hod=="MF-Fecal Coliform (APHA 9"
 (1,944 real changes made)
 
-.         replace ind = "tcolifcfu" if parametercode=="Total Coliforms" & analys
-> ismethod=="MF-Total Coliform (APHA 9"
+.         replace ind = "tcolifcfu" if parametercode=="Total Coliforms" & analysismet
+> hod=="MF-Total Coliform (APHA 9"
 (1,944 real changes made)
 
 .         assert ind!=""
@@ -153,8 +153,7 @@
 . sort stationid coldate sampletime 
 
 . reshape wide result qualifier, i(stationid coldate sampletime) j(ind, string)
-(note: j = ecoliCLTmpn entero1600cfu enteroELTmpn fcolifcfu tcolCLTmpn tcolifcfu
-> )
+(note: j = ecoliCLTmpn entero1600cfu enteroELTmpn fcolifcfu tcolCLTmpn tcolifcfu)
 
 Data                               long   ->   wide
 -----------------------------------------------------------------------------
@@ -162,10 +161,10 @@ Number of obs.                     6318   ->    2106
 Number of variables                   6   ->      15
 j variable (6 values)               ind   ->   (dropped)
 xij variables:
-                                 result   ->   resultecoliCLTmpn resultentero160
-> 0cfu ... resulttcolifcfu
-                              qualifier   ->   qualifierecoliCLTmpn qualifierent
-> ero1600cfu ... qualifiertcolifcfu
+                                 result   ->   resultecoliCLTmpn resultentero1600cfu 
+> ... resulttcolifcfu
+                              qualifier   ->   qualifierecoliCLTmpn qualifierentero16
+> 00cfu ... qualifiertcolifcfu
 -----------------------------------------------------------------------------
 
 . 
@@ -176,8 +175,7 @@ xij variables:
 . 
 . label define ND 0 "Detected" 1 "Below detection"
 
-. local vars "entero1600cfu enteroELTmpn ecoliCLTmpn tcolCLTmpn fcolifcfu tcolif
-> cfu"
+. local vars "entero1600cfu enteroELTmpn ecoliCLTmpn tcolCLTmpn fcolifcfu tcolifcfu"
 
 . foreach var of local vars  {
   2.         rename result`var' `var'
@@ -209,8 +207,7 @@ xij variables:
 
 . drop qualifier*
 
-. order stationid coldate sampletime enteroELT* fcolif* tcolif* entero1600* ecol
-> iCLT*
+. order stationid coldate sampletime enteroELT* fcolif* tcolif* entero1600* ecoliCLT*
 
 . 
 . *------------------------------------------
@@ -219,15 +216,14 @@ xij variables:
 . 
 . * data cleaning: there is a single sample with a missing collection time
 . * the time is 1245 based on the qPCR data (identified when merging)
-. replace sampletime = 1245 if sampletime==. & stationid=="LL3C" & coldate==mdy(
-> 6,29,2003)
+. replace sampletime = 1245 if sampletime==. & stationid=="LL3C" & coldate==mdy(6,29,
+> 2003)
 (1 real change made)
 
 . 
 . gen sampletype = "Hourly sample"
 
-.         replace sampletype = "Daily composite sample" if strpos(stationid,"COM
-> P")>0
+.         replace sampletype = "Daily composite sample" if strpos(stationid,"COMP")>0
 variable sampletype was str13 now str22
 (162 real changes made)
 
@@ -299,15 +295,15 @@ variable sampletype was str13 now str22
 . tempfile culture
 
 . save `culture'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03096.000001 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000001 saved
 
 . 
 . *------------------------------------------
 . * load the qPCR sample data
 . *------------------------------------------
 . 
-. insheet using "~/dropbox/13beaches/data/untouched/missionbay/wq/PCR Data All.c
-> sv", comma clear
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/missionbay/wq/PCR
+>  Data All.csv", comma clear
 (10 vars, 1,580 obs)
 
 . 
@@ -363,8 +359,8 @@ Duplicates in terms of stationid sampledate sampletime parametercode
 . gen logimpres = log(impres)
 (29 missing values generated)
 
-. by stationid sampledate sampletime parametercode: egen mulogimpres = mean(logi
-> mpres)
+. by stationid sampledate sampletime parametercode: egen mulogimpres = mean(logimpres
+> )
 (28 missing values generated)
 
 . replace result = exp(mulogimpres) if dups==1
@@ -376,7 +372,7 @@ Duplicates in terms of stationid sampledate sampletime parametercode
 . 
 . * flag only values as non-detect if both samples were non-detect
 . replace qualifier = "" if dups==1 & (result <0.09 | result>0.11)
-(7 real changes made)
+(6 real changes made)
 
 . drop *impres* dups
 
@@ -420,10 +416,9 @@ Number of obs.                     1546   ->     773
 Number of variables                   6   ->       7
 j variable (2 values)               ind   ->   (dropped)
 xij variables:
-                                 result   ->   resultbactQPCRcce resultenteroQPC
-> Rcce
-                              qualifier   ->   qualifierbactQPCRcce qualifierent
-> eroQPCRcce
+                                 result   ->   resultbactQPCRcce resultenteroQPCRcce
+                              qualifier   ->   qualifierbactQPCRcce qualifierenteroQP
+> CRcce
 -----------------------------------------------------------------------------
 
 . 
@@ -485,7 +480,7 @@ xij variables:
 . tempfile qpcr
 
 . save `qpcr'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03096.000002 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000002 saved
 
 . 
 . 
@@ -493,8 +488,8 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03096.000002 saved
 . * load the coliphage sample data
 . *------------------------------------------
 . 
-. insheet using "~/dropbox/13beaches/data/untouched/missionbay/wq/tblPhageData.c
-> sv", comma clear
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/missionbay/wq/tbl
+> PhageData.csv", comma clear
 (9 vars, 282 obs)
 
 . 
@@ -574,8 +569,8 @@ Number of variables                   5   ->       6
 j variable (2 values)               ind   ->   (dropped)
 xij variables:
                                  result   ->   resultfmc1601mpn resultfpc1601mpn
-                              qualifier   ->   qualifierfmc1601mpn qualifierfpc1
-> 601mpn
+                              qualifier   ->   qualifierfmc1601mpn qualifierfpc1601mp
+> n
 -----------------------------------------------------------------------------
 
 . 
@@ -631,7 +626,7 @@ xij variables:
 . tempfile phage
 
 . save `phage'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03096.000003 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000003 saved
 
 . 
 . *------------------------------------------
@@ -668,7 +663,7 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03096.000003 saved
 . tempfile comps
 
 . save `comps'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03096.000004 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000004 saved
 
 . 
 . 
@@ -734,8 +729,8 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03096.000004 saved
 . label values depth depth
 
 . 
-. order sampletype beachcode stationid coldate coltime depth enteroELTmpn - tcol
-> ifcfu_nd enteroQPCRcce - bactQPCRcce_nd 
+. order sampletype beachcode stationid coldate coltime depth enteroELTmpn - tcolifcfu
+> _nd enteroQPCRcce - bactQPCRcce_nd 
 
 . sort sampletype beachcode stationid coldate coltime depth
 
@@ -782,24 +777,28 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03096.000004 saved
 
 . label data "Mission Bay water sample data, formatted by 7-format-mb-wq.do"
 
-. save "~/dropbox/13beaches/data/final/mb-wq-samples.dta", replace
-file ~/dropbox/13beaches/data/final/mb-wq-samples.dta saved
+. save "~/Documents/CRG/coliphage/13beaches-data/final/mb-wq-samples.dta", replace
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/mb-wq-samp
+> les.dta not found)
+file ~/Documents/CRG/coliphage/13beaches-data/final/mb-wq-samples.dta saved
 
-. outsheet using "~/dropbox/13beaches/data/final/mb-wq-samples.csv", comma repla
-> ce
+. outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/mb-wq-samples.csv", 
+> comma replace
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/mb-wq-samp
+> les.csv not found)
 
 . 
 . desc
 
-Contains data from ~/dropbox/13beaches/data/final/mb-wq-samples.dta
+Contains data from ~/Documents/CRG/coliphage/13beaches-data/final/mb-wq-samples.dta
   obs:         2,106                          Mission Bay water sample data,
                                                 formatted by 7-format-mb-wq.do
- vars:            27                          17 Dec 2015 13:58
+ vars:            27                          14 Jan 2016 16:50
  size:       212,706                          (_dta has notes)
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
               storage   display    value
 variable name   type    format     label      variable label
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 sampletype      str22   %22s                  Water sample type
 beachcode       str13   %13s                  Mission Bay Beach Code
 stationid       str6    %9s                   Station
@@ -809,16 +808,13 @@ depth           byte    %11.0g     depth      Sample depth
 enteroELTmpn    long    %12.0g                Enterococcus, Enterolert MPN/100ml
 enteroELTmpn_nd byte    %15.0g     ND         Enterococcus, Enterolert below
                                                 detection
-fcolifcfu       long    %12.0g                Fecal coliform, APHA 9222D
-                                                CFU/100ml
+fcolifcfu       long    %12.0g                Fecal coliform, APHA 9222D CFU/100ml
 fcolifcfu_nd    byte    %15.0g     ND         Fecal coliform, APHA 9222D below
                                                 detection
-tcolifcfu       long    %12.0g                Total coliform, APHA 9222B
-                                                CFU/100ml
+tcolifcfu       long    %12.0g                Total coliform, APHA 9222B CFU/100ml
 tcolifcfu_nd    byte    %15.0g     ND         Total coliform, APHA 9222B below
                                                 detection
-enteroQPCRcce   float   %9.0g               * Enterococcus, qPCR EPA 1611
-                                                CCE/100ml
+enteroQPCRcce   float   %9.0g               * Enterococcus, qPCR EPA 1611 CCE/100ml
 enteroQPCRcce~d byte    %9.0g      ND         Enterococcus, qPCR EPA 1611 below
                                                 detection
 bactQPCRcce     float   %9.0g               * Bacteroides, qPCR CCE/100ml
@@ -831,54 +827,53 @@ tcolCLTmpn      int     %12.0g              * Total coliform, Colilert MPN/100ml
 tcolCLTmpn_nd   byte    %15.0g     ND         Total coliform, Colilert below
                                                 detection
 fpc1601mpn      float   %9.0g               * F+ Coliphage, EPA 1601 MPN/100ml
-fpc1601mpn_nd   byte    %9.0g      ND         F+ Coliphage, EPA 1601 below
-                                                detection
+fpc1601mpn_nd   byte    %9.0g      ND         F+ Coliphage, EPA 1601 below detection
 fmc1601mpn      float   %9.0g               * F- Coliphage, EPA 1601 MPN/100ml
-fmc1601mpn_nd   byte    %9.0g      ND         F- Coliphage, EPA 1601 below
-                                                detection
+fmc1601mpn_nd   byte    %9.0g      ND         F- Coliphage, EPA 1601 below detection
 beach           str11   %11s                  Beach
                                             * indicated variables have notes
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 Sorted by: sampletype  beachcode  stationid  coldate  coltime  depth
 
 . codebook, c
 
 Variable       Obs Unique      Mean    Min       Max  Label
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 sampletype    2106      2         .      .         .  Water sample type
 beachcode     2106      6         .      .         .  Mission Bay Beach Code
 stationid     2106     24         .      .         .  Station
 coldate       2106     27  15906.52  15856     15949  Sample collection date
 coltime       2104    235  1377.187   1202      1713  Sample collection time
 depth         2106      1         1      1         1  Sample depth
-enteroELTmpn  1944    142  108.3632      0     57940  Enterococcus, Enteroler...
-enteroELTm~d  1944      2  .3225309      0         1  Enterococcus, Enteroler...
-fcolifcfu     1944     86  176.2274      0     48000  Fecal coliform, APHA 92...
-fcolifcfu_nd  1944      2  .1779835      0         1  Fecal coliform, APHA 92...
-tcolifcfu     1944     85   289.751      0     45000  Total coliform, APHA 92...
-tcolifcfu_nd  1944      2  .4408436      0         1  Total coliform, APHA 92...
-enteroQPCR~e   773    529  619.9955      0  141092.8  Enterococcus, qPCR EPA ...
-enteroQPCR~d   773      2  .0595084      0         1  Enterococcus, qPCR EPA ...
-bactQPCRcce    773    416  19717.03      0   3718815  Bacteroides, qPCR CCE/1...
-bactQPCRcc~d   773      2  .4075032      0         1  Bacteroides, qPCR below...
-entero1600~u   162     40  83.67901      0      3100  Enterococcus, EPA 1600 ...
+enteroELTmpn  1944    142  108.3632      0     57940  Enterococcus, Enterolert MPN...
+enteroELTm~d  1944      2  .3225309      0         1  Enterococcus, Enterolert bel...
+fcolifcfu     1944     86  176.2274      0     48000  Fecal coliform, APHA 9222D C...
+fcolifcfu_nd  1944      2  .1779835      0         1  Fecal coliform, APHA 9222D b...
+tcolifcfu     1944     85   289.751      0     45000  Total coliform, APHA 9222B C...
+tcolifcfu_nd  1944      2  .4408436      0         1  Total coliform, APHA 9222B b...
+enteroQPCR~e   773    529  619.9955      0  141092.8  Enterococcus, qPCR EPA 1611 ...
+enteroQPCR~d   773      2  .0595084      0         1  Enterococcus, qPCR EPA 1611 ...
+bactQPCRcce    773    416  19717.03      0   3718815  Bacteroides, qPCR CCE/100ml
+bactQPCRcc~d   773      2  .4075032      0         1  Bacteroides, qPCR below dete...
+entero1600~u   162     40  83.67901      0      3100  Enterococcus, EPA 1600 CFU/1...
 entero1600~d   162      2  .1851852      0         1  
-ecoliCLTmpn    162     96  314.0309      0      5172  E. coli, Colilert MPN/1...
-ecoliCLTmp~d   162      2  .0679012      0         1  E. coli, Colilert below...
-tcolCLTmpn     162    122  2833.994      0     24192  Total coliform, Coliler...
-tcolCLTmpn~d   162      2  .0246914      0         1  Total coliform, Coliler...
-fpc1601mpn     141      6  .0295745      0       .77  F+ Coliphage, EPA 1601 ...
-fpc1601mpn~d   141      2  .8865248      0         1  F+ Coliphage, EPA 1601 ...
-fmc1601mpn     141     17  1.290496      0     36.63  F- Coliphage, EPA 1601 ...
-fmc1601mpn~d   141      2  .3191489      0         1  F- Coliphage, EPA 1601 ...
+ecoliCLTmpn    162     96  314.0309      0      5172  E. coli, Colilert MPN/100ml
+ecoliCLTmp~d   162      2  .0679012      0         1  E. coli, Colilert below dete...
+tcolCLTmpn     162    122  2833.994      0     24192  Total coliform, Colilert MPN...
+tcolCLTmpn~d   162      2  .0246914      0         1  Total coliform, Colilert bel...
+fpc1601mpn     141      6  .0295745      0       .77  F+ Coliphage, EPA 1601 MPN/1...
+fpc1601mpn~d   141      2  .8865248      0         1  F+ Coliphage, EPA 1601 below...
+fmc1601mpn     141     17  1.290496      0     36.63  F- Coliphage, EPA 1601 MPN/1...
+fmc1601mpn~d   141      2  .3191489      0         1  F- Coliphage, EPA 1601 below...
 beach         2106      1         .      .         .  Beach
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 
 . 
 . 
 . log close
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/7-format-mb-wq.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/7-f
+> ormat-mb-wq.log
   log type:  text
- closed on:  17 Dec 2015, 13:58:33
---------------------------------------------------------------------------------
+ closed on:  14 Jan 2016, 16:50:00
+-------------------------------------------------------------------------------------

@@ -123,12 +123,12 @@ note hhinc_mb: "Household income categories collected at Mission Bay, different 
 order beach beachcode hhid indid intdate teledate
 compress
 label data "13 beaches epi data, created by 4-append-epi-data.do"
-saveold "~/Documents/CRG/coliphage/dropbox/13beaches/data/final/13beaches-epi.dta", replace version(12)
-outsheet using "~/Documents/CRG/coliphage/dropbox/13beaches/data/final/13beaches-epi.csv", comma replace
+saveold "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-epi.dta", replace version(12)
+outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-epi.csv", comma replace
 
 * write a codebook to separate file
 log close
-log using "~/Documents/CRG/coliphage/dropbox/13beaches/data/final/13beaches-epi-codebook.txt", text replace
+log using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-epi-codebook.txt", text replace
 desc, s
 notes
 codebook
@@ -186,7 +186,7 @@ list name if inMB & !(inNEEAR | inADM)
 
 label data "13 beaches variable list, created by 4-append-epi-data.do"
 saveold "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-epi-varlist.dta", replace version(12)
-outsheet using "13beaches-data/final/13beaches-epi-varlist.csv", comma replace
+outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-epi-varlist.csv", comma replace
 
 
 

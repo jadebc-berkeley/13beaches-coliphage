@@ -46,7 +46,7 @@ log using "~/Documents/CRG/coliphage/13beaches-coliphage/src/dm/2-format-adm-epi
 *----------------------------------------
 
 
-use "~/Documents/CRG/coliphage/13beaches-data/avalon/data/final/avalon2.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/untouched/adm/avalon2.dta", clear
 keep if pout==1
 capture drop beach
 gen beach = "AV"
@@ -55,7 +55,7 @@ tempfile avalon
 save `avalon'
 
 
-use "~/Documents/CRG/coliphage/13beaches-data/doheny/data/final/doheny2.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/untouched/adm/doheny2.dta", clear
 keep if pout==1
 capture drop beach
 gen beach = "DO"
@@ -65,7 +65,7 @@ rename personid psid
 tempfile doheny
 save `doheny'
 
-use "~/Documents/CRG/coliphage/13beaches-data/malibu/data/final/malibu2.dta", clear
+use "~/Documents/CRG/coliphage/13beaches-data/untouched/adm/malibu2.dta", clear
 keep if pout==1
 capture drop beach
 gen beach = "MA"

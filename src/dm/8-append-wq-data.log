@@ -1,8 +1,9 @@
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/8-append-wq-data.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/8-a
+> ppend-wq-data.log
   log type:  text
- opened on:  17 Dec 2015, 13:58:33
+ opened on:  14 Jan 2016, 16:50:04
 
 . 
 . *----------------------------------------
@@ -37,15 +38,13 @@
 . * append 
 . *----------------------------------------
 . 
-. use "~/dropbox/13beaches/data/final/neear-wq-samples.dta", clear
+. use "~/Documents/CRG/coliphage/13beaches-data/final/neear-wq-samples.dta", clear
 (NEEAR water sample data, formatted by 5-format-neear-wq.do)
 
 . 
-. append using "~/dropbox/13beaches/data/final/adm-wq-samples.dta"
-(note: variable stationid was str1, now str3 to accommodate using data's
-       values)
-(note: variable coltime was byte, now float to accommodate using data's
-       values)
+. append using "~/Documents/CRG/coliphage/13beaches-data/final/adm-wq-samples.dta"
+(note: variable stationid was str1, now str3 to accommodate using data's values)
+(note: variable coltime was byte, now float to accommodate using data's values)
 (note: variable depth was byte, now float to accommodate using data's values)
 (note: variable entero1600cfu was long, now double to accommodate using data's
        values)
@@ -53,11 +52,9 @@
 (label depth already defined)
 
 . 
-. append using  "~/dropbox/13beaches/data/final/mb-wq-samples.dta"
-(note: variable beachcode was str11, now str13 to accommodate using data's
-       values)
-(note: variable stationid was str3, now str6 to accommodate using data's
-       values)
+. append using  "~/Documents/CRG/coliphage/13beaches-data/final/mb-wq-samples.dta"
+(note: variable beachcode was str11, now str13 to accommodate using data's values)
+(note: variable stationid was str3, now str6 to accommodate using data's values)
 (label depth already defined)
 (label ND already defined)
 
@@ -69,13 +66,13 @@
 . * Entero qPCR 1611
 . * Coliphage (F+/- 1601/1602)
 . 
-. keep beach beachcode coldate coltime sampleid* stationid swimloc depth frozen 
-> sampletype entero1600cfu* enteroELTmpn* enteroQPCRcce enteroQPCRcce_nd enteroQ
-> PCRcce_qc fpc1601mpn* fpc1602mpn* fmc1601mpn* fmc1602mpn*
+. keep beach beachcode coldate coltime sampleid* stationid swimloc depth frozen sampl
+> etype entero1600cfu* enteroELTmpn* enteroQPCRcce enteroQPCRcce_nd enteroQPCRcce_qc 
+> fpc1601mpn* fpc1602mpn* fmc1601mpn* fmc1602mpn*
 
-. order beach beachcode coldate coltime sampleid* stationid swimloc depth frozen
->  sampletype entero1600cfu* enteroELTmpn* enteroQPCRcce enteroQPCRcce_nd entero
-> QPCRcce_qc fpc1601mpn* fpc1602mpn* fmc1601mpn* fmc1602mpn*
+. order beach beachcode coldate coltime sampleid* stationid swimloc depth frozen samp
+> letype entero1600cfu* enteroELTmpn* enteroQPCRcce enteroQPCRcce_nd enteroQPCRcce_qc
+>  fpc1601mpn* fpc1602mpn* fmc1601mpn* fmc1602mpn*
 
 . 
 . notes drop *
@@ -84,21 +81,19 @@
 . notes drop _dta *
   (4 notes dropped)
 
-. notes : 13-Beaches Individual Sample Water Quality Data, created by 8-append-w
-> q-data.do
+. notes : 13-Beaches Individual Sample Water Quality Data, created by 8-append-wq-dat
+> a.do
 
 . notes : Values below the detection limit for all indictors are set to 0
 
-. notes : Values are missing if a sample was not tested for a particular indicat
-> or
+. notes : Values are missing if a sample was not tested for a particular indicator
 
 . notes : All non-detect values are set to 0 and flagged with _nd indicators
 
-. notes : sampleid numbers are separate by type of indicator in the NEEAR studie
-> s and that is why there are multiple sampleid variables in this dataset
+. notes : sampleid numbers are separate by type of indicator in the NEEAR studies and
+>  that is why there are multiple sampleid variables in this dataset
 
-. notes coltime: Mission Bay has different sample collection times than other be
-> aches
+. notes coltime: Mission Bay has different sample collection times than other beaches
 
 . notes sampletype: Only relevant for Mission Bay Samples
 
@@ -108,9 +103,9 @@
 
 . notes enteroQPCRcce: At Mission Bay, only analyzed in 2 samples per day
 
-. notes enteroQPCRcce_qc: Only recorded for NEEAR Entero qPCR samples.  For NEEA
-> R Entero qPCR samples that failed QC criteron, the value was imputed based on 
-> the average of the other two samples at the same depth and time
+. notes enteroQPCRcce_qc: Only recorded for NEEAR Entero qPCR samples.  For NEEAR Ent
+> ero qPCR samples that failed QC criteron, the value was imputed based on the averag
+> e of the other two samples at the same depth and time
 
 . 
 . 
@@ -121,42 +116,44 @@
 
 . label data "13 beaches water quality data, created by 8-append-wq-data.do"
 
-. saveold "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", replace ver
-> sion(12)
+. saveold "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-samples.dta", 
+> replace version(12)
 (saving in Stata 12 format, which can be read by Stata 11 or 12)
-file ~/dropbox/13beaches/data/final/13beaches-wq-samples.dta saved
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/13beaches-
+> wq-samples.dta not found)
+file ~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-samples.dta saved
 
-. outsheet using "~/dropbox/13beaches/data/final/13beaches-wq-samples.csv", comm
-> a replace
+. outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-samples
+> .csv", comma replace
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/13beaches-
+> wq-samples.csv not found)
 
 . 
 . desc
 
-Contains data from ~/dropbox/13beaches/data/final/13beaches-wq-samples.dta
+Contains data from ~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-sample
+> s.dta
   obs:         7,595                          13 beaches water quality data,
                                                 created by 8-append-wq-data.do
- vars:            28                          17 Dec 2015 13:58
+ vars:            28                          14 Jan 2016 16:50
  size:     1,101,275                          (_dta has notes)
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
               storage   display    value
 variable name   type    format     label      variable label
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 beach           str15   %15s                  Beach
-beachcode       str13   %13s                  Water quality sampling location
-                                                beach code
+beachcode       str13   %13s                  Water quality sampling location beach
+                                                code
 coldate         int     %d                    Sample Collection Date
 coltime         int     %9.0g               * Sample Collection Time
-sampleid_n~1600 str10   %10s                  Water Sample ID, NEEAR Entero 1600
-                                                data
+sampleid_n~1600 str10   %10s                  Water Sample ID, NEEAR Entero 1600 data
 sampleid_neea~r str9    %9s                   Water Sample ID
-sampleid_neea~e str9    %9s                   Water Sample ID, NEEAR Coliphage
-                                                Data
+sampleid_neea~e str9    %9s                   Water Sample ID, NEEAR Coliphage Data
 sampleid        str8    %9s                   SampleID
 stationid       str6    %9s                   Water sample station/location ID
 swimloc         byte    %8.0g                 Swim area location
 depth           byte    %11.0g     depth      Sample depth
-frozen          byte    %8.0g               * Sample frozen (coliphage assays
-                                                only)
+frozen          byte    %8.0g               * Sample frozen (coliphage assays only)
 sampletype      str22   %22s                * Water sample type
 entero1600cfu   double  %8.0g               * Enterococcus 1600 CFU/100ml
 entero1600cfu~d byte    %15.0g     ND         Enterococcus 1600 CFU/100ml, below
@@ -171,23 +168,24 @@ fpc1601mpn      double  %10.0g                F-plus Coliphage EPA 1601
 fpc1601mpn_nd   byte    %15.0g     ND         F-plus Coliphage EPA 1601, below
                                                 detection
 fpc1602mpn      float   %9.0g                 F+ Coliphage EPA 1602 MPN/100ml
-fpc1602mpn_nd   byte    %15.0g     ND         F+ Coliphage EPA 1602 MPN/100ml,
-                                                below detection
+fpc1602mpn_nd   byte    %15.0g     ND         F+ Coliphage EPA 1602 MPN/100ml, below
+                                                detection
 fmc1601mpn      float   %9.0g                 F- Coliphage EPA 1601 MPN/100ml
-fmc1601mpn_nd   byte    %15.0g     ND         F- Coliphage EPA 1601 MPN/100ml,
-                                                below detection
+fmc1601mpn_nd   byte    %15.0g     ND         F- Coliphage EPA 1601 MPN/100ml, below
+                                                detection
 fmc1602mpn      float   %9.0g                 F- Coliphage EPA 1602 MPN/100ml
-fmc1602mpn_nd   byte    %15.0g     ND         F- Coliphage EPA 1602 MPN/100ml,
-                                                below detection
+fmc1602mpn_nd   byte    %15.0g     ND         F- Coliphage EPA 1602 MPN/100ml, below
+                                                detection
                                             * indicated variables have notes
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 Sorted by: 
 
 . 
 . * write a codebook to separate file
 . log close
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/8-append-wq-data.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/8-a
+> ppend-wq-data.log
   log type:  text
- closed on:  17 Dec 2015, 13:58:33
---------------------------------------------------------------------------------
+ closed on:  14 Jan 2016, 16:50:05
+-------------------------------------------------------------------------------------

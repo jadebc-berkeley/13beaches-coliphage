@@ -1,8 +1,9 @@
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/9-avg-wq-data.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/9-a
+> vg-wq-data.log
   log type:  text
- opened on:  17 Dec 2015, 13:58:34
+ opened on:  14 Jan 2016, 16:50:10
 
 . 
 . *----------------------------------------
@@ -42,7 +43,8 @@
 . * Entero QPCR
 . * F-plus Coliphage 1601
 . *----------------------------------------
-. use "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", clear
+. use "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-samples.dta", clea
+> r
 (13 beaches water quality data, created by 8-append-wq-data.do)
 
 . drop if inlist(beach,"Avalon","Doheny","Malibu","Mission Bay")
@@ -143,14 +145,34 @@ Replacements of fpc1601mpn
 
 . 
 . 
+. 
+. * create a variable for the percentage of samples with detectable coliphage
+. * each day
+. gen fpc1601det=.
+(3,996 missing values generated)
+
+. replace fpc1601det=1 if fpc1601mpn >0.1 & fpc1601mpn<.
+(331 real changes made)
+
+. replace fpc1601det=0 if fpc1601mpn==0.1
+(322 real changes made)
+
+. 
+. egen fpc1601perdet = mean(fpc1601det), by(beach coldate)
+(3342 missing values generated)
+
+. 
+. gen fpcperdet = fpc1601perdet
+(3,342 missing values generated)
+
+. 
 . by beach coldate: keep if _n==1
 (3,775 observations deleted)
 
-. keep beach coldate avg*
+. keep beach coldate avg* fpc1601perdet fpcperdet
 
 . 
-. gen byte marine = !inlist(beach,"West","Washington Park","Silver","Huntington"
-> )
+. gen byte marine = !inlist(beach,"West","Washington Park","Silver","Huntington")
 
 .         label var marine "Marine beach"
 
@@ -164,9 +186,8 @@ Replacements of fpc1601mpn
 . tempfile neearwq
 
 . save `neearwq'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03100.000001 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000001 saved
 
-. 
 . 
 . 
 . *----------------------------------------
@@ -179,7 +200,8 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03100.000001 saved
 . * F-minus Coliphage 1601
 . * F-minus Coliphage 1602
 . *----------------------------------------
-. use "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", clear
+. use "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-samples.dta", clea
+> r
 (13 beaches water quality data, created by 8-append-wq-data.do)
 
 . keep if inlist(beach,"Avalon","Doheny","Malibu")
@@ -187,8 +209,8 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03100.000001 saved
 
 . 
 . * impute non-detects with 0.1
-. local vars "entero1600cfu enteroQPCRcce fpc1601mpn fpc1602mpn fmc1601mpn fmc16
-> 02mpn"
+. local vars "entero1600cfu enteroQPCRcce fpc1601mpn fpc1602mpn fmc1601mpn fmc1602mpn
+> "
 
 . foreach var of local vars {
   2.         di as res _n "Replacements of `var'"
@@ -250,14 +272,11 @@ Replacements of fmc1602mpn
 . foreach stub of local stubs {
   2.         sort beach beachcode coldate
   3.         by beach beachcode coldate: egen _dy = mean(log`stub')
-  4.         by beach beachcode coldate: egen _am = mean(log`stub') if coltime==
-> 8
-  5.         by beach beachcode coldate: egen _md = mean(log`stub') if coltime==
-> 11
-  6.         by beach beachcode coldate: egen _pm = mean(log`stub') if coltime==
-> 15
-  7.         * not doing shin + waist summaries for these beaches - waist only c
-> ollected
+  4.         by beach beachcode coldate: egen _am = mean(log`stub') if coltime==8
+  5.         by beach beachcode coldate: egen _md = mean(log`stub') if coltime==11
+  6.         by beach beachcode coldate: egen _pm = mean(log`stub') if coltime==15
+  7.         * not doing shin + waist summaries for these beaches - waist only collec
+> ted
 .         * for a few samples from Avalon
 .         * by beach beachcode coldate: egen _sh = mean(log`stub') if depth==1
 .         * by beach beachcode coldate: egen _wt = mean(log`stub') if depth==2
@@ -320,11 +339,62 @@ Replacements of fmc1602mpn
 (722 missing values generated)
 
 . 
+. * create a variable for the percentage of samples with detectable coliphage
+. * each day
+. 
+. local stubs "fpc1601 fpc1602 fmc1601 fmc1602"
+
+. foreach stub of local stubs {
+  2.         gen `stub'det=.
+  3.         replace `stub'det=1 if `stub'mpn >0.1 & `stub'mpn<.
+  4.         replace `stub'det=0 if `stub'mpn>0 & `stub'mpn<0.101
+  5.         egen `stub'perdet = mean(`stub'det), by(beach beachcode coldate)
+  6. 
+. }
+(1,493 missing values generated)
+(719 real changes made)
+(583 real changes made)
+(20 missing values generated)
+(1,493 missing values generated)
+(824 real changes made)
+(784 real changes made)
+(1,493 missing values generated)
+(419 real changes made)
+(203 real changes made)
+(984 missing values generated)
+(1,493 missing values generated)
+(824 real changes made)
+(539 real changes made)
+
+. 
+. gen fpcdet=.
+(1,493 missing values generated)
+
+. replace fpcdet = 1 if fpc1601det==1 | fpc1602det==1
+(633 real changes made)
+
+. replace fpcdet = 0 if (fpc1601det==0 | fpc1601det==.) & (fpc1602det==0 | fpc1602det
+> ==.)
+(860 real changes made)
+
+. egen fpcperdet = mean(fpcdet) , by(beach beachcode coldate)
+
+. 
+. gen fmcdet=0
+
+. replace fmcdet = 1 if fmc1601det==1 | fmc1602det==1
+(438 real changes made)
+
+. replace fmcdet = . if fmc1601det==. & fmc1602det==.
+(563 real changes made, 563 to missing)
+
+. egen fmcperdet = mean(fmcdet) , by(beach beachcode coldate)
+
 . 
 . by beach beachcode coldate: keep if _n==1
 (1,226 observations deleted)
 
-. keep beach beachcode coldate avg*
+. keep beach beachcode coldate avg* *perdet 
 
 . 
 . gen byte marine = 1
@@ -341,9 +411,8 @@ Replacements of fmc1602mpn
 . tempfile admwq
 
 . save `admwq'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03100.000002 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000002 saved
 
-. 
 . 
 . 
 . *----------------------------------------
@@ -355,7 +424,8 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03100.000002 saved
 . * F-plus Coliphage 1601
 . * F-minus Coliphage 1601
 . *----------------------------------------
-. use "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", clear
+. use "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq-samples.dta", clea
+> r
 (13 beaches water quality data, created by 8-append-wq-data.do)
 
 . keep if inlist(beach,"Mission Bay")
@@ -433,6 +503,62 @@ Imputing NDs for fmc1601mpn
 (269 missing values generated)
 
 . 
+. 
+. * create a variable for the percentage of samples with detectable coliphage
+. * each day
+. 
+. local stubs "fpc1601 fpc1602 fmc1601 fmc1602"
+
+. foreach stub of local stubs {
+  2.         gen `stub'det=.
+  3.         replace `stub'det=1 if `stub'mpn >0.1 & `stub'mpn<.
+  4.         replace `stub'det=0 if `stub'mpn>0 & `stub'mpn<0.101
+  5.         egen `stub'perdet = mean(`stub'det), by(beach beachcode coldate)
+  6. }
+(2,106 missing values generated)
+(16 real changes made)
+(125 real changes made)
+(269 missing values generated)
+(2,106 missing values generated)
+(0 real changes made)
+(0 real changes made)
+(2106 missing values generated)
+(2,106 missing values generated)
+(141 real changes made)
+(46 real changes made)
+(269 missing values generated)
+(2,106 missing values generated)
+(0 real changes made)
+(0 real changes made)
+(2106 missing values generated)
+
+. 
+. * pooled across assay
+. gen fpcdet=.
+(2,106 missing values generated)
+
+. replace fpcdet = 1 if fpc1601det==1 | fpc1602det==1
+(16 real changes made)
+
+. replace fpcdet = 0 if (fpc1601det==0 | fpc1601det==.) & (fpc1602det==0 | fpc1602det
+> ==.)
+(2,090 real changes made)
+
+. egen fpcperdet = mean(fpcdet) , by(beach beachcode coldate)
+
+. 
+. gen fmcdet=0
+
+. replace fmcdet = 1 if fmc1601det==1 | fmc1602det==1
+(95 real changes made)
+
+. replace fmcdet = . if fmc1601det==. & fmc1602det==.
+(1,965 real changes made, 1,965 to missing)
+
+. egen fmcperdet = mean(fmcdet) , by(beach beachcode coldate)
+(269 missing values generated)
+
+. 
 . * keep 1 obs per beach and day, and subset to relevant variables
 . bysort beach beachcode coldate: keep if _n==1
 (1,944 observations deleted)
@@ -443,7 +569,7 @@ Imputing NDs for fmc1601mpn
 (0 observations deleted)
 
 . 
-. keep beach beachcode coldate avgdy*
+. keep beach beachcode coldate avgdy* *perdet
 
 . 
 . gen marine = 1
@@ -458,7 +584,7 @@ Imputing NDs for fmc1601mpn
 . tempfile mbwq
 
 . save `mbwq'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03100.000003 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000003 saved
 
 . 
 . *----------------------------------------
@@ -622,12 +748,12 @@ Enterococcu |
 
 . gen int qavgdyenteropcr = 1
 
-.         replace qavgdyenteropcr = 2 if (avgdyenteropcr> `p25') & (avgdyenterop
-> cr <= `p50')
+.         replace qavgdyenteropcr = 2 if (avgdyenteropcr> `p25') & (avgdyenteropcr <=
+>  `p50')
 (133 real changes made)
 
-.         replace qavgdyenteropcr = 3 if (avgdyenteropcr> `p50') & (avgdyenterop
-> cr <= `p75')
+.         replace qavgdyenteropcr = 3 if (avgdyenteropcr> `p50') & (avgdyenteropcr <=
+>  `p75')
 (133 real changes made)
 
 .         replace qavgdyenteropcr = 4 if (avgdyenteropcr> `p75') 
@@ -675,8 +801,8 @@ Enterococcu |
 . *----------------------------------------
 . note: 13-Beaches Averaged Water Quality Data, created by 9-avg-wq-data.do
 
-. note: samples below detection were imputed with 0.1 before calculating log10 a
-> verages
+. note: samples below detection were imputed with 0.1 before calculating log10 averag
+> es
 
 . compress
   variable marine was float now byte
@@ -686,30 +812,30 @@ Enterococcu |
   variable qavgdyenteropcr was int now byte
   (7,150 bytes saved)
 
-. note: All indicators are means of log10 values, summarized daily over all samp
-> les, or separately for AM, Mid-Day, PM, shin-depth, or waist-depth samples 
+. note: All indicators are means of log10 values, summarized daily over all samples, 
+> or separately for AM, Mid-Day, PM, shin-depth, or waist-depth samples 
 
-. note: The enteropcr2-4 variables are alternative Enterococcus qPCR calculation
-> s at Avalon/Doheny/Malibu beaches only
+. note: The enteropcr2-4 variables are alternative Enterococcus qPCR calculations at 
+> Avalon/Doheny/Malibu beaches only
 
-. note: The Mission Bay water quality data are separate for 6 beaches within the
->  area and need to merge to individuals separately by beachcode
+. note: The Mission Bay water quality data are separate for 6 beaches within the area
+>  and need to merge to individuals separately by beachcode
 
-. note: Avalon water quality data are summarized separately for sites A/B/C and 
-> D; site D is very different. See Yau et al 2014 Figs 1 and 2.
+. note: Avalon water quality data are summarized separately for sites A/B/C and D; si
+> te D is very different. See Yau et al 2014 Figs 1 and 2.
 
-. note: Doheny and Malibu water quality data are summarized separately for sites
->  C; at both beaches site C was located in a lagoon. At Doheny, site E is also 
-> summarized separately, since it was nearly 1 mile from the other sampling site
-> s (See Fig 1 of Arnold et al. 2013 and SI Fig 1 of Colford et al. 2012)
+. note: Doheny and Malibu water quality data are summarized separately for sites C; a
+> t both beaches site C was located in a lagoon. At Doheny, site E is also summarized
+>  separately, since it was nearly 1 mile from the other sampling sites (See Fig 1 of
+>  Arnold et al. 2013 and SI Fig 1 of Colford et al. 2012)
 
-. note: Quartile categories for Entero 1600 and qPCR exclude water quality measu
-> rements from Doheny and Malibu sites C in the lagoons because they are not rep
-> resentative of the broader swimmer exposure. The Entero 1600 quartiles were ca
-> lculated using Enterolert data from Mission Bay
+. note: Quartile categories for Entero 1600 and qPCR exclude water quality measuremen
+> ts from Doheny and Malibu sites C in the lagoons because they are not representativ
+> e of the broader swimmer exposure. The Entero 1600 quartiles were calculated using 
+> Enterolert data from Mission Bay
 
-. note: AM/Mid-Day/PM and shin/waist disaggregations were not available for Miss
-> ion Bay due to different sampling methods at that beach
+. note: AM/Mid-Day/PM and shin/waist disaggregations were not available for Mission B
+> ay due to different sampling methods at that beach
 
 . 
 . 
@@ -718,79 +844,75 @@ Enterococcu |
 
 . label data "13 beaches water quality data, created by 9-avg-wq-data.do"
 
-. saveold "~/dropbox/13beaches/data/final/13beaches-wq.dta", replace version(12)
+. saveold "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq.dta", replace 
+> version(12)
 (saving in Stata 12 format, which can be read by Stata 11 or 12)
-file ~/dropbox/13beaches/data/final/13beaches-wq.dta saved
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/13beaches-
+> wq.dta not found)
+file ~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq.dta saved
 
-. outsheet using "~/dropbox/13beaches/data/final/13beaches-wq.csv", comma replac
-> e
+. outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq.csv", c
+> omma replace
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/13beaches-
+> wq.csv not found)
 
 . 
 . desc
 
-Contains data from ~/dropbox/13beaches/data/final/13beaches-wq.dta
+Contains data from ~/Documents/CRG/coliphage/13beaches-data/final/13beaches-wq.dta
   obs:           650                          13 beaches water quality data,
                                                 created by 9-avg-wq-data.do
- vars:            37                          17 Dec 2015 13:58
- size:        98,150                          (_dta has notes)
---------------------------------------------------------------------------------
+ vars:            43                          14 Jan 2016 16:50
+ size:       113,750                          (_dta has notes)
+-------------------------------------------------------------------------------------
               storage   display    value
 variable name   type    format     label      variable label
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 beach           str15   %15s                  Beach
-beachcode       str13   %13s                  Water quality sampling location
-                                                beach code
+beachcode       str13   %13s                  Water quality sampling location beach
+                                                code
 marine          byte    %8.0g                 Marine beach
 coldate         int     %d                    Sample Collection Date
 avgdyentero1600 float   %9.0g                 Daily Avg log10 Entero EPA 1600
 avgamentero1600 float   %9.0g                 AM Avg log10 Entero EPA 1600
 avgmdentero1600 float   %9.0g                 Mid-Day Avg log10 Entero EPA 1600
 avgpmentero1600 float   %9.0g                 PM Avg log10 Entero EPA 1600
-avgdyenteropcr  float   %9.0g                 Daily Avg log10 Entero qPCR EPA
-                                                1611
+avgdyenteropcr  float   %9.0g                 Daily Avg log10 Entero qPCR EPA 1611
 avgamenteropcr  float   %9.0g                 AM Avg log10 Entero qPCR EPA 1611
-avgmdenteropcr  float   %9.0g                 Mid-Day Avg log10 Entero qPCR EPA
-                                                1611
+avgmdenteropcr  float   %9.0g                 Mid-Day Avg log10 Entero qPCR EPA 1611
 avgpmenteropcr  float   %9.0g                 PM Avg log10 Entero qPCR EPA 1611
-avgdyfpc1601    float   %9.0g                 Daily Avg log10 F+ Coliphage EPA
-                                                1601
+avgdyfpc1601    float   %9.0g                 Daily Avg log10 F+ Coliphage EPA 1601
 avgamfpc1601    float   %9.0g                 AM Avg log10 F+ Coliphage EPA 1601
-avgmdfpc1601    float   %9.0g                 Mid-Day Avg log10 F+ Coliphage EPA
-                                                1601
+avgmdfpc1601    float   %9.0g                 Mid-Day Avg log10 F+ Coliphage EPA 1601
 avgpmfpc1601    float   %9.0g                 PM Avg log10 F+ Coliphage EPA 1601
-avgdyfpc1602    float   %9.0g                 Daily Avg log10 F+ Coliphage EPA
-                                                1602
+avgdyfpc1602    float   %9.0g                 Daily Avg log10 F+ Coliphage EPA 1602
 avgamfpc1602    float   %9.0g                 AM Avg log10 F+ Coliphage EPA 1602
-avgmdfpc1602    byte    %9.0g                 Mid-Day Avg log10 F+ Coliphage EPA
-                                                1602
+avgmdfpc1602    byte    %9.0g                 Mid-Day Avg log10 F+ Coliphage EPA 1602
 avgpmfpc1602    byte    %9.0g                 PM Avg log10 F+ Coliphage EPA 1602
-avgdyfmc1601    float   %9.0g                 Daily Avg log10 F- Coliphage EPA
-                                                1601
+avgdyfmc1601    float   %9.0g                 Daily Avg log10 F- Coliphage EPA 1601
 avgamfmc1601    float   %9.0g                 AM Avg log10 F- Coliphage EPA 1601
-avgmdfmc1601    float   %9.0g                 Mid-Day Avg log10 F- Coliphage EPA
-                                                1601
+avgmdfmc1601    float   %9.0g                 Mid-Day Avg log10 F- Coliphage EPA 1601
 avgpmfmc1601    float   %9.0g                 PM Avg log10 F- Coliphage EPA 1601
-avgdyfmc1602    float   %9.0g                 Daily Avg log10 F- Coliphage EPA
-                                                1602
+avgdyfmc1602    float   %9.0g                 Daily Avg log10 F- Coliphage EPA 1602
 avgamfmc1602    float   %9.0g                 AM Avg log10 F- Coliphage EPA 1602
-avgmdfmc1602    float   %9.0g                 Mid-Day Avg log10 F- Coliphage EPA
-                                                1602
+avgmdfmc1602    float   %9.0g                 Mid-Day Avg log10 F- Coliphage EPA 1602
 avgpmfmc1602    float   %9.0g                 PM Avg log10 F- Coliphage EPA 1602
+fpc1601perdet   float   %9.0g                 
+fpc1602perdet   float   %9.0g                 
+fmc1601perdet   float   %9.0g                 
+fmc1602perdet   float   %9.0g                 
+fpcperdet       float   %9.0g                 
+fmcperdet       float   %9.0g                 
 avgdyenteroELT  float   %9.0g                 Daily Avg log10 Entero Enterolert
 avgshentero1600 float   %9.0g                 shin Avg log10 Entero EPA 1600
 avgwtentero1600 float   %9.0g                 waist Avg log10 Entero EPA 1600
-avgshenteropcr  float   %9.0g                 shin Avg log10 Entero qPCR EPA
-                                                1611
-avgwtenteropcr  float   %9.0g                 waist Avg log10 Entero qPCR EPA
-                                                1611
-avgshfpc1601    float   %9.0g                 shin Avg log10 F+ Coliphage EPA
-                                                1601
-avgwtfpc1601    float   %9.0g                 waist Avg log10 F+ Coliphage EPA
-                                                1601
+avgshenteropcr  float   %9.0g                 shin Avg log10 Entero qPCR EPA 1611
+avgwtenteropcr  float   %9.0g                 waist Avg log10 Entero qPCR EPA 1611
+avgshfpc1601    float   %9.0g                 shin Avg log10 F+ Coliphage EPA 1601
+avgwtfpc1601    float   %9.0g                 waist Avg log10 F+ Coliphage EPA 1601
 qavgdyente~1600 byte    %8.0g                 Quartiles of Enterococcus EPA 1600
-qavgdyenteropcr byte    %8.0g                 Quartiles of Enterococcus EPA qPCR
-                                                1611
---------------------------------------------------------------------------------
+qavgdyenteropcr byte    %8.0g                 Quartiles of Enterococcus EPA qPCR 1611
+-------------------------------------------------------------------------------------
 Sorted by: 
 
 . 
@@ -798,7 +920,8 @@ Sorted by:
 . * write a codebook to separate file
 . log close
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/9-avg-wq-data.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/9-a
+> vg-wq-data.log
   log type:  text
- closed on:  17 Dec 2015, 13:58:35
---------------------------------------------------------------------------------
+ closed on:  14 Jan 2016, 16:50:10
+-------------------------------------------------------------------------------------

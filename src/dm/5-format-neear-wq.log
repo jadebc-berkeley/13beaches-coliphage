@@ -1,8 +1,9 @@
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/5-format-neear-wq.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/5-f
+> ormat-neear-wq.log
   log type:  text
- opened on:  17 Dec 2015, 13:58:27
+ opened on:  14 Jan 2016, 16:49:48
 
 . 
 . *----------------------------------------
@@ -44,7 +45,8 @@
 . 
 . *------------------------------
 . * Freshwater Entero 1600 data
-. insheet using "~/dropbox/13beaches/data/untouched/neear/cfudata.txt", clear
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/cfudata.txt
+> ", clear
 (7 vars, 1,600 obs)
 
 . 
@@ -82,13 +84,13 @@
 . tempfile fresh1600
 
 . save `fresh1600'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000001 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000001 saved
 
 . 
 . *------------------------------
 . * Marine Entero 1600 data
-. insheet using "~/dropbox/13beaches/data/untouched/neear/wqentero1600marine.txt
-> ", clear
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqentero160
+> 0marine.txt", clear
 (9 vars, 1,260 obs)
 
 . 
@@ -117,13 +119,13 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000001 saved
 . tempfile marine1600
 
 . save `marine1600'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000002 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000002 saved
 
 . 
 . *------------------------------
 . * 2009 studies Entero 1600 data
-. insheet using "~/dropbox/13beaches/data/untouched/neear/wqentero16002009.txt",
->  clear
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqentero160
+> 02009.txt", clear
 (9 vars, 1,130 obs)
 
 . 
@@ -168,10 +170,8 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000002 saved
 . append using `marine1600'
 
 . append using `fresh1600'
-(note: variable sampleid was str9, now str10 to accommodate using data's
-       values)
-(note: variable entero1600cfu was int, now long to accommodate using data's
-       values)
+(note: variable sampleid was str9, now str10 to accommodate using data's values)
+(note: variable entero1600cfu was int, now long to accommodate using data's values)
 
 . 
 . * check for duplicates and fix 2 IDs
@@ -188,12 +188,12 @@ Duplicates in terms of beach sampleid
   |      2   3703      WP    71050115W |
   +------------------------------------+
 
-.         replace sampleid = "71150115SS" if (sampleid=="71050115SS") & beach=="
-> SB" & coldate==mdy(7,11,2004)
+.         replace sampleid = "71150115SS" if (sampleid=="71050115SS") & beach=="SB" &
+>  coldate==mdy(7,11,2004)
 (1 real change made)
 
-.         replace sampleid = "71150115W" if (sampleid=="71050115W") & beach=="WP
-> " & coldate==mdy(7,11,2004)
+.         replace sampleid = "71150115W" if (sampleid=="71050115W") & beach=="WP" & c
+> oldate==mdy(7,11,2004)
 (1 real change made)
 
 .         duplicates report beach sampleid
@@ -221,8 +221,8 @@ Duplicates in terms of beach sampleid
 
 . label var sampleid "Water sample ID"
 
-.         note sampleid: for NEEAR beaches this is date (3) loc (1) type(2) time
->  (02) beach(1)
+.         note sampleid: for NEEAR beaches this is date (3) loc (1) type(2) time (02)
+>  beach(1)
 
 . label var sampleloc "Water sample location"
 
@@ -234,7 +234,7 @@ Duplicates in terms of beach sampleid
 . tempfile neearentero
 
 . save `neearentero'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000003 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000003 saved
 
 . 
 . 
@@ -244,26 +244,26 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000003 saved
 . * merge to the existing dataset
 . *----------------------------------------
 . 
-. insheet using "~/dropbox/13beaches/data/untouched/neear/wqepcrddctfresh.txt", 
-> clear
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqepcrddctf
+> resh.txt", clear
 (10 vars, 1,600 obs)
 
 . tempfile freshqpcr
 
 . save `freshqpcr'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000004 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000004 saved
 
-. insheet using "~/dropbox/13beaches/data/untouched/neear/wqepcrddctmarine.txt",
->  clear
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqepcrddctm
+> arine.txt", clear
 (11 vars, 1,260 obs)
 
 . tempfile marineqpcr
 
 . save `marineqpcr'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000005 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000005 saved
 
-. insheet using "~/dropbox/13beaches/data/untouched/neear/wqepcrddct2009.txt", c
-> lear
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqepcrddct2
+> 009.txt", clear
 (11 vars, 1,132 obs)
 
 . append using `freshqpcr'
@@ -330,8 +330,7 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000005 saved
 . label var passes_qc "Passes Salmon QC criterion"
 
 . 
-. order beach sampleid coldate coltime sampleloc depth dl passes_qc enteroQPCRcc
-> e
+. order beach sampleid coldate coltime sampleloc depth dl passes_qc enteroQPCRcce
 
 . keep beach sampleid coldate coltime sampleloc depth dl passes_qc enteroQPCRcce
 
@@ -341,7 +340,7 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000005 saved
 . tempfile neearqpcr
 
 . save `neearqpcr'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000006 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000006 saved
 
 . 
 . 
@@ -387,7 +386,7 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000006 saved
 
 . 
 . save `neearentero', replace
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000003 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000003 saved
 
 . 
 . 
@@ -396,7 +395,8 @@ file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000003 saved
 . * merge to the existing dataset
 . *----------------------------------------
 . 
-. use "~/dropbox/13beaches/data/untouched/neear/wqphagemarine.dta", clear
+. use "~/Documents/CRG/coliphage/13beaches-data/untouched/neear/wqphagemarine.dta", c
+> lear
 (SAVASTATA created this dataset on 29NOV2010)
 
 . 
@@ -415,15 +415,14 @@ sampleloc contains nonnumeric characters; sampleloc replaced as byte
 
 . 
 . * restrict to non-redundant variables
-. keep  beach coldate coltime sampleloc depth sampleid_neearphage beach mpn_* fr
-> ozen
+. keep  beach coldate coltime sampleloc depth sampleid_neearphage beach mpn_* frozen
 
 . sort beach coldate coltime sampleloc depth
 
 . tempfile neearphage
 
 . save `neearphage'
-file /var/folders/1g/dryqjv753dv7rgwhzs2lyl140000gp/T//S_03092.000007 saved
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_11317.000007 saved
 
 . 
 . * merge to the main dataset.
@@ -549,8 +548,8 @@ variable beach was str10 now str15
 . * the detection limit
 . *----------------------------------------
 . 
-. local vars "entero1600cfu fpc1601mpn rnaclat5mpn dnaclat5mpn group1clat5mpn gr
-> oup2clat5mpn group3clat5mpn group4clat5mpn"
+. local vars "entero1600cfu fpc1601mpn rnaclat5mpn dnaclat5mpn group1clat5mpn group2c
+> lat5mpn group3clat5mpn group4clat5mpn"
 
 . capture label drop ND
 
@@ -579,18 +578,17 @@ variable beach was str10 now str15
 
 . 
 . 
-. order beach coldate coltime sampleid_neear1600 sampleid_neearqpcr sampleid_nee
-> arphage stationid swimloc depth frozen entero1600* enteroQPCRcce enteroQPCRcce
-> _nd enteroQPCRcce_qc fpc1601* rnaclat5* dnaclat5* group1* group2* group3* grou
-> p4*
+. order beach coldate coltime sampleid_neear1600 sampleid_neearqpcr sampleid_neearpha
+> ge stationid swimloc depth frozen entero1600* enteroQPCRcce enteroQPCRcce_nd entero
+> QPCRcce_qc fpc1601* rnaclat5* dnaclat5* group1* group2* group3* group4*
 
 . 
 . 
 . *----------------------------------------
 . * save an individual water-sample dataset
 . *----------------------------------------
-. note: for Entero QPCR samples that failed QC criteron, the value was imputed b
-> ased on the average of the other two samples at the same depth and time
+. note: for Entero QPCR samples that failed QC criteron, the value was imputed based 
+> on the average of the other two samples at the same depth and time
 
 . compress
   variable coldate was float now int
@@ -607,38 +605,39 @@ variable beach was str10 now str15
 
 . label data "NEEAR water sample data, formatted by 5-format-neear-wq.do"
 
-. save "~/dropbox/13beaches/data/final/neear-wq-samples.dta", replace
-file ~/dropbox/13beaches/data/final/neear-wq-samples.dta saved
+. save "~/Documents/CRG/coliphage/13beaches-data/final/neear-wq-samples.dta", replace
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/neear-wq-s
+> amples.dta not found)
+file ~/Documents/CRG/coliphage/13beaches-data/final/neear-wq-samples.dta saved
 
-. outsheet using "~/dropbox/13beaches/data/final/neear-wq-samples.csv", comma re
-> place
+. outsheet using "~/Documents/CRG/coliphage/13beaches-data/final/neear-wq-samples.csv
+> ", comma replace
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/neear-wq-s
+> amples.csv not found)
 
 . 
 . desc
 
-Contains data from ~/dropbox/13beaches/data/final/neear-wq-samples.dta
-  obs:         3,996                          NEEAR water sample data,
-                                                formatted by
+Contains data from ~/Documents/CRG/coliphage/13beaches-data/final/neear-wq-samples.dt
+> a
+  obs:         3,996                          NEEAR water sample data, formatted by
                                                 5-format-neear-wq.do
- vars:            29                          17 Dec 2015 13:58
+ vars:            29                          14 Jan 2016 16:49
  size:       503,496                          (_dta has notes)
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
               storage   display    value
 variable name   type    format     label      variable label
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 beach           str15   %15s                  Beach
 coldate         int     %d                    Sample Collection Date
 coltime         byte    %9.0g                 Sample Collection Time
-sampleid_n~1600 str10   %10s                * Water Sample ID, NEEAR Entero 1600
-                                                data
+sampleid_n~1600 str10   %10s                * Water Sample ID, NEEAR Entero 1600 data
 sampleid_neea~r str9    %9s                   Water Sample ID
-sampleid_neea~e str9    %9s                   Water Sample ID, NEEAR Coliphage
-                                                Data
+sampleid_neea~e str9    %9s                   Water Sample ID, NEEAR Coliphage Data
 stationid       str1    %9s                   Water sample station/location ID
 swimloc         byte    %8.0g                 Swim area location
 depth           byte    %11.0g     depth      Sample depth
-frozen          byte    %8.0g                 Sample frozen (coliphage assays
-                                                only)
+frozen          byte    %8.0g                 Sample frozen (coliphage assays only)
 entero1600cfu   long    %8.0g                 Enterococcus 1600 CFU/100ml
 entero1600cfu~d byte    %15.0g     ND         Enterococcus 1600 CFU/100ml, below
                                                 detection
@@ -648,39 +647,37 @@ enteroQPCRcce~c str3    %9s                   Passes Salmon QC criterion
 fpc1601mpn      double  %10.0g                F-plus Coliphage EPA 1601
 fpc1601mpn_nd   byte    %15.0g     ND         F-plus Coliphage EPA 1601, below
                                                 detection
-rnaclat5mpn     double  %10.0g                MPN RNA Coliphage, 5-hour Clat
+rnaclat5mpn     double  %10.0g                MPN RNA Coliphage, 5-hour Clat assay
+rnaclat5mpn_nd  byte    %15.0g     ND         MPN RNA Coliphage, 5-hour Clat assay,
+                                                below detection
+dnaclat5mpn     double  %10.0g                MPN DNA Coliphage, 5-hour Clat assay
+dnaclat5mpn_nd  byte    %15.0g     ND         MPN DNA Coliphage, 5-hour Clat assay,
+                                                below detection
+group1clat5mpn  double  %10.0g                MPN Group 1 RNA Coliphage, 5-hour Clat
                                                 assay
-rnaclat5mpn_nd  byte    %15.0g     ND         MPN RNA Coliphage, 5-hour Clat
+group1clat5mp~d byte    %15.0g     ND         MPN Group 1 RNA Coliphage, 5-hour Clat
                                                 assay, below detection
-dnaclat5mpn     double  %10.0g                MPN DNA Coliphage, 5-hour Clat
+group2clat5mpn  double  %10.0g                MPN Group 2 RNA Coliphage, 5-hour Clat
                                                 assay
-dnaclat5mpn_nd  byte    %15.0g     ND         MPN DNA Coliphage, 5-hour Clat
+group2clat5mp~d byte    %15.0g     ND         MPN Group 2 RNA Coliphage, 5-hour Clat
                                                 assay, below detection
-group1clat5mpn  double  %10.0g                MPN Group 1 RNA Coliphage, 5-hour
-                                                Clat assay
-group1clat5mp~d byte    %15.0g     ND         MPN Group 1 RNA Coliphage, 5-hour
-                                                Clat assay, below detection
-group2clat5mpn  double  %10.0g                MPN Group 2 RNA Coliphage, 5-hour
-                                                Clat assay
-group2clat5mp~d byte    %15.0g     ND         MPN Group 2 RNA Coliphage, 5-hour
-                                                Clat assay, below detection
-group3clat5mpn  double  %10.0g                MPN Group 3 RNA Coliphage, 5-hour
-                                                Clat assay
-group3clat5mp~d byte    %15.0g     ND         MPN Group 3 RNA Coliphage, 5-hour
-                                                Clat assay, below detection
-group4clat5mpn  double  %10.0g                MPN Group 4 RNA Coliphage, 5-hour
-                                                Clat assay
-group4clat5mp~d byte    %15.0g     ND         MPN Group 4 RNA Coliphage, 5-hour
-                                                Clat assay, below detection
+group3clat5mpn  double  %10.0g                MPN Group 3 RNA Coliphage, 5-hour Clat
+                                                assay
+group3clat5mp~d byte    %15.0g     ND         MPN Group 3 RNA Coliphage, 5-hour Clat
+                                                assay, below detection
+group4clat5mpn  double  %10.0g                MPN Group 4 RNA Coliphage, 5-hour Clat
+                                                assay
+group4clat5mp~d byte    %15.0g     ND         MPN Group 4 RNA Coliphage, 5-hour Clat
+                                                assay, below detection
                                             * indicated variables have notes
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 Sorted by: 
 
 . notes
 
 _dta:
-  1.  for Entero QPCR samples that failed QC criteron, the value was imputed
-      based on the average of the other two samples at the same depth and time
+  1.  for Entero QPCR samples that failed QC criteron, the value was imputed based on
+      the average of the other two samples at the same depth and time
 
 sampleid_neear1600:
   1.  for NEEAR beaches this is date (3) loc (1) type(2) time (02) beach(1)
@@ -688,7 +685,8 @@ sampleid_neear1600:
 . 
 . log close
       name:  <unnamed>
-       log:  /Users/benarnold/dropbox/13beaches/src/dm/5-format-neear-wq.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/5-f
+> ormat-neear-wq.log
   log type:  text
- closed on:  17 Dec 2015, 13:58:28
---------------------------------------------------------------------------------
+ closed on:  14 Jan 2016, 16:49:48
+-------------------------------------------------------------------------------------

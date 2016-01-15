@@ -1,8 +1,9 @@
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/benarnold/13beaches/src/dm/3-format-mb-epi.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/3-f
+> ormat-mb-epi.log
   log type:  text
- opened on:  14 Jan 2016, 11:13:39
+ opened on:  14 Jan 2016, 16:44:55
 
 . 
 . *----------------------------------------
@@ -42,8 +43,8 @@
 . *----------------------------------------
 . 
 . 
-. use "~/dropbox/13beaches/data/untouched/missionbay/mb_analysis_final.dta", cle
-> ar
+. use "~/Documents/CRG/coliphage/13beaches-data/untouched/missionbay/mb_analysis_fina
+> l.dta", clear
 (SD WET Microbiolgoical Data)
 
 . 
@@ -137,53 +138,47 @@
 .         label var anycontact "Any contact with water"
 
 . 
-. * Note: for Mission bay, cannot separate out medication use by OTC vs. prescri
-> ption
-. * any medication use (either OTC or prescription) is stored in the common OTC 
-> variables
+. * Note: for Mission bay, cannot separate out medication use by OTC vs. prescription
+. * any medication use (either OTC or prescription) is stored in the common OTC varia
+> bles
 . rename gh8_h anyotcmeds_ear
 
 .         recode anyotcmeds_ear (5=0)
 (anyotcmeds_ear: 85 changes made)
 
-.         label var anyotcmeds_ear "Used OTC medications for syndrome (Ear_infec
-> )"
+.         label var anyotcmeds_ear "Used OTC medications for syndrome (Ear_infec)"
 
 . rename gh7_h anyotcmeds_eye
 
 .         recode anyotcmeds_eye (5=0)
 (anyotcmeds_eye: 237 changes made)
 
-.         label var anyotcmeds_eye "Used OTC medications for syndrome (Eye_infec
-> )"
+.         label var anyotcmeds_eye "Used OTC medications for syndrome (Eye_infec)"
 
 . 
 . gen anyotcmeds_gas = (gh12_h==1) | (gh13_h==1) | (gh14_h==1) | (gh15_h==1)
 
-.         replace anyotcmeds_gas = . if (gh12_h==.) & (gh13_h==.) & (gh14_h==.) 
-> & (gh15_h==.)
+.         replace anyotcmeds_gas = . if (gh12_h==.) & (gh13_h==.) & (gh14_h==.) & (gh
+> 15_h==.)
 (8,075 real changes made, 8,075 to missing)
 
-.         label var anyotcmeds_gas "Used OTC medications for syndrome (GI_illnes
-> s)"
+.         label var anyotcmeds_gas "Used OTC medications for syndrome (GI_illness)"
 
 .         
 . gen anyotcmeds_res = (gh16_h==1) | (gh17_h==1) | (gh18_h==1) | (gh19_h==1)
 
-.         replace anyotcmeds_res = . if (gh16_h==.) & (gh17_h==.) & (gh18_h==.) 
-> & (gh19_h==.)
+.         replace anyotcmeds_res = . if (gh16_h==.) & (gh17_h==.) & (gh18_h==.) & (gh
+> 19_h==.)
 (7,849 real changes made, 7,849 to missing)
 
-.         label var anyotcmeds_res "Used OTC medications for syndrome (Respirato
-> ry)"
+.         label var anyotcmeds_res "Used OTC medications for syndrome (Respiratory)"
 
 . rename gh10_h anyotcmeds_skn
 
 .         recode anyotcmeds_skn (5=0)
 (anyotcmeds_skn: 187 changes made)
 
-.         label var anyotcmeds_skn "Used OTC medications for syndrome (Skin_Rash
-> )"
+.         label var anyotcmeds_skn "Used OTC medications for syndrome (Skin_Rash)"
 
 .         
 . * Not Measured: aanyotcmeds_uti
@@ -294,8 +289,8 @@
 (1 real change made)
 
 . 
-. gen differentbeach = (sw1c_c>0 & sw1c_c!=. & sw1c_c!=98) | (sw1d_c>0 & sw1d_c!
-> =. & sw1d_c!=98)
+. gen differentbeach = (sw1c_c>0 & sw1c_c!=. & sw1c_c!=98) | (sw1d_c>0 & sw1d_c!=. & 
+> sw1d_c!=98)
 
 .         label var differentbeach "Summary variable: swam at other beach"
 
@@ -306,8 +301,8 @@
 (drinksy: 7726 changes made)
 
 . 
-. * note: sunhr and sunmin not calculable for Mission Bay -- only collected as c
-> ategorical data
+. * note: sunhr and sunmin not calculable for Mission Bay -- only collected as catego
+> rical data
 . * create sunhr_cat rather than sunhr
 . rename saq9b sunhr_cat
 
@@ -317,8 +312,8 @@
 . * Not Measured: sunmin  
 . 
 . 
-. * earache and ear discharge need to be combined.  combine into one, using the 
-> min(start date)
+. * earache and ear discharge need to be combined.  combine into one, using the min(s
+> tart date)
 . rename earache earache2
 
 . gen earache = (earache2==1) | (ear_discharge==1)
@@ -326,8 +321,8 @@
 .         replace earache = . if (earache2==.) & (ear_discharge==.)
 (46 real changes made, 46 to missing)
 
-.         label var earache "Person had earache/infection/runny ears since beach
->  interview"
+.         label var earache "Person had earache/infection/runny ears since beach inte
+> rview"
 
 . 
 . gen eardt1 = mdy(gh8_b1,gh9_b2,2003)
@@ -445,8 +440,8 @@
 
 .         label var gichron "Chronic GI problems/Crohn's/IBS"
 
-.         * assume that the large number of individuals with missing values (370
-> 3) do not have chronic GI problems
+.         * assume that the large number of individuals with missing values (3703) do
+>  not have chronic GI problems
 .         replace gichron = 0 if gichron==.
 (31 real changes made)
 
@@ -473,8 +468,8 @@
 . * create hhinc_mb
 . rename isum hhinc_mb
 
-.         label var hhinc_mb "Household Pre-tax income, 2002 (Mission Bay catego
-> ries)"
+.         label var hhinc_mb "Household Pre-tax income, 2002 (Mission Bay categories)
+> "
 
 . 
 . * Not Measured: hospitaldays_ear
@@ -599,8 +594,8 @@
 
 . label drop race
 
-. label define race 1 "white" 2 "white, hispanic" 3 "non-white, hispanic" 4 "bla
-> ck" 5 "asian" 6 "american indian" 7 "multiple races" 8 "other" 9 "missing"
+. label define race 1 "white" 2 "white, hispanic" 3 "non-white, hispanic" 4 "black" 5
+>  "asian" 6 "american indian" 7 "multiple races" 8 "other" 9 "missing"
 
 . rename race2 race
 
@@ -726,16 +721,16 @@
 .         
 . gen byte stayhome_gas = (gh12_d==1) | (gh13_d==1) | (gh14_d==1) | (gh15_d==1)
 
-.         replace stayhome_gas = . if (gh12_d==.) & (gh13_d==.) & (gh14_d==.) & 
-> (gh15_d==.)
+.         replace stayhome_gas = . if (gh12_d==.) & (gh13_d==.) & (gh14_d==.) & (gh15
+> _d==.)
 (8,495 real changes made, 8,495 to missing)
 
 .         label var stayhome_gas "Missed work/school for syndrome (GI_illness)"
 
 . gen byte stayhome_res = (gh16_d==1) | (gh17_d==1) | (gh18_d==1) | (gh19_d==1)
 
-.         replace stayhome_res = . if (gh16_d==.) & (gh17_d==.) & (gh18_d==.) & 
-> (gh19_d==.)
+.         replace stayhome_res = . if (gh16_d==.) & (gh17_d==.) & (gh18_d==.) & (gh19
+> _d==.)
 (8,344 real changes made, 8,344 to missing)
 
 . gen byte stayhome_skn = (gh10_d==1)
@@ -751,32 +746,32 @@
 . gen stayhomedays_ear = max(gh8_e,gh9_e)
 (8,772 missing values generated)
 
-.         label var stayhomedays_ear "Number of days missed from work/school (Ea
-> r_infec)"
+.         label var stayhomedays_ear "Number of days missed from work/school (Ear_inf
+> ec)"
 
 . gen stayhomedays_eye = gh7_e
 (8,785 missing values generated)
 
-.         label var stayhomedays_eye "Number of days missed from work/school (Ey
-> e_infec)"
+.         label var stayhomedays_eye "Number of days missed from work/school (Eye_inf
+> ec)"
 
 . gen stayhomedays_gas = max(gh12_e,gh13_e,gh14_e,gh15_e)
 (8,726 missing values generated)
 
-.         label var stayhomedays_gas "Number of days missed from work/school (GI
-> _illness)"
+.         label var stayhomedays_gas "Number of days missed from work/school (GI_illn
+> ess)"
 
 . gen stayhomedays_res = max(gh16_e,gh17_e,gh18_e,gh19_e)
 (8,739 missing values generated)
 
-.         label var stayhomedays_res "Number of days missed from work/school (Re
-> spiratory)"
+.         label var stayhomedays_res "Number of days missed from work/school (Respira
+> tory)"
 
 . gen stayhomedays_skn = gh10_e
 (8,794 missing values generated)
 
-.         label var stayhomedays_skn "Number of days missed from work/school (Sk
-> in_rash)"
+.         label var stayhomedays_skn "Number of days missed from work/school (Skin_ra
+> sh)"
 
 .         
 . * Not Measured: stayhomedays_uti
@@ -816,16 +811,16 @@
 
 . gen byte stopdaily_gas = (gh12_f==1) | (gh13_f==1) | (gh14_f==1) | (gh15_f==1)
 
-.         replace stopdaily_gas = . if (gh12_f==.) & (gh13_f==.) & (gh14_f==.) &
->  (gh15_f==.)
+.         replace stopdaily_gas = . if (gh12_f==.) & (gh13_f==.) & (gh14_f==.) & (gh1
+> 5_f==.)
 (8,074 real changes made, 8,074 to missing)
 
 .         label var stopdaily_gas "Missed other activities (GI_illness)"
 
 . gen byte stopdaily_res = (gh16_f==1) | (gh17_f==1) | (gh18_f==1) | (gh19_f==1)
 
-.         replace stopdaily_res = . if (gh16_f==.) & (gh17_f==.) & (gh18_f==.) &
->  (gh19_f==.)
+.         replace stopdaily_res = . if (gh16_f==.) & (gh17_f==.) & (gh18_f==.) & (gh1
+> 9_f==.)
 (7,848 real changes made, 7,848 to missing)
 
 .         label var stopdaily_res "Missed other activities (Respiratory)"
@@ -841,32 +836,29 @@
 . gen stopdailydays_ear = max(gh8_g,gh9_g)
 (8,723 missing values generated)
 
-.         label var stopdailydays_ear "Days missed from other activities (Ear_in
-> fec)"
+.         label var stopdailydays_ear "Days missed from other activities (Ear_infec)"
 
 . gen stopdailydays_eye = gh9_g
 (8,788 missing values generated)
 
-.         label var stopdailydays_eye "Days missed from other activities (Eye_in
-> fec)"
+.         label var stopdailydays_eye "Days missed from other activities (Eye_infec)"
 
 . gen stopdailydays_gas = max(gh12_g,gh13_g,gh14_g,gh15_g)
 (8,482 missing values generated)
 
-.         label var stopdailydays_gas "Days missed from other activities (GI_ill
-> ness)"
+.         label var stopdailydays_gas "Days missed from other activities (GI_illness)
+> "
 
 . gen stopdailydays_res  = max(gh16_g,gh17_g,gh18_g,gh19_g)
 (8,548 missing values generated)
 
-.         label var stopdailydays_res "Days missed from other activities (Respir
-> atory)"
+.         label var stopdailydays_res "Days missed from other activities (Respiratory
+> )"
 
 . gen stopdailydays_skn = gh10_g
 (8,757 missing values generated)
 
-.         label var stopdailydays_skn "Days missed from other activities (Skin_r
-> ash)"
+.         label var stopdailydays_skn "Days missed from other activities (Skin_rash)"
 
 . 
 . * Not Measured: stopdailydays_uti
@@ -913,16 +905,16 @@
 
 . gen byte visitdoc_gas =  (gh12_c==1) | (gh13_c==1) | (gh14_c==1) | (gh15_c==1)
 
-.         replace visitdoc_gas = . if (gh12_c==.) & (gh13_c==.) & (gh14_c==.) & 
-> (gh15_c==.)
+.         replace visitdoc_gas = . if (gh12_c==.) & (gh13_c==.) & (gh14_c==.) & (gh15
+> _c==.)
 (8,074 real changes made, 8,074 to missing)
 
 .         label var visitdoc_gas "Visited doctor/nurse/clinic (GI_illness)"
 
 . gen byte visitdoc_res = (gh16_c==1) | (gh17_c==1) | (gh18_c==1) | (gh19_c==1)
 
-.         replace visitdoc_res =. if (gh16_c==.) & (gh17_c==.) & (gh18_c==.) & (
-> gh19_c==.)
+.         replace visitdoc_res =. if (gh16_c==.) & (gh17_c==.) & (gh18_c==.) & (gh19_
+> c==.)
 (7,849 real changes made, 7,849 to missing)
 
 .         label var visitdoc_res "Visited doctor/nurse/clinic (Respiratory)"
@@ -1044,9 +1036,9 @@
 
 . 
 . * recode variables from 2=0
-. local vlist "cutbase eggs_base rawmeat_base fish_base anim_base gicontact_base
->  skinchron block prothat shade repel eatfood food earplugs noseplugs mask preg
->  publicpool fish_int rawmeat_int"
+. local vlist "cutbase eggs_base rawmeat_base fish_base anim_base gicontact_base skin
+> chron block prothat shade repel eatfood food earplugs noseplugs mask preg publicpoo
+> l fish_int rawmeat_int"
 
 . recode `vlist' (2=0)
 (cutbase: 8076 changes made)
@@ -1102,8 +1094,8 @@ delimiter now ;
 > rawfood
 > asth gichron skinchron allergy preg 
 > anycontact bodycontact headunder mouthwater swallwater wave
-> diarrhea nausea vomiting fever sorethroat cough runnynose earache eyeinfection
->  cut rash
+> diarrhea nausea vomiting fever sorethroat cough runnynose earache eyeinfection cut 
+> rash
 > *allergy
 > working 
 > race hisp
@@ -1121,10 +1113,10 @@ delimiter now ;
 delimiter now cr
 . 
 . * Retained in other datasets, but missing in Mission Bay
-. * hhmem wetsuit dsun sanddry sandmouth sandwash algaemouth algaewash come pool
->  diarrheanumber vomitingnumber urinarytractinfection * *_uti *still *days feve
-> rtemp* headache cold wateryeyes sunburn racehaw utibase  vomitbase earbase sit
-> eid stmatch groundwater berm
+. * hhmem wetsuit dsun sanddry sandmouth sandwash algaemouth algaewash come pool diar
+> rheanumber vomitingnumber urinarytractinfection * *_uti *still *days fevertemp* hea
+> dache cold wateryeyes sunburn racehaw utibase  vomitbase earbase siteid stmatch gro
+> undwater berm
 . 
 . 
 . 
@@ -1137,8 +1129,10 @@ delimiter now cr
 
 . label data "variables for mb-epi.dta"
 
-. save "~/dropbox/13beaches/data/temp/mb-epi-vars.dta", replace
-file ~/dropbox/13beaches/data/temp/mb-epi-vars.dta saved
+. save "~/Documents/CRG/coliphage/13beaches-data/temp/mb-epi-vars.dta", replace
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/temp/mb-epi-vars
+> .dta not found)
+file ~/Documents/CRG/coliphage/13beaches-data/temp/mb-epi-vars.dta saved
 
 . restore
 
@@ -1151,16 +1145,18 @@ file ~/dropbox/13beaches/data/temp/mb-epi-vars.dta saved
 . *----------------------------------------
 . label data "Mission Bay epi data, created by 3-format-mb-epi.do"
 
-. save "~/dropbox/13beaches/data/final/mb-epi.dta", replace
-file ~/dropbox/13beaches/data/final/mb-epi.dta saved
+. save "~/Documents/CRG/coliphage/13beaches-data/final/mb-epi.dta", replace
+(note: file /Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/mb-epi.dta
+>  not found)
+file ~/Documents/CRG/coliphage/13beaches-data/final/mb-epi.dta saved
 
 . 
 . codebook, c
 
 Variable       Obs Unique      Mean    Min    Max  Label
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 beach         8797      1         .      .      .  Beach
-beachcode     8797      6         .      .      .  Water quality sampling loc...
+beachcode     8797      6         .      .      .  Water quality sampling location...
 hhid          8797   3425         .      .      .  Household ID
 indid         8797   8797         .      .      .  Individual ID
 intdate       8797     30  15907.19  15849  15949  Beach interview date
@@ -1174,11 +1170,11 @@ noseplugs     4742      2  .0048503      0      1  WATER ITEMS: Nose Plugs
 mask          4742      2  .0377478      0      1  WATER ITEMS: Goggles or Mask
 dig           8593      2   .356802      0      1  BEACH ACTIVITIES: Dig in Sand
 bsand         8593      2  .0588851      0      1  Had body buried in sand (R)
-algae         8593      2  .0430583      0      1  BEACH ACTIVITIES: Play wit...
+algae         8593      2  .0430583      0      1  BEACH ACTIVITIES: Play with Alg...
 repel         8589      2  .0256142      0      1  WEAR OR USE: Insect Repellant
-block         8589      2  .5366166      0      1  Wear sunscreen-block today...
+block         8589      2  .5366166      0      1  Wear sunscreen-block today (R)
 prothat       8589      2  .2396088      0      1  WEAR OR USE: Hat or Clothing
-sunhr_cat     8397      5  2.677028      1      5  Total hours in direct sunl...
+sunhr_cat     8397      5  2.677028      1      5  Total hours in direct sunlight ...
 eatfood       8602      2    .85701      0      1  Eat Food at the Beach
 food          7124      2   .861735      0      1  IF YES: Food from Home
 drinksy       8569      2  .0983779      0      1  Drink Alcohol at the Beach
@@ -1186,47 +1182,47 @@ cutbase       8584      2  .0591799      0      1  Cut self or have open cut (R)
 eggs_base     8633      2  .0868759      0      1  IF YES: Raw or Runny Eggs
 rawmeat_base  8633      2  .1461833      0      1  IF YES: Meat (Medium Rare)
 fish_base     8633      2  .0370671      0      1  IF YES: Raw Seafood
-anim_base     8550      2  .2187135      0      1  IF YES: Contact with Anima...
-gicontact_~e  8550      2  .0352047      0      1  IF YES: Contact w/Lower GI...
+anim_base     8550      2  .2187135      0      1  IF YES: Contact with Animal/Feces
+gicontact_~e  8550      2  .0352047      0      1  IF YES: Contact w/Lower GI Cond...
 sorebase      8524      2  .0407086      0      1  PAST 3 DAYS: Sore Throat
 eyebase       8524      2  .0073909      0      1  Eye infection at baseline
 rashbase      8524      2  .0168935      0      1  PAST 3 DAYS: Rash
 age           8648     85  24.37419      1     95  age in years
 sex           8709      2  1.453324      1      2  Gender on consent form
-skinchron     8772      2  .0550616      0      1  Have skin problems such as...
+skinchron     8772      2  .0550616      0      1  Have skin problems such as psor...
 working       5513      2  .7003446      0      1  Person working for pay
 preg          3143      2  .0439071      0      1  Currently pregnant
 fever         8751      2  .0356531      0      1  Fever since beach interview
-eyeinfection  8750      2  .0475429      0      1  Redness or eye irritation ...
-anyotcmeds~e   415      2  .4289157      0      1  Used OTC medications for s...
-anyotcmeds~r   193      2  .5595855      0      1  Used OTC medications for s...
-rash          8750      2  .0308571      0      1  Skin rash since beach inte...
-anyotcmeds~n   270      2  .3074074      0      1  Used OTC medications for s...
-cut           8751      2   .003771      0      1  Cuts or scrapes that becam...
+eyeinfection  8750      2  .0475429      0      1  Redness or eye irritation since...
+anyotcmeds~e   415      2  .4289157      0      1  Used OTC medications for syndro...
+anyotcmeds~r   193      2  .5595855      0      1  Used OTC medications for syndro...
+rash          8750      2  .0308571      0      1  Skin rash since beach interview
+anyotcmeds~n   270      2  .3074074      0      1  Used OTC medications for syndro...
+cut           8751      2   .003771      0      1  Cuts or scrapes that became inf...
 nausea        8746      2  .0254974      0      1  Nausea since beach interview
-vomiting      8750      2     .0192      0      1  Vomiting since beach inter...
-diarrhea      8751      2   .042738      0      1  Diarrhea since beach inter...
-runnynose     8751      2  .0617072      0      1  Nasal congestion or runny ...
-sorethroat    8750      2  .0482286      0      1  Sore throat since beach in...
-publicpool    8760      2  .1490868      0      1  Swam in a private pool sin...
-eggs_int      8741      2  .0536552      0      1  Person:eaten runny/raw egg...
-rawmeat_int   8739      2  .1151161      0      1  Ate meat red in the center...
-fish_int      8738      2  .0867475      0      1  Ate raw seafood since beac...
+vomiting      8750      2     .0192      0      1  Vomiting since beach interview
+diarrhea      8751      2   .042738      0      1  Diarrhea since beach interview
+runnynose     8751      2  .0617072      0      1  Nasal congestion or runny nose ...
+sorethroat    8750      2  .0482286      0      1  Sore throat since beach interview
+publicpool    8760      2  .1490868      0      1  Swam in a private pool since be...
+eggs_int      8741      2  .0536552      0      1  Person:eaten runny/raw eggs sin...
+rawmeat_int   8739      2  .1151161      0      1  Ate meat red in the center sinc...
+fish_int      8738      2  .0867475      0      1  Ate raw seafood since beach int...
 anim_int      8753      2   .042614      0      1  Person: contact with animals
-hhinc_mb      8120     19  8.105172      1     19  Household Pre-tax income, ...
+hhinc_mb      8120     19  8.105172      1     19  Household Pre-tax income, 2002 ...
 allergy       8765      2  .1168283      0      1  Has allergies
-gichron       8797      2  .0247812      0      1  Chronic GI problems/Crohn'...
+gichron       8797      2  .0247812      0      1  Chronic GI problems/Crohn's/IBS
 asth          8769      2     .0658      0      1  chronic respiratory problems
 teledate      8551     96  15918.17  15860  15964  Phone interview date
 anim_any      8797      2  .2386041      0      1  Any animal contact
-anyotcmed~as   722      2   .398892      0      1  Used OTC medications for s...
-anyotcmed~es   948      2  .5021097      0      1  Used OTC medications for s...
+anyotcmed~as   722      2   .398892      0      1  Used OTC medications for syndro...
+anyotcmed~es   948      2  .5021097      0      1  Used OTC medications for syndro...
 cough         8751      2  .0493658      0      1  Person had cough
 coughstdt      429    112  15904.54  15826  15963  cough start date
 cutstdt         33     25  15917.18  15857  15955  cut start date
 diarrheastdt   374     94   15910.9  15849  15961  diarrhea start date
-differentb~h  8797      2  .0551324      0      1  Summary variable: swam at ...
-earache       8751      2  .0234259      0      1  Person had earache/infecti...
+differentb~h  8797      2  .0551324      0      1  Summary variable: swam at other...
+earache       8751      2  .0234259      0      1  Person had earache/infection/ru...
 earachestdt     38     31  15903.53  15715  15960  earache start date
 eggs_any      8797      2  .1282255      0      1  Any undercooked eggs
 eyeinfecti~t   415     99  15907.13  15828  15962  eye infection start date
@@ -1238,47 +1234,48 @@ race          8797      9  2.833693      1      9  Racial category
 hisp          8797      2  .6282824      0      1  Hispanic
 rashstdt       269     78   15913.3  15851  15958  skin rash start date
 rawmeat_any   8797      2  .2254178      0      1  Any raw meat
-rawfood       8797      2  .3639877      0      1  Ate undercooked eggs/meat/...
-runnynoses~t   537    106  15907.98  15826  15963  congestion/runny nose star...
+rawfood       8797      2  .3639877      0      1  Ate undercooked eggs/meat/fish
+runnynoses~t   537    106  15907.98  15826  15963  congestion/runny nose start date
 samebeach     8797      2  .0422871      0      1  Swim/wade: same beach
 shade         8536      2  .3775773      0      1  Use protective equipment (R)
 sorethroat~t   420    107  15907.49  15826  15962  sore throat start date
-stayhome_ear    94      2  .2659574      0      1  Missed work/school for syn...
-stayhome_eye   190      2  .0631579      0      1  Missed work/school for syn...
-stayhome_gas   302      2  .2384106      0      1  Missed work/school for syn...
+stayhome_ear    94      2  .2659574      0      1  Missed work/school for syndrome...
+stayhome_eye   190      2  .0631579      0      1  Missed work/school for syndrome...
+stayhome_gas   302      2  .2384106      0      1  Missed work/school for syndrome...
 stayhome_res   453      2  .1302428      0      1  
-stayhome_skn    80      2     .0375      0      1  Missed work/school for syn...
-stayhomeda~r    25      6      2.32      1      7  Number of days missed from...
-stayhomeda~e    12      6      3.25      1      7  Number of days missed from...
-stayhomed~as    71      8  2.070423      1     14  Number of days missed from...
-stayhomed~es    58      7   2.12069      1     13  Number of days missed from...
-stayhomeda~n     3      2  2.333333      1      5  Number of days missed from...
-stomachstdt    388    105  15910.67  15810  15962  stomach pain or cramps sta...
-stopdaily_~r   205      2  .3707317      0      1  Missed other activities (E...
-stopdaily_~e   416      2     .1875      0      1  Missed other activities (E...
-stopda~y_gas   723      2   .439834      0      1  Missed other activities (G...
-stopda~y_res   949      2  .2644889      0      1  Missed other activities (R...
-stopdaily_~n   270      2  .1481481      0      1  Missed other activities (S...
-stopdailyd~r    74      9  3.175676      1     14  Days missed from other act...
-stopdailyd~e     9      5  4.111111      2      7  Days missed from other act...
-stopda~s_gas   315     10  2.780952      1     98  Days missed from other act...
-stopda~s_res   249     12  3.192771      1     14  Days missed from other act...
-stopdailyd~n    40      9     3.625      1     11  Days missed from other act...
+stayhome_skn    80      2     .0375      0      1  Missed work/school for syndrome...
+stayhomeda~r    25      6      2.32      1      7  Number of days missed from work...
+stayhomeda~e    12      6      3.25      1      7  Number of days missed from work...
+stayhomed~as    71      8  2.070423      1     14  Number of days missed from work...
+stayhomed~es    58      7   2.12069      1     13  Number of days missed from work...
+stayhomeda~n     3      2  2.333333      1      5  Number of days missed from work...
+stomachstdt    388    105  15910.67  15810  15962  stomach pain or cramps start date
+stopdaily_~r   205      2  .3707317      0      1  Missed other activities (Ear_in...
+stopdaily_~e   416      2     .1875      0      1  Missed other activities (Eye_in...
+stopda~y_gas   723      2   .439834      0      1  Missed other activities (GI_ill...
+stopda~y_res   949      2  .2644889      0      1  Missed other activities (Respir...
+stopdaily_~n   270      2  .1481481      0      1  Missed other activities (Skin_r...
+stopdailyd~r    74      9  3.175676      1     14  Days missed from other activiti...
+stopdailyd~e     9      5  4.111111      2      7  Days missed from other activiti...
+stopda~s_gas   315     10  2.780952      1     98  Days missed from other activiti...
+stopda~s_res   249     12  3.192771      1     14  Days missed from other activiti...
+stopdailyd~n    40      9     3.625      1     11  Days missed from other activiti...
 swam          8713      2  .5705268      0      1  Person went swimming/wading
-visitdoc_ear   205      2  .3073171      0      1  Visited doctor/nurse/clini...
-visitdoc_eye   416      2  .1538462      0      1  Visited doctor/nurse/clini...
-visitdoc_gas   723      2  .1355463      0      1  Visited doctor/nurse/clini...
-visitdoc_res   948      2  .1276371      0      1  Visited doctor/nurse/clini...
-visitdoc_skn   270      2  .1518519      0      1  Visited doctor/nurse/clini...
+visitdoc_ear   205      2  .3073171      0      1  Visited doctor/nurse/clinic (Ea...
+visitdoc_eye   416      2  .1538462      0      1  Visited doctor/nurse/clinic (Ey...
+visitdoc_gas   723      2  .1355463      0      1  Visited doctor/nurse/clinic (GI...
+visitdoc_res   948      2  .1276371      0      1  Visited doctor/nurse/clinic (Re...
+visitdoc_skn   270      2  .1518519      0      1  Visited doctor/nurse/clinic (Sk...
 vomitingstdt   168     76  15911.33  15850  15960  vomiting start date
 watertime     8236     91   63.7778      0    900  Time in water (mins)
-wave          8797      2  .0056838      0      1  boog board/wave rid/surf/w...
---------------------------------------------------------------------------------
+wave          8797      2  .0056838      0      1  boog board/wave rid/surf/windsu...
+-------------------------------------------------------------------------------------
 
 . 
 . log close
       name:  <unnamed>
-       log:  /Users/benarnold/13beaches/src/dm/3-format-mb-epi.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/dm/3-f
+> ormat-mb-epi.log
   log type:  text
- closed on:  14 Jan 2016, 11:13:41
---------------------------------------------------------------------------------
+ closed on:  14 Jan 2016, 16:44:57
+-------------------------------------------------------------------------------------
