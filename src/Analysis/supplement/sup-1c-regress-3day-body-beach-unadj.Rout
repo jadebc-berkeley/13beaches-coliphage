@@ -1,0 +1,1491 @@
+
+R version 3.2.2 (2015-08-14) -- "Fire Safety"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##########################################
+> # Coliphage analysis - 6 beaches
+> # v1 by Jade 7/13/15
+> 
+> # This file conducts maximum likelihood regression
+> # to estimate prevalence ratios
+> 
+> # Results stratified by beach
+> 
+> # 3 day gi illness
+> ##########################################
+> 
+> rm(list=ls())
+> library(foreign)
+> 
+> setwd("~/Dropbox/Coliphage/")
+> 
+> # --------------------------------------
+> # load the and pre-preprocess the 
+> # analysis dataset
+> # (refer to the base functions script
+> # for details on the pre-processing)
+> # --------------------------------------
+> beaches13=read.csv("~/Dropbox/13beaches/data/final/13beaches-analysis.csv")
+> 
+> # load base functions
+> source("Programs/Analysis/0-base-functions.R")
+> 
+> data=preprocess.6beaches(beaches13)
+
+Successfully loaded the data
+ Total sample size = 88083 
+
+Dropping individuals with GI illness at enrollment
+ N = 2025 
+
+Final sample size = 86058 
+
+Subsetting the data to relevant variables and completing final variable pre-processing> 
+> # restrict to 6 beaches with coliphage data
+> beach.list=c("Avalon","Doheny","Malibu","Mission Bay",
++              "Fairhope","Goddard")
+> 
+> all=data[data$beach %in% beach.list,]
+> avalon=data[data$beach %in% "Avalon",]
+> doheny=data[data$beach %in% "Doheny",]
+> malibu=data[data$beach %in% "Malibu",]
+> mission=data[data$beach %in% "Mission Bay",]
+> fairhope=data[data$beach %in% "Fairhope",]
+> goddard=data[data$beach %in% "Goddard",]
+> 
+> data.list=list(all=all,avalon=avalon,doheny=doheny,mission=mission,
++                malibu=malibu,goddard=goddard,fairhope=fairhope)
+> 
+> data.list=lapply(data.list,function(df){
++   # drop individuals with no water quality information
++   df=subset(df,nowq==0)
++   # subset to non-missing exposure categories
++   # to make the robust CI calcs work
++   df=subset(df,df$bodycontact=="Yes")
++ })
+> 
+> # convert from list back to data frames
+> list2env(data.list ,.GlobalEnv)
+<environment: R_GlobalEnv>
+> 
+> # --------------------------------------
+> # Calculate the actual Ns for each cell
+> # and store them for plotting and tables
+> # --------------------------------------
+> regN <- function(outcome,exposurecat) {
++   sum(table(outcome,exposurecat))
++ }
+> 
+> #avalon
+> av.n3.fmc1602 = regN(avalon$gici3,avalon$fmc1602.pres)
+> av.n3.fpc1601 = regN(avalon$gici3,avalon$fpc1601.pres)
+> av.n3.fpc1602 = regN(avalon$gici3,avalon$fpc1602.pres)
+> 
+> #doheny
+> do.n3.fmc1601 = regN(doheny$gici3,doheny$fmc1601.pres)
+> do.n3.fmc1602 = regN(doheny$gici3,doheny$fmc1602.pres)
+> do.n3.fpc1601 = regN(doheny$gici3,doheny$fpc1601.pres)
+> do.n3.fpc1602 = regN(doheny$gici3,doheny$fpc1602.pres)
+> 
+> # fairhope
+> fa.n3.fpc1601 = regN(fairhope$gici3,fairhope$fpc1601.pres)
+> 
+> # goddard
+> # fpc 1601 always present at goddard
+> 
+> # malibu
+> # fmc 1602 and fpc 1602 always present at malibu
+> ma.n3.fpc1601 = regN(malibu$gici3,malibu$fpc1601.pres)
+> 
+> # mission bay
+> mb.n3.fmc1601 = regN(mission$gici3,mission$fmc1601.pres)
+> mb.n3.fpc1601 = regN(mission$gici3,mission$fpc1601.pres)
+> 
+> # n if low risk conditions ---------------------------
+> #avalon
+> av.n3.fmc1602.int0 = regN(avalon$gici3[avalon$groundwater=="Below median flow"],
++   avalon$fmc1602.pres[avalon$groundwater=="Below median flow"])
+> av.n3.fpc1601.int0 = regN(avalon$gici3[avalon$groundwater=="Below median flow"],
++   avalon$fpc1601.pres[avalon$groundwater=="Below median flow"])
+> av.n3.fpc1602.int0 = regN(avalon$gici3[avalon$groundwater=="Below median flow"],
++   avalon$fpc1602.pres[avalon$groundwater=="Below median flow"])
+> 
+> #doheny
+> do.n3.fmc1602.int0 = regN(doheny$gici3[doheny$berm=="Closed"],
++   doheny$fmc1602.pres[doheny$berm=="Closed"])
+> do.n3.fpc1601.int0 = regN(doheny$gici3[doheny$berm=="Closed"],
++   doheny$fpc1601.pres[doheny$berm=="Closed"])
+> do.n3.fpc1602.int0 = regN(doheny$gici3[doheny$berm=="Closed"],
++   doheny$fpc1602.pres[doheny$berm=="Closed"])
+> 
+> # malibu
+> # fmc 1602 and fpc 1602 always present at malibu
+> ma.n3.fpc1601.int0 = regN(malibu$gici3[malibu$berm=="Closed"],malibu$fpc1601.pres[malibu$berm=="Closed"])
+> 
+> 
+> # n if high risk conditions ---------------------------
+> #avalon
+> av.n3.fmc1602.int1 = regN(avalon$gici3[avalon$groundwater=="Above median flow"],
++   avalon$fmc1602.pres[avalon$groundwater=="Above median flow"])
+> av.n3.fpc1601.int1 = regN(avalon$gici3[avalon$groundwater=="Above median flow"],
++   avalon$fpc1601.pres[avalon$groundwater=="Above median flow"])
+> av.n3.fpc1602.int1 = regN(avalon$gici3[avalon$groundwater=="Above median flow"],
++   avalon$fpc1602.pres[avalon$groundwater=="Above median flow"])
+> 
+> #doheny
+> do.n3.fmc1602.int1 = regN(doheny$gici3[doheny$berm=="Open"],
++   doheny$fmc1602.pres[doheny$berm=="Open"])
+> do.n3.fpc1601.int1 = regN(doheny$gici3[doheny$berm=="Open"],
++   doheny$fpc1601.pres[doheny$berm=="Open"])
+> do.n3.fpc1602.int1 = regN(doheny$gici3[doheny$berm=="Open"],
++   doheny$fpc1602.pres[doheny$berm=="Open"])
+> 
+> # malibu
+> # fmc 1602 and fpc 1602 always present at malibu
+> ma.n3.fpc1601.int1 = regN(malibu$gici3[malibu$berm=="Open"],malibu$fpc1601.pres[malibu$berm=="Open"])
+> 
+> 
+> #-----------------------------------------
+> # 10-day illness and coliphage concentration
+> # pooled across berm and groundwater flow conditions
+> # by beach
+> #-----------------------------------------
+> # avalon
+> # fmc1601 -- always present at avalon 
+> avfit3.fmc1602 = mpreg(gici3~fmc1602.pres,
++     dat=avalon,vcv=T)
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2979  -0.2979  -0.2979  -0.2387   2.2744  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.5579     0.1491 -23.867   <2e-16 ***
+fmc1602.pres1   0.4425     0.1807   2.449   0.0143 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 924.64  on 3742  degrees of freedom
+Residual deviance: 918.36  on 3741  degrees of freedom
+AIC: 1204.4
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.55788    0.18033 -19.7304  < 2e-16 ***
+fmc1602.pres1  0.44252    0.21366   2.0711  0.03835 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> avfit3.fpc1601 = mpreg(gici3~fpc1601.pres,
++     dat=avalon,vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2782  -0.2782  -0.2782  -0.2782   2.2043  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.3958     0.2000 -16.979   <2e-16 ***
+fpc1601.pres1   0.1441     0.2205   0.653    0.514    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 924.64  on 3742  degrees of freedom
+Residual deviance: 924.20  on 3741  degrees of freedom
+AIC: 1210.2
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.39585    0.26231 -12.9459   <2e-16 ***
+fpc1601.pres1  0.14407    0.28205   0.5108   0.6095    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> avfit3.fpc1602 = mpreg(gici3~fpc1602.pres,
++     dat=avalon,vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3367  -0.2707  -0.2707  -0.2707   2.1650  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.30689    0.08771 -37.704   <2e-16 ***
+fpc1602.pres1  0.43692    0.31401   1.391    0.164    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 924.64  on 3742  degrees of freedom
+Residual deviance: 922.93  on 3741  degrees of freedom
+AIC: 1208.9
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.30689    0.10026 -32.9820   <2e-16 ***
+fpc1602.pres1  0.43692    0.39227   1.1138   0.2653    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # doheny
+> dofit3.fmc1601 = mpreg(gici3~fmc1601.pres,
++      dat=doheny[!is.na(doheny$fmc1601.pres),],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2641  -0.2469  -0.2469  -0.2469   2.2454  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.3557     0.5773  -5.812 6.16e-09 ***
+fmc1601.pres1  -0.1347     0.6055  -0.222    0.824    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 229.61  on 1069  degrees of freedom
+Residual deviance: 229.56  on 1068  degrees of freedom
+AIC: 299.56
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error z value  Pr(>|z|)    
+(Intercept)   -3.35574    0.68114 -4.9267 8.364e-07 ***
+fmc1601.pres1 -0.13469    0.71240 -0.1891      0.85    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> dofit3.fmc1602 = mpreg(gici3~fmc1602.pres,
++     dat=doheny,vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-0.258  -0.258  -0.258  -0.258   2.279  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.5677     0.2085  -17.11   <2e-16 ***
+fmc1602.pres1   0.1650     0.2291    0.72    0.471    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 920.05  on 4149  degrees of freedom
+Residual deviance: 919.51  on 4148  degrees of freedom
+AIC: 1191.5
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.56769    0.26190 -13.6222   <2e-16 ***
+fmc1602.pres1  0.16500    0.28469   0.5796   0.5622    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> dofit3.fpc1601 = mpreg(gici3~fpc1601.pres,
++     dat=doheny,vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2653  -0.2524  -0.2524  -0.2524   2.2264  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.3471     0.2294 -14.590   <2e-16 ***
+fpc1601.pres1  -0.0994     0.2476  -0.401    0.688    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 920.05  on 4149  degrees of freedom
+Residual deviance: 919.89  on 4148  degrees of freedom
+AIC: 1191.9
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+               Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.347130   0.308719 -10.8420   <2e-16 ***
+fpc1601.pres1 -0.099401   0.327169  -0.3038   0.7613    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> dofit3.fpc1602 = mpreg(gici3~fpc1602.pres,
++     dat=doheny,vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2572  -0.2572  -0.2572  -0.2572   2.3720  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.40904    0.08874 -38.418   <2e-16 ***
+fpc1602.pres1 -0.38162    0.38824  -0.983    0.326    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 920.05  on 4149  degrees of freedom
+Residual deviance: 918.97  on 4148  degrees of freedom
+AIC: 1191
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.40904    0.10585 -32.207   <2e-16 ***
+fpc1602.pres1 -0.38162    0.43563  -0.876    0.381    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # fairhope
+> fafit3.fpc1601 = mpreg(gici3~fpc1601.pres,
++     dat=fairhope[!is.na(fairhope$fpc1601.pres),],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.6325  -0.3819  -0.3819  -0.3819   1.8392  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)  
+(Intercept)    -1.6094     0.7071  -2.276   0.0228 *
+fpc1601.pres1  -1.0090     0.7400  -1.363   0.1727  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 117.83  on 297  degrees of freedom
+Residual deviance: 116.41  on 296  degrees of freedom
+AIC: 166.41
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error z value Pr(>|z|)   
+(Intercept)   -1.60944    0.56877 -2.8297 0.004659 **
+fpc1601.pres1 -1.00900    0.61342 -1.6449 0.099996 . 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # goddard
+> # fpc 1601 always present at goddard
+> 
+> # malibu
+> # fmc 1602 and fpc 1602 always present at malibu
+> mafit3.fpc1601 = mpreg(gici3~fpc1601.pres,
++     dat=malibu[!is.na(malibu$fpc1601.pres),],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2811  -0.2811  -0.2338  -0.2338   2.2923  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.2315     0.1508 -21.436   <2e-16 ***
+fpc1601.pres1  -0.3685     0.2265  -1.627    0.104    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 539.05  on 2394  degrees of freedom
+Residual deviance: 536.38  on 2393  degrees of freedom
+AIC: 698.38
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.23152    0.18225 -17.7315   <2e-16 ***
+fpc1601.pres1 -0.36853    0.24956  -1.4767   0.1398    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # mission bay
+> mbfit3.fmc1601 = mpreg(gici3~fmc1601.pres,
++     dat=mission[!is.na(mission$fmc1601.pres),],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2473  -0.2473  -0.2473  -0.2454   2.2506  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.50255    0.15811 -22.152   <2e-16 ***
+fmc1601.pres1  0.01541    0.19447   0.079    0.937    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 824.2  on 3877  degrees of freedom
+Residual deviance: 824.2  on 3876  degrees of freedom
+AIC: 1064.2
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.50255    0.18001 -19.4577   <2e-16 ***
+fmc1601.pres1  0.01541    0.23373   0.0659   0.9474    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> mbfit3.fpc1601 = mpreg(gici3~fpc1601.pres,
++     dat=mission[!is.na(mission$fpc1601.pres),],vcv=T)
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3244  -0.2435  -0.2435  -0.2435   2.2576  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.51865    0.09492 -37.071   <2e-16 ***
+fpc1601.pres1  0.57421    0.38970   1.473    0.141    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 824.20  on 3877  degrees of freedom
+Residual deviance: 822.36  on 3876  degrees of freedom
+AIC: 1062.4
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.51865    0.11976 -29.3806   <2e-16 ***
+fpc1601.pres1  0.57421    0.47128   1.2184   0.2231    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> 
+> #-----------------------------------------
+> # 3-day illness and coliphage concentration
+> # by berm and groundwater flow conditions
+> # by beach
+> 
+> # interaction tests
+> #-----------------------------------------
+> # reduced model for LR test
+> avfit3.fmc1602.glm = glm(gici3~fmc1602.pres+groundwater,
++     dat=avalon,family=poisson(link="log"))
+> # interaction model
+> avfit3.fmc1602.gw = glm(gici3~fmc1602.pres*groundwater,
++     family=poisson(link="log"),data=avalon)
+> summary(avfit3.fmc1602.gw)
+
+Call:
+glm(formula = gici3 ~ fmc1602.pres * groundwater, family = poisson(link = "log"), 
+    data = avalon)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3352  -0.2727  -0.2727  -0.2263   2.3196  
+
+Coefficients:
+                                           Estimate Std. Error z value Pr(>|z|)
+(Intercept)                                 -3.4062     0.2236 -15.233   <2e-16
+fmc1602.pres1                                0.1141     0.2646   0.431   0.6664
+groundwaterAbove median flow                -0.2584     0.3000  -0.861   0.3891
+fmc1602.pres1:groundwaterAbove median flow   0.6711     0.3630   1.849   0.0645
+                                              
+(Intercept)                                ***
+fmc1602.pres1                                 
+groundwaterAbove median flow                  
+fmc1602.pres1:groundwaterAbove median flow .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 924.64  on 3742  degrees of freedom
+Residual deviance: 913.60  on 3739  degrees of freedom
+AIC: 1203.6
+
+Number of Fisher Scoring iterations: 6
+
+> lrtest(avfit3.fmc1602.glm,avfit3.fmc1602.gw)
+Likelihood ratio test
+
+Model 1: gici3 ~ fmc1602.pres + groundwater
+Model 2: gici3 ~ fmc1602.pres * groundwater
+  #Df  LogLik Df  Chisq Pr(>Chisq)  
+1   3 -599.48                       
+2   4 -597.80  1 3.3542    0.06703 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> # reduced model for LR test
+> avfit3.fpc1601.glm = glm(gici3~fpc1601.pres+groundwater,
++     dat=avalon,family=poisson(link="log"))
+> # interaction model
+> avfit3.fpc1601.gw = glm(gici3~fpc1601.pres*groundwater,
++     dat=avalon,family=poisson(link="log"))
+> summary(avfit3.fpc1601.gw)
+
+Call:
+glm(formula = gici3 ~ fpc1601.pres * groundwater, family = poisson(link = "log"), 
+    data = avalon)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2935  -0.2935  -0.2638  -0.2638   2.3071  
+
+Coefficients:
+                                           Estimate Std. Error z value Pr(>|z|)
+(Intercept)                                 -3.1973     0.2582 -12.383   <2e-16
+fpc1601.pres1                               -0.1612     0.2913  -0.553    0.580
+groundwaterAbove median flow                -0.4376     0.4082  -1.072    0.284
+fpc1601.pres1:groundwaterAbove median flow   0.6514     0.4486   1.452    0.146
+                                              
+(Intercept)                                ***
+fpc1601.pres1                                 
+groundwaterAbove median flow                  
+fpc1601.pres1:groundwaterAbove median flow    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 924.64  on 3742  degrees of freedom
+Residual deviance: 921.71  on 3739  degrees of freedom
+AIC: 1211.7
+
+Number of Fisher Scoring iterations: 6
+
+> lrtest(avfit3.fpc1601.glm,avfit3.fpc1601.gw)
+Likelihood ratio test
+
+Model 1: gici3 ~ fpc1601.pres + groundwater
+Model 2: gici3 ~ fpc1601.pres * groundwater
+  #Df  LogLik Df  Chisq Pr(>Chisq)
+1   3 -602.93                     
+2   4 -601.85  1 2.1516     0.1424
+> 
+> # reduced model for LR test
+> avfit3.fpc1602.glm = glm(gici3~fpc1602.pres+groundwater,
++     dat=avalon,family=poisson(link="log"))
+> # interaction model
+> avfit3.fpc1602.gw = glm(gici3~fpc1602.pres*groundwater,
++     dat=avalon,family=poisson(link="log"))
+> summary(avfit3.fpc1602.gw)
+
+Call:
+glm(formula = gici3 ~ fpc1602.pres * groundwater, family = poisson(link = "log"), 
+    data = avalon)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.4102  -0.2710  -0.2703  -0.2703   2.3646  
+
+Coefficients:
+                                            Estimate Std. Error z value
+(Intercept)                                -3.309362   0.121268 -27.290
+fpc1602.pres1                              -0.463399   0.717427  -0.646
+groundwaterAbove median flow                0.005196   0.175599   0.030
+fpc1602.pres1:groundwaterAbove median flow  1.291960   0.801212   1.613
+                                           Pr(>|z|)    
+(Intercept)                                  <2e-16 ***
+fpc1602.pres1                                 0.518    
+groundwaterAbove median flow                  0.976    
+fpc1602.pres1:groundwaterAbove median flow    0.107    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 924.64  on 3742  degrees of freedom
+Residual deviance: 919.44  on 3739  degrees of freedom
+AIC: 1209.4
+
+Number of Fisher Scoring iterations: 6
+
+> lrtest(avfit3.fpc1602.glm,avfit3.fpc1602.gw)
+Likelihood ratio test
+
+Model 1: gici3 ~ fpc1602.pres + groundwater
+Model 2: gici3 ~ fpc1602.pres * groundwater
+  #Df  LogLik Df  Chisq Pr(>Chisq)  
+1   3 -602.33                       
+2   4 -600.72  1 3.2146    0.07298 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> # berm always closed when fmc1601 measured so no interaction assessment
+> 
+> # reduced model for LR test
+> dofit3.fmc1602.glm = glm(gici3~fmc1602.pres+berm,
++     dat=doheny,family=poisson(link="log"))
+> # interaction model
+> dofit3.fmc1602.berm = glm(gici3~fmc1602.pres*berm,
++     dat=doheny,family=poisson(link="log"))
+> summary(dofit3.fmc1602.berm)
+
+Call:
+glm(formula = gici3 ~ fmc1602.pres * berm, family = poisson(link = "log"), 
+    data = doheny)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2588  -0.2578  -0.2578  -0.2578   2.2822  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            -3.57618    0.22942 -15.588   <2e-16 ***
+fmc1602.pres1           0.17196    0.25297   0.680    0.497    
+bermOpen                0.04982    0.55012   0.091    0.928    
+fmc1602.pres1:bermOpen -0.04244    0.59789  -0.071    0.943    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 920.05  on 4149  degrees of freedom
+Residual deviance: 919.50  on 4146  degrees of freedom
+AIC: 1195.5
+
+Number of Fisher Scoring iterations: 6
+
+> lrtest(dofit3.fmc1602.glm,dofit3.fmc1602.berm)
+Likelihood ratio test
+
+Model 1: gici3 ~ fmc1602.pres + berm
+Model 2: gici3 ~ fmc1602.pres * berm
+  #Df  LogLik Df Chisq Pr(>Chisq)
+1   3 -593.75                    
+2   4 -593.75  1 0.005     0.9436
+> 
+> # reduced model for LR test
+> dofit3.fpc1601.glm = glm(gici3~fpc1601.pres+berm,
++     dat=doheny,family=poisson(link="log"))
+> # interaction model
+> dofit3.fpc1601.berm = glm(gici3~fpc1601.pres*berm,
++     dat=doheny,family=poisson(link="log"))
+> summary(dofit3.fpc1601.berm)
+
+Call:
+glm(formula = gici3 ~ fpc1601.pres * berm, family = poisson(link = "log"), 
+    data = doheny)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2654  -0.2542  -0.2520  -0.2520   2.2278  
+
+Coefficients:
+                        Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            -3.347395   0.267261 -12.525   <2e-16 ***
+fpc1601.pres1          -0.102422   0.286673  -0.357    0.721    
+bermOpen                0.001006   0.520988   0.002    0.998    
+fpc1601.pres1:bermOpen  0.016291   0.572394   0.028    0.977    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 920.05  on 4149  degrees of freedom
+Residual deviance: 919.89  on 4146  degrees of freedom
+AIC: 1195.9
+
+Number of Fisher Scoring iterations: 6
+
+> lrtest(dofit3.fpc1601.glm,dofit3.fpc1601.berm)
+Likelihood ratio test
+
+Model 1: gici3 ~ fpc1601.pres + berm
+Model 2: gici3 ~ fpc1601.pres * berm
+  #Df  LogLik Df Chisq Pr(>Chisq)
+1   3 -593.94                    
+2   4 -593.94  1 8e-04     0.9773
+> 
+> # reduced model for LR test
+> dofit3.fpc1602.glm = glm(gici3~fpc1602.pres+berm,
++     dat=doheny,family=poisson(link="log"))
+> # interaction model
+> dofit3.fpc1602.berm = glm(gici3~fpc1602.pres*berm,
++     dat=doheny,family=poisson(link="log"))
+> summary(dofit3.fpc1602.berm)
+
+Call:
+glm(formula = gici3 ~ fpc1602.pres * berm, family = poisson(link = "log"), 
+    data = doheny)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3303  -0.2590  -0.2590  -0.2500   2.5182  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            -3.39536    0.09853 -34.459   <2e-16 ***
+fpc1602.pres1          -0.75961    0.50960  -1.491   0.1361    
+bermOpen               -0.07038    0.22666  -0.311   0.7562    
+fpc1602.pres1:bermOpen  1.31663    0.79668   1.653   0.0984 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 920.05  on 4149  degrees of freedom
+Residual deviance: 916.49  on 4146  degrees of freedom
+AIC: 1192.5
+
+Number of Fisher Scoring iterations: 6
+
+> lrtest(dofit3.fpc1602.glm,dofit3.fpc1602.berm)
+Likelihood ratio test
+
+Model 1: gici3 ~ fpc1602.pres + berm
+Model 2: gici3 ~ fpc1602.pres * berm
+  #Df  LogLik Df Chisq Pr(>Chisq)
+1   3 -593.48                    
+2   4 -592.25  1 2.469     0.1161
+> 
+> # reduced model for LR test
+> mafit3.fpc1601.glm = glm(gici3~fpc1601.pres,
++     dat=malibu[!is.na(malibu$fpc1601.pres),],family=poisson(link="log"))
+> # interaction model
+> mafit3.fpc1601.berm = glm(gici3~fpc1601.pres*berm,
++     dat=malibu[!is.na(malibu$fpc1601.pres),],family=poisson(link="log"))
+> summary(mafit3.fpc1601.berm)
+
+Call:
+glm(formula = gici3 ~ fpc1601.pres * berm, family = poisson(link = "log"), 
+    data = malibu[!is.na(malibu$fpc1601.pres), ])
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2851  -0.2851  -0.2338  -0.2338   2.4671  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)             -3.2029     0.1525 -21.003   <2e-16 ***
+fpc1601.pres1           -0.3969     0.2621  -1.514    0.130    
+bermOpen                -0.8224     1.0115  -0.813    0.416    
+fpc1601.pres1:bermOpen   0.8217     1.0703   0.768    0.443    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 539.05  on 2394  degrees of freedom
+Residual deviance: 535.51  on 2391  degrees of freedom
+AIC: 701.51
+
+Number of Fisher Scoring iterations: 6
+
+> lrtest(mafit3.fpc1601.glm,mafit3.fpc1601.berm)
+Likelihood ratio test
+
+Model 1: gici3 ~ fpc1601.pres
+Model 2: gici3 ~ fpc1601.pres * berm
+  #Df  LogLik Df  Chisq Pr(>Chisq)
+1   2 -347.19                     
+2   4 -346.75  2 0.8709      0.647
+> 
+> #-----------------------------------------
+> # 3-day illness and coliphage concentration
+> # by berm and groundwater flow conditions
+> # by beach
+> 
+> # stratified estimates
+> #-----------------------------------------
+> avfit3.fmc1602.gw.1 = mpreg(gici3~fmc1602.pres,
++     vcv=T,dat=avalon[avalon$groundwater=="Above median flow",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3352  -0.3352  -0.2263  -0.2263   2.3196  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.6646     0.2000  -18.32  < 2e-16 ***
+fmc1602.pres1   0.7851     0.2485    3.16  0.00158 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 458.67  on 1794  degrees of freedom
+Residual deviance: 448.14  on 1793  degrees of freedom
+AIC: 594.14
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)   -3.66459    0.20244 -18.1022 < 2.2e-16 ***
+fmc1602.pres1  0.78514    0.27145   2.8924  0.003824 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> avfit3.fmc1602.gw.0 = mpreg(gici3~fmc1602.pres,
++     vcv=T,dat=avalon[avalon$groundwater=="Below median flow",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2727  -0.2727  -0.2727  -0.2576   2.2088  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.4062     0.2236 -15.233   <2e-16 ***
+fmc1602.pres1   0.1141     0.2646   0.431    0.666    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 465.65  on 1947  degrees of freedom
+Residual deviance: 465.46  on 1946  degrees of freedom
+AIC: 609.46
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.40618    0.31692 -10.748   <2e-16 ***
+fmc1602.pres1  0.11406    0.34778   0.328   0.7429    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> avfit3.fpc1601.gw.1 = mpreg(gici3~fpc1601.pres,
++     vcv=T,dat=avalon[avalon$groundwater=="Above median flow",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2935  -0.2935  -0.2935  -0.2935   2.3071  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.6350     0.3162 -11.495   <2e-16 ***
+fpc1601.pres1   0.4902     0.3412   1.437    0.151    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 458.67  on 1794  degrees of freedom
+Residual deviance: 456.35  on 1793  degrees of freedom
+AIC: 602.35
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.63495    0.30906 -11.7612   <2e-16 ***
+fpc1601.pres1  0.49023    0.34460   1.4226   0.1548    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> avfit3.fpc1601.gw.0 = mpreg(gici3~fpc1601.pres,
++     vcv=T,dat=avalon[avalon$groundwater=="Below median flow",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2859  -0.2638  -0.2638  -0.2638   2.1878  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.1973     0.2582 -12.383   <2e-16 ***
+fpc1601.pres1  -0.1612     0.2913  -0.553     0.58    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 465.65  on 1947  degrees of freedom
+Residual deviance: 465.35  on 1946  degrees of freedom
+AIC: 609.35
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.19731    0.38454 -8.3146   <2e-16 ***
+fpc1601.pres1 -0.16117    0.40875 -0.3943   0.6934    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> avfit3.fpc1602.gw.1 = mpreg(gici3~fpc1602.pres,
++     vcv=T,dat=avalon[avalon$groundwater=="Above median flow",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.4102  -0.2710  -0.2710  -0.2710   2.1637  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.3042     0.1270 -26.017   <2e-16 ***
+fpc1602.pres1   0.8286     0.3567   2.323   0.0202 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 458.67  on 1794  degrees of freedom
+Residual deviance: 454.28  on 1793  degrees of freedom
+AIC: 600.28
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.30417    0.14479 -22.8209  < 2e-16 ***
+fpc1602.pres1  0.82856    0.44940   1.8437  0.06523 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> avfit3.fpc1602.gw.0 = mpreg(gici3~fpc1602.pres,
++     vcv=T,dat=avalon[avalon$groundwater=="Below median flow",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2703  -0.2703  -0.2703  -0.2703   2.3646  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.3094     0.1213 -27.290   <2e-16 ***
+fpc1602.pres1  -0.4634     0.7174  -0.646    0.518    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 465.65  on 1947  degrees of freedom
+Residual deviance: 465.16  on 1946  degrees of freedom
+AIC: 609.16
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.30936    0.13908 -23.7941   <2e-16 ***
+fpc1602.pres1 -0.46340    0.71900  -0.6445   0.5192    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> dofit3.fmc1602.berm.1 = mpreg(gici3~fmc1602.pres,
++     vcv=T,dat=doheny[doheny$berm=="Open",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2588  -0.2588  -0.2588  -0.2588   2.2609  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.5264     0.5000  -7.053 1.75e-12 ***
+fmc1602.pres1   0.1295     0.5417   0.239    0.811    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 184.52  on 822  degrees of freedom
+Residual deviance: 184.47  on 821  degrees of freedom
+AIC: 242.47
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error z value  Pr(>|z|)    
+(Intercept)   -3.52636    0.68869 -5.1204 3.049e-07 ***
+fmc1602.pres1  0.12952    0.73073  0.1772    0.8593    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> dofit3.fmc1602.berm.0 = mpreg(gici3~fmc1602.pres,
++     vcv=T,dat=doheny[doheny$berm=="Closed",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2578  -0.2578  -0.2578  -0.2578   2.2822  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.5762     0.2294  -15.59   <2e-16 ***
+fmc1602.pres1   0.1720     0.2530    0.68    0.497    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 735.52  on 3326  degrees of freedom
+Residual deviance: 735.04  on 3325  degrees of freedom
+AIC: 953.04
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.57618    0.28208 -12.678   <2e-16 ***
+fmc1602.pres1  0.17196    0.30875   0.557   0.5776    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> dofit3.fpc1601.berm.1 = mpreg(gici3~fpc1601.pres,
++     vcv=T,dat=doheny[doheny$berm=="Open",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2654  -0.2542  -0.2542  -0.2542   2.2203  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.34639    0.44721  -7.483 7.28e-14 ***
+fpc1601.pres1 -0.08613    0.49543  -0.174    0.862    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 184.52  on 822  degrees of freedom
+Residual deviance: 184.49  on 821  degrees of freedom
+AIC: 242.49
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+               Estimate Std. Error z value  Pr(>|z|)    
+(Intercept)   -3.346389   0.650926  -5.141 2.733e-07 ***
+fpc1601.pres1 -0.086131   0.694743  -0.124    0.9013    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> dofit3.fpc1601.berm.0 = mpreg(gici3~fpc1601.pres,
++     vcv=T,dat=doheny[doheny$berm=="Closed",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2652  -0.2520  -0.2520  -0.2520   2.2278  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.3474     0.2673 -12.525   <2e-16 ***
+fpc1601.pres1  -0.1024     0.2867  -0.357    0.721    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 735.52  on 3326  degrees of freedom
+Residual deviance: 735.39  on 3325  degrees of freedom
+AIC: 953.39
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.34739    0.34881 -9.5965   <2e-16 ***
+fpc1601.pres1 -0.10242    0.36922 -0.2774   0.7815    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> dofit3.fpc1602.berm.1 = mpreg(gici3~fpc1602.pres,
++     vcv=T,dat=doheny[doheny$berm=="Open",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3303  -0.2500  -0.2500  -0.2500   2.2347  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.4657     0.2041  -16.98   <2e-16 ***
+fpc1602.pres1   0.5570     0.6124    0.91    0.363    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 184.52  on 822  degrees of freedom
+Residual deviance: 183.81  on 821  degrees of freedom
+AIC: 241.81
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.46574    0.24414 -14.1956   <2e-16 ***
+fpc1602.pres1  0.55702    0.76712   0.7261   0.4678    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> dofit3.fpc1602.berm.0 = mpreg(gici3~fpc1602.pres,
++     vcv=T,dat=doheny[doheny$berm=="Closed",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-0.259  -0.259  -0.259  -0.259   2.518  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.39536    0.09853 -34.459   <2e-16 ***
+fpc1602.pres1 -0.75961    0.50960  -1.491    0.136    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 735.52  on 3326  degrees of freedom
+Residual deviance: 732.68  on 3325  degrees of freedom
+AIC: 950.68
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.39536    0.11750 -28.8975   <2e-16 ***
+fpc1602.pres1 -0.75961    0.50560  -1.5024    0.133    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> mafit3.fpc1601.berm.1 = mpreg(gici3~fpc1601.pres,
++     vcv=T,dat=malibu[malibu$berm=="Open",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2337  -0.2337  -0.2337  -0.2337   2.4671  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -4.0254     1.0000  -4.025 5.69e-05 ***
+fpc1601.pres1   0.4249     1.0377   0.409    0.682    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 101.85  on 531  degrees of freedom
+Residual deviance: 101.66  on 530  degrees of freedom
+AIC: 133.66
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error z value  Pr(>|z|)    
+(Intercept)   -4.02535    1.00224 -4.0163 5.911e-05 ***
+fpc1601.pres1  0.42488    1.04434  0.4068    0.6841    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> mafit3.fpc1601.berm.0 = mpreg(gici3~fpc1601.pres,
++     vcv=T,dat=malibu[!is.na(malibu$fpc1601.pres) & malibu$berm=="Closed",])
+
+Call:
+glm(formula = formula, family = poisson(link = "log"), data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.2851  -0.2851  -0.2851  -0.2338   2.2922  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -3.2029     0.1525 -21.003   <2e-16 ***
+fpc1601.pres1  -0.3969     0.2621  -1.514     0.13    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 436.22  on 1862  degrees of freedom
+Residual deviance: 433.84  on 1861  degrees of freedom
+AIC: 567.84
+
+Number of Fisher Scoring iterations: 6
+
+
+
+Robust, Sandwich Standard Errors Account for Clustering:
+
+z test of coefficients:
+
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)   -3.20294    0.18484 -17.3279   <2e-16 ***
+fpc1601.pres1 -0.39686    0.27886  -1.4232   0.1547    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # --------------------------------------
+> # save the results
+> # exclude glm objects and data frames
+> # (they are really large)
+> # --------------------------------------
+> save(
++ 
++   av.n3.fmc1602, av.n3.fpc1601, av.n3.fpc1602, do.n3.fmc1601,
++   do.n3.fmc1602, do.n3.fpc1601, do.n3.fpc1602, fa.n3.fpc1601,
++   ma.n3.fpc1601, mb.n3.fmc1601, mb.n3.fpc1601,
++ 
++   av.n3.fmc1602.int0, av.n3.fpc1601.int0, av.n3.fpc1602.int0, 
++   do.n3.fmc1602.int0, do.n3.fpc1601.int0, do.n3.fpc1602.int0, 
++   ma.n3.fpc1601.int0, 
++ 
++   av.n3.fmc1602.int1, av.n3.fpc1601.int1, av.n3.fpc1602.int1, 
++   do.n3.fmc1602.int1, do.n3.fpc1601.int1, do.n3.fpc1602.int1,
++   ma.n3.fpc1601.int1, 
++ 
++   avfit3.fmc1602, avfit3.fpc1601, avfit3.fpc1602,
++   dofit3.fmc1601, dofit3.fmc1602, dofit3.fpc1601, dofit3.fpc1602,
++   fafit3.fpc1601, mafit3.fpc1601,mbfit3.fmc1601,mbfit3.fpc1601,
++   
++   avfit3.fmc1602.gw.1, avfit3.fmc1602.gw.0, avfit3.fpc1601.gw.1, avfit3.fpc1601.gw.0, 
++   avfit3.fpc1602.gw.1, avfit3.fpc1602.gw.0,
++   dofit3.fmc1602.berm.1, dofit3.fmc1602.berm.0, 
++   dofit3.fpc1601.berm.1, dofit3.fpc1601.berm.0, dofit3.fpc1602.berm.1, dofit3.fpc1602.berm.0,
++   mafit3.fpc1601.berm.1, mafit3.fpc1601.berm.0,
++ 
++   avfit3.fmc1602.gw, avfit3.fpc1601.gw, avfit3.fpc1602.gw,
++   dofit3.fmc1602.berm, dofit3.fpc1601.berm, dofit3.fpc1602.berm,
++   mafit3.fpc1601.berm,
++   
++   file="~/dropbox/coliphage/results/rawoutput/regress-3day-body-beach-unadj.Rdata"
++ )
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 61.442   2.903  64.507 

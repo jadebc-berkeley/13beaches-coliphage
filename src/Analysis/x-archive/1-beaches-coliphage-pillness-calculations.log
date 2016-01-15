@@ -1,0 +1,1799 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/jadebc/Dropbox/Coliphage/Programs/1-beaches-coliphage-pilln
+> ess-calculations.log
+  log type:  text
+ opened on:   3 Jan 2014, 15:36:09
+
+. 
+. *-----------------------------------------
+. * 1-beaches-coliphage-pillness-calculations.do
+. *
+. * Ben Arnold
+. *
+. * Calculate the marginal predicted probability
+. * of diarrhea and GI illness at observed
+. * levels of different Coliphage indicators
+. * for Avalon, Doheny, and Malibu studies
+. *
+. * Use site-specific daily average values
+. * Repeat the calculations under all conditions
+. * and under "high risk" conditions, where
+. * high risk means berm open at Doheny and Malibu
+. * and above median groundwater flow for Avalon
+. *
+. * run calculations for swimmers with body immersion
+. * and under different environmental conditions
+. * Avalon = combined, groundwater above/below median
+. * Doheny/Malibu = combined, berm open/closed
+. * 
+. * version 1 (17 sep 2013)
+. *
+. *-----------------------------------------
+. 
+. *-----------------------------------------
+. * input files:
+. *   avalon2.dta
+. *   doheny2.dta
+. *   malibu2.dta
+. *
+. * output files:
+. *   avalon-coliphage-pillness.dta
+. *       doheny-coliphage-pillness.dta
+. *       malibu-coliphage-pillness.dta
+. *-----------------------------------------
+. 
+. *-----------------------------------------
+. * source the backward selection algorithm
+. *-----------------------------------------
+. qui do "/Users/jadebc/Dropbox/Coliphage/Programs/2sup-bs_reg.do"
+
+. 
+. 
+. *------------------------------------------
+. * Function to calculate the probability of
+. * illness at each level of the indicator
+. * (exposure) of interest, adjusted at the
+. * mean of covariates.
+. *
+. * fit models on all body immersion swimmers
+. *------------------------------------------
+. 
+. capture program drop pillness
+
+. program define pillness, rclass
+  1.         version 10
+  2.         syntax [if], outcome(varlist max=1 numeric) exposure(varlist max=1
+>  numeric) Xvars(string) id(varlist max=1 numeric)
+  3.         * outcome = health outcome of interest
+.         * exposure = indicator of interest (log scale)
+.         * Xvars = covariates to consider in adjusted models
+.         * id = id for independent units (for robust SE calculation)
+.         
+.         marksample touse
+  4. 
+.         * run the backward selection algorithm
+.         * info returned from bs_reg: 
+.         * covariates selected in r(covarlist), sparse data flag in r(sparse)
+.         qui bs_reg if `touse', model(logit) outcome(`outcome') exposure(`expo
+> sure') covar("`xvars'") keepvar() unit(1) criteria(0.05)
+  5.                 local covarlist = r(covarlist)
+  6.                 * use continuous age rather than age category
+.                 * to get adjusted probabilities at the mean
+.                 * value
+.                 local covarlist = subinstr("`covarlist'","i.agecat1","ageyrx"
+> ,.)
+  7.                 local covarlist = subinstr("`covarlist'","i.agecat2","agey
+> rx",.)
+  8.                 if("`covarlist'"==".") local covarlist = ""
+  9.         
+.         * estimate a logistic model
+.         * use (v10 for backward compatability with
+.         * the -adjust- function)
+.         version 10
+ 10.         logistic `outcome' `exposure' `covarlist' if `touse', cluster(`id'
+> ) robust
+ 11. 
+.         * store the estimated OR and its SE and CI
+.         gen orn = e(N)
+ 12.         gen or = exp(_b[`exposure'])
+ 13.         gen se = exp(_b[`exposure'])*_se[`exposure']
+ 14.         gen orlb = exp(_b[`exposure'] - invnormal(0.975)*_se[`exposure'])
+ 15.         gen orub = exp(_b[`exposure'] + invnormal(0.975)*_se[`exposure'])
+ 16.                 label var orn "N indivs used to estimate OR"
+ 17.                 label var or "Odds ratio"
+ 18.                 label var se "SE of odds ratio"
+ 19.                 label var orlb "OR lower 95% CI"
+ 20.                 label var orub "OR upper 95% CI"
+ 21. 
+.         * calculate the predicted probability of
+.         * illness at each level of the indicator
+.         * adjusted at the means of the covariates
+.         adjust `covarlist', se gen(xb xbse) nokey noheader
+ 22.         gen xblb = xb - 1.96*xbse
+ 23.         gen xbub = xb + 1.96*xbse
+ 24.         gen pr = exp(xb)/(1+exp(xb))
+ 25.         gen prse = pr*(1-pr)*xbse
+ 26.         gen prlb = exp(xblb)/(1+exp(xblb))
+ 27.         gen prub = exp(xbub)/(1+exp(xbub))
+ 28.         drop xb xbse xblb xbub
+ 29.         label var pr "predicted probability of illness"
+ 30.         label var prse "Pr(illness) SE"
+ 31.         label var prlb "Pr(illness) lower 95% CI"
+ 32.         label var prub "Pr(illness) upper 95% CI"
+ 33. 
+.         * collapse to unique values of the indicator
+.         * drop individuals who were not exposed
+.         keep if `touse'
+ 34.         bysort `exposure': gen n = _N
+ 35.         label var n "N indivs exposed"
+ 36.         bysort `exposure': keep if _n==1
+ 37.         drop if `exposure'==.
+ 38.         rename `exposure' log10lev
+ 39.                 label var log10lev "Log10 indicator concentration"
+ 40.         gen lev = 10^log10lev
+ 41.                 label var lev "Indicator concentration"
+ 42.         keep lev log10lev orn or se orlb orub n pr prse prlb prub
+ 43. 
+.         gen outcome = "`outcome'"
+ 44.                 label var outcome "Health outcome"
+ 45.         gen indicator = "`exposure'"
+ 46.                 label var indicator "Water quality indicator code"
+ 47.         order outcome indicator n orn or se orlb orub pr prse prlb prub
+ 48. 
+. end pillness
+
+. 
+. 
+. 
+. 
+. 
+. *-----------------------------------------
+. * AVALON
+. *-----------------------------------------
+. 
+. * load data and drop incomplete interviews
+. * and individuals with GI illness at baseline
+. use "/Users/jadebc/Dropbox/Coliphage/Data/Untouched/avalon2.dta", clear
+(avalon analysis w/ water indicators, created by 5-merge-indicator-data.do)
+
+. keep if pout==1
+(1128 observations deleted)
+
+. drop if gibase==1
+(237 observations deleted)
+
+. 
+. *-----------------------------------------
+. * restrict to key covariates and the 
+. * coliphage indicators of interest
+. * restrict to the quantiative phage indicators
+. * EPA 1601 and 1602 + / -
+. *-----------------------------------------
+. 
+. keep id diarrheaci10 hcgi3ci10 groundwater anycontact bodycontact headunder s
+> wallwater ageyrx agecat1 sex white animy sick come dig rawfood allergy multis
+> wim year sspda14FMC0511 sspda14FPC0511 sspda16FMC0811 sspda16FPC0811 
+
+. 
+. 
+. *------------------------------------------
+. * set adjustment covariates for selection
+. *------------------------------------------
+. local Xvars = "i.agecat1 sex white animy sick come dig rawfood allergy multis
+> wim year"
+
+. 
+. *------------------------------------------
+. * F- Coliphage EPA 1601
+. *------------------------------------------
+. tempfile fmc1601a fmc1601b fmc1601c
+
+. preserve
+
+. pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda14FMC0511)
+hcgi3ci10 sspda14FMC0511 
+
+Logistic regression                               Number of obs   =       1279
+                                                  Wald chi2(5)    =       8.43
+                                                  Prob > chi2     =     0.1342
+Log pseudolikelihood = -369.53216                 Pseudo R2       =     0.0146
+
+                                   (Std. Err. adjusted for 587 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FMC~1 |    .815161   .1945107    -0.86   0.392     .5106611     1.30123
+      ageyrx |   1.001964   .0061647     0.32   0.750     .9899538     1.01412
+        sick |   .4409535   .1807175    -2.00   0.046     .1974886    .9845632
+        come |   1.000976   .0014769     0.66   0.508     .9980859    1.003875
+         dig |   .5979035   .1455787    -2.11   0.035     .3710043    .9635699
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |    -2.4432   (.124882)
+----------------------------------
+(3948 missing values generated)
+(3948 missing values generated)
+(3948 missing values generated)
+(3948 missing values generated)
+(3948 missing values generated)
+(3948 missing values generated)
+(2177 observations deleted)
+(3703 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Combined"
+
+. save `fmc1601a'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000001 saved
+
+. restore
+
+. preserve
+
+. 
+. pillness if bodycontact==1 & groundwater==0, outcome(hcgi3ci10) xvars("`Xvars
+> '") id(id) exposure(sspda14FMC0511)
+hcgi3ci10 sspda14FMC0511 
+
+Logistic regression                               Number of obs   =        767
+                                                  Wald chi2(9)    =      17.37
+                                                  Prob > chi2     =     0.0432
+Log pseudolikelihood = -223.71442                 Pseudo R2       =     0.0356
+
+                                   (Std. Err. adjusted for 342 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FMC~1 |   .8530251   .2760221    -0.49   0.623     .4524075    1.608399
+      ageyrx |   1.008991   .0076914     1.17   0.240     .9940286     1.02418
+         sex |    .819595   .2038402    -0.80   0.424     .5033826    1.334444
+       animy |   1.320625   .5434173     0.68   0.499     .5895533    2.958259
+        sick |     .36663   .1883634    -1.95   0.051     .1339388    1.003574
+        come |    1.00411   .0084211     0.49   0.625     .9877399    1.020751
+         dig |   .3975109   .1203751    -3.05   0.002     .2195768     .719634
+     rawfood |   .7437035   .2503703    -0.88   0.379     .3844501    1.438665
+   multiswim |   1.100732   .3188417     0.33   0.740     .6239068    1.941974
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.41432   (.162125)
+----------------------------------
+(3954 missing values generated)
+(3954 missing values generated)
+(3954 missing values generated)
+(3954 missing values generated)
+(3954 missing values generated)
+(3954 missing values generated)
+(3977 observations deleted)
+(1921 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Groundwater below median"
+
+. save `fmc1601b'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000002 saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & groundwater==1, outcome(hcgi3ci10) xvars("`Xvars
+> '") id(id) exposure(sspda14FMC0511)
+hcgi3ci10 sspda14FMC0511 
+
+Logistic regression                               Number of obs   =        512
+                                                  Wald chi2(4)    =       4.28
+                                                  Prob > chi2     =     0.3699
+Log pseudolikelihood = -140.99342                 Pseudo R2       =     0.0128
+
+                                   (Std. Err. adjusted for 246 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FMC~1 |   .8022533   .3018337    -0.59   0.558     .3837619    1.677109
+      ageyrx |   .9873046   .0090538    -1.39   0.164     .9697179     1.00521
+         dig |   1.286439   .4944283     0.66   0.512     .6056746    2.732366
+     rawfood |   1.789631   .7094544     1.47   0.142     .8228599    3.892253
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.52639   (.210998)
+----------------------------------
+(3925 missing values generated)
+(3925 missing values generated)
+(3925 missing values generated)
+(3925 missing values generated)
+(3925 missing values generated)
+(3925 missing values generated)
+(4128 observations deleted)
+(1773 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Groundwater above median"
+
+. save `fmc1601c'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000003 saved
+
+. restore
+
+. 
+. *------------------------------------------
+. * F+ Coliphage EPA 1601
+. *------------------------------------------
+. tempfile fpc1601a fpc1601b fpc1601c
+
+. preserve
+
+. pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda14FPC0511)
+hcgi3ci10 sspda14FPC0511 
+
+Logistic regression                               Number of obs   =       3656
+                                                  Wald chi2(11)   =      33.11
+                                                  Prob > chi2     =     0.0005
+Log pseudolikelihood = -946.92723                 Pseudo R2       =     0.0196
+
+                                  (Std. Err. adjusted for 1805 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FPC~1 |    1.05366   .2097733     0.26   0.793     .7132385    1.556562
+      ageyrx |   .9966605   .0037706    -0.88   0.377     .9892977    1.004078
+         sex |   .9399721   .1159845    -0.50   0.616      .738047    1.197143
+       animy |   .8177182   .1499281    -1.10   0.272     .5708689    1.171307
+        sick |    .573849   .1426524    -2.23   0.025      .352532    .9341073
+        come |   1.001429     .00151     0.95   0.344     .9984736    1.004393
+         dig |   .6300241   .0978146    -2.98   0.003     .4647331    .8541038
+     rawfood |   1.418585   .2220843     2.23   0.026     1.043751    1.928031
+     allergy |   1.437277   .2507852     2.08   0.038      1.02098    2.023315
+   multiswim |   .7747503   .1149477    -1.72   0.085     .5792569    1.036221
+        year |   .8094507   .1230756    -1.39   0.164     .6008508    1.090471
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.62277    (.08972)
+----------------------------------
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(2177 observations deleted)
+(3643 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Combined"
+
+. save `fpc1601a'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000007 saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & groundwater==0, outcome(hcgi3ci10) xvars("`Xvars
+> '") id(id) exposure(sspda14FPC0511)
+hcgi3ci10 sspda14FPC0511 
+
+Logistic regression                               Number of obs   =       1907
+                                                  Wald chi2(12)   =      27.49
+                                                  Prob > chi2     =     0.0066
+Log pseudolikelihood = -505.94814                 Pseudo R2       =     0.0278
+
+                                   (Std. Err. adjusted for 928 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FPC~1 |   .9955596   .2514351    -0.02   0.986     .6068631    1.633217
+      ageyrx |    .999567   .0051464    -0.08   0.933     .9895309    1.009705
+         sex |   .9057149   .1518429    -0.59   0.555     .6520604    1.258042
+       white |   .9773499   .2234404    -0.10   0.920     .6243808    1.529856
+       animy |   .7695516   .1869909    -1.08   0.281     .4779771    1.238992
+        sick |   .5742588   .1940944    -1.64   0.101     .2960799    1.113798
+        come |   1.002785   .0084802     0.33   0.742     .9863008    1.019544
+         dig |    .508374   .1053118    -3.27   0.001     .3387297    .7629804
+     rawfood |   1.216906   .2632593     0.91   0.364     .7963655    1.859524
+     allergy |   1.704479   .4049472     2.24   0.025     1.069952    2.715305
+   multiswim |    .768623   .1557869    -1.30   0.194     .5166414    1.143504
+        year |   .8176923   .1661252    -0.99   0.322     .5491069    1.217651
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.61472   (.123134)
+----------------------------------
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(3977 observations deleted)
+(1895 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Groundwater below median"
+
+. save `fpc1601b'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000008 saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & groundwater==1, outcome(hcgi3ci10) xvars("`Xvars
+> '") id(id) exposure(sspda14FPC0511)
+hcgi3ci10 sspda14FPC0511 
+
+Logistic regression                               Number of obs   =       1759
+                                                  Wald chi2(5)    =      11.91
+                                                  Prob > chi2     =     0.0360
+Log pseudolikelihood = -439.69525                 Pseudo R2       =     0.0137
+
+                                   (Std. Err. adjusted for 877 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FPC~1 |   1.238538   .3955809     0.67   0.503     .6622795    2.316208
+      ageyrx |   .9915109   .0053241    -1.59   0.112     .9811307    1.002001
+        sick |   .5571638   .2054966    -1.59   0.113     .2704192    1.147964
+     rawfood |   1.719683   .3858234     2.42   0.016     1.107835    2.669449
+        year |   .8298737    .199559    -0.78   0.438     .5179935    1.329535
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.63199   (.117157)
+----------------------------------
+(115 missing values generated)
+(115 missing values generated)
+(115 missing values generated)
+(115 missing values generated)
+(115 missing values generated)
+(115 missing values generated)
+(4128 observations deleted)
+(1736 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Groundwater above median"
+
+. save `fpc1601c'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000009 saved
+
+. restore
+
+. 
+. 
+. *------------------------------------------
+. * F- Coliphage EPA 1602
+. *------------------------------------------
+. tempfile fmc1602a fmc1602b fmc1602c
+
+. preserve
+
+. pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda16FMC0811) 
+hcgi3ci10 sspda16FMC0811 
+
+Logistic regression                               Number of obs   =       3702
+                                                  Wald chi2(4)    =      11.36
+                                                  Prob > chi2     =     0.0228
+Log pseudolikelihood = -967.33334                 Pseudo R2       =     0.0073
+
+                                  (Std. Err. adjusted for 1821 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FMC~1 |   1.043228   .1132926     0.39   0.697     .8432194    1.290679
+      ageyrx |   .9997838   .0035863    -0.06   0.952     .9927794    1.006838
+         dig |    .667064   .1024821    -2.64   0.008     .4936237    .9014443
+        year |   .7903367   .1213227    -1.53   0.125     .5849871    1.067771
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.57175   (.074041)
+----------------------------------
+(92 missing values generated)
+(92 missing values generated)
+(92 missing values generated)
+(92 missing values generated)
+(92 missing values generated)
+(92 missing values generated)
+(2177 observations deleted)
+(3705 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Combined"
+
+. save `fmc1602a'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00000d saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & groundwater==0, outcome(hcgi3ci10) xvars("`Xvars
+> '") id(id) exposure(sspda16FMC0811) 
+hcgi3ci10 sspda16FMC0811 
+
+Logistic regression                               Number of obs   =       1907
+                                                  Wald chi2(12)   =      27.46
+                                                  Prob > chi2     =     0.0066
+Log pseudolikelihood = -505.94795                 Pseudo R2       =     0.0278
+
+                                   (Std. Err. adjusted for 928 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FMC~1 |   .9961897   .1629224    -0.02   0.981     .7229892    1.372626
+      ageyrx |    .999568   .0051498    -0.08   0.933     .9895253    1.009713
+         sex |    .905596   .1518664    -0.59   0.554     .6519134    1.257996
+       white |   .9774421   .2221542    -0.10   0.920     .6260787    1.525995
+       animy |   .7699872   .1877633    -1.07   0.284     .4774368    1.241798
+        sick |   .5743147   .1952748    -1.63   0.103     .2949375     1.11833
+        come |   1.002808   .0084445     0.33   0.739      .986393    1.019496
+         dig |   .5082624   .1060775    -3.24   0.001     .3376268    .7651366
+     rawfood |   1.216571   .2644174     0.90   0.367     .7945698    1.862701
+     allergy |   1.704747   .4048967     2.25   0.025     1.070261    2.715376
+   multiswim |   .7687868   .1554024    -1.30   0.193     .5173021     1.14253
+        year |   .8195511   .1846729    -0.88   0.377     .5269521    1.274621
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.61404    (.11193)
+----------------------------------
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(164 missing values generated)
+(3977 observations deleted)
+(1921 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Groundwater below median"
+
+. save `fmc1602b'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00000e saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & groundwater==1, outcome(hcgi3ci10) xvars("`Xvars
+> '") id(id) exposure(sspda16FMC0811) 
+hcgi3ci10 sspda16FMC0811 
+
+Logistic regression                               Number of obs   =       1772
+                                                  Wald chi2(3)    =       2.47
+                                                  Prob > chi2     =     0.4800
+Log pseudolikelihood = -445.19101                 Pseudo R2       =     0.0035
+
+                                   (Std. Err. adjusted for 884 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FMC~1 |   1.123902    .167069     0.79   0.432     .8398401    1.504043
+      ageyrx |   .9942504   .0052794    -1.09   0.278     .9839566    1.004652
+        year |   .7886177    .182434    -1.03   0.305      .501135    1.241019
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.60156   (.110581)
+----------------------------------
+(67 missing values generated)
+(67 missing values generated)
+(67 missing values generated)
+(67 missing values generated)
+(67 missing values generated)
+(67 missing values generated)
+(4128 observations deleted)
+(1770 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Groundwater above median"
+
+. save `fmc1602c'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00000f saved
+
+. restore
+
+. 
+. *------------------------------------------
+. * F+ Coliphage EPA 1602
+. *------------------------------------------
+. tempfile fpc1602a fpc1602b fpc1602c
+
+. preserve
+
+. pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda16FPC0811) 
+hcgi3ci10 sspda16FPC0811 
+
+Logistic regression                               Number of obs   =       3712
+                                                  Wald chi2(2)    =       4.52
+                                                  Prob > chi2     =     0.1042
+Log pseudolikelihood = -971.88993                 Pseudo R2       =     0.0034
+
+                                  (Std. Err. adjusted for 1827 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FPC~1 |   2.105701   1.320134     1.19   0.235     .6162401    7.195209
+        year |   .7491858   .1122021    -1.93   0.054     .5586103    1.004778
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.33905   (.186658)
+----------------------------------
+(49 missing values generated)
+(49 missing values generated)
+(49 missing values generated)
+(49 missing values generated)
+(49 missing values generated)
+(49 missing values generated)
+(2177 observations deleted)
+(3746 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Combined"
+
+. save `fpc1602a'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00000j saved
+
+. restore
+
+. 
+. /* data are too sparse to estimate this association
+> preserve
+> pillness if bodycontact==1 & groundwater==0, outcome(hcgi3ci10) xvars("`Xvars
+> '") id(id) exposure(sspda16FPC0811) 
+> gen cond = "Groundwater below median"
+> save `fpc1602b'
+> restore
+> */
+. 
+. pillness if bodycontact==1 & groundwater==1, outcome(hcgi3ci10) xvars("`Xvars
+> '") id(id) exposure(sspda16FPC0811) 
+hcgi3ci10 sspda16FPC0811 
+
+Logistic regression                               Number of obs   =       1775
+                                                  Wald chi2(3)    =       7.37
+                                                  Prob > chi2     =     0.0610
+Log pseudolikelihood = -441.88985                 Pseudo R2       =     0.0114
+
+                                   (Std. Err. adjusted for 886 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FPC~1 |    2.88017   1.663197     1.83   0.067     .9287083     8.93217
+     rawfood |   1.576039   .3534866     2.03   0.043     1.015436    2.446139
+        year |   .7397256   .1745783    -1.28   0.201     .4657829    1.174783
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.33113   (.178349)
+----------------------------------
+(49 missing values generated)
+(49 missing values generated)
+(49 missing values generated)
+(49 missing values generated)
+(49 missing values generated)
+(49 missing values generated)
+(4128 observations deleted)
+(1795 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Groundwater above median"
+
+. 
+. *------------------------------------------
+. * append results into a single output file
+. *------------------------------------------
+. append using `fpc1602a'
+
+. * append using `fpc1602b'
+. 
+. append using `fpc1601a'
+
+. append using `fpc1601b'
+
+. append using `fpc1601c'
+
+. 
+. append using `fmc1602a'
+
+. append using `fmc1602b'
+
+. append using `fmc1602c'
+
+. 
+. append using `fmc1601a'
+
+. append using `fmc1601b'
+
+. append using `fmc1601c'
+
+. 
+. order outcome indicator cond lev log10lev
+
+. sort outcome indicator cond lev log10lev
+
+. label var cond "Environmental conditions / population"
+
+. 
+. label data "Avalon coliphage P(illness), created by 1-beaches-coliphage-pilln
+> ess-calculations.do"
+note: label truncated to 80 characters
+
+. save "/Users/jadebc/Dropbox/Coliphage/Data/Temp/avalon-coliphage-pillness.dta
+> ", replace
+(note: file /Users/jadebc/Dropbox/Coliphage/Data/Temp/avalon-coliphage-pillness
+> .dta not found)
+file /Users/jadebc/Dropbox/Coliphage/Data/Temp/avalon-coliphage-pillness.dta sa
+> ved
+
+. 
+. 
+. 
+. *-----------------------------------------
+. * DOHENY
+. *-----------------------------------------
+. 
+. * load data and drop incomplete interviews
+. * and individuals with GI illness at baseline
+. use "/Users/jadebc/Dropbox/Coliphage/Data/Untouched/doheny2.dta", clear
+(doheny analysis w/ water indicators, created by 5-merge-indicator-data.do)
+
+. keep if pout==1
+(2194 observations deleted)
+
+. drop if gibase==1
+(247 observations deleted)
+
+. 
+. *-----------------------------------------
+. * restrict to key covariates and the 
+. * coliphage indicators of interest
+. * restrict to the quantiative phage indicators
+. * EPA 1601 and 1602 + / -
+. *-----------------------------------------
+. 
+. keep id diarrheaci10 hcgi3ci10 berm anycontact bodycontact headunder swallwat
+> er ageyrx agecat1 sex white animy sick come dig rawfood allergy multiswim yea
+> r sspda14FMC0511 sspda14FPC0511 sspda16FMC0811 sspda16FPC0811 
+
+. 
+. 
+. 
+. *------------------------------------------
+. * set adjustment covariates for selection
+. *------------------------------------------
+. local Xvars = "i.agecat1 sex white animy sick come dig rawfood allergy multis
+> wim year"
+
+. 
+. *------------------------------------------
+. * F- Coliphage EPA 1601
+. *------------------------------------------
+. tempfile fmc1601a fmc1601b fmc1601c
+
+. preserve
+
+. pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda14FMC0511)
+hcgi3ci10 sspda14FMC0511 
+
+Logistic regression                               Number of obs   =       1014
+                                                  Wald chi2(11)   =      26.13
+                                                  Prob > chi2     =     0.0062
+Log pseudolikelihood = -222.36909                 Pseudo R2       =     0.0470
+
+                                   (Std. Err. adjusted for 500 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FMC~1 |   .9570403   .1961512    -0.21   0.830     .6404296    1.430175
+      ageyrx |   .9965686   .0092649    -0.37   0.712     .9785742    1.014894
+         sex |   1.495217   .4223134     1.42   0.154     .8595839    2.600878
+       white |   1.086588   .3335164     0.27   0.787     .5953845    1.983042
+       animy |   3.977616   3.008188     1.83   0.068     .9033933    17.51334
+        sick |   .3181423   .1371828    -2.66   0.008     .1366419    .7407285
+        come |   1.005418   .0066594     0.82   0.415     .9924498    1.018555
+         dig |    .619628   .1878105    -1.58   0.114     .3420819     1.12236
+     rawfood |   .4851235    .237691    -1.48   0.140     .1856939     1.26738
+     allergy |   1.246829   .4208463     0.65   0.513     .6434249    2.416105
+   multiswim |   1.069602   .3281733     0.22   0.826     .5862161    1.951579
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.94905   (.185003)
+----------------------------------
+(7028 missing values generated)
+(7028 missing values generated)
+(7028 missing values generated)
+(7028 missing values generated)
+(7028 missing values generated)
+(7028 missing values generated)
+(5042 observations deleted)
+(4203 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Combined"
+
+. save `fmc1601a'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00000n saved
+
+. restore
+
+. preserve
+
+. 
+. pillness if bodycontact==1 & berm==0, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda14FMC0511)
+hcgi3ci10 sspda14FMC0511 
+
+Logistic regression                               Number of obs   =       1014
+                                                  Wald chi2(11)   =      26.13
+                                                  Prob > chi2     =     0.0062
+Log pseudolikelihood = -222.36909                 Pseudo R2       =     0.0470
+
+                                   (Std. Err. adjusted for 500 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FMC~1 |   .9570403   .1961512    -0.21   0.830     .6404296    1.430175
+      ageyrx |   .9965686   .0092649    -0.37   0.712     .9785742    1.014894
+         sex |   1.495217   .4223134     1.42   0.154     .8595839    2.600878
+       white |   1.086588   .3335164     0.27   0.787     .5953845    1.983042
+       animy |   3.977616   3.008188     1.83   0.068     .9033933    17.51334
+        sick |   .3181423   .1371828    -2.66   0.008     .1366419    .7407285
+        come |   1.005418   .0066594     0.82   0.415     .9924498    1.018555
+         dig |    .619628   .1878105    -1.58   0.114     .3420819     1.12236
+     rawfood |   .4851235    .237691    -1.48   0.140     .1856939     1.26738
+     allergy |   1.246829   .4208463     0.65   0.513     .6434249    2.416105
+   multiswim |   1.069602   .3281733     0.22   0.826     .5862161    1.951579
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.94905   (.185003)
+----------------------------------
+(7028 missing values generated)
+(7028 missing values generated)
+(7028 missing values generated)
+(7028 missing values generated)
+(7028 missing values generated)
+(7028 missing values generated)
+(5865 observations deleted)
+(3380 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm closed"
+
+. save `fmc1601b'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00000o saved
+
+. restore
+
+. 
+. /* data are too sparse to estimate this association
+> preserve
+> pillness if bodycontact==1 & berm==1, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda14FMC0511)
+> gen cond = "Berm open"
+> save `fmc1601c'
+> restore
+> */
+. 
+. *------------------------------------------
+. * F+ Coliphage EPA 1601
+. *------------------------------------------
+. tempfile fpc1601a fpc1601b fpc1601c
+
+. preserve
+
+. pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda14FPC0511)
+hcgi3ci10 sspda14FPC0511 
+
+Logistic regression                               Number of obs   =       4094
+                                                  Wald chi2(4)    =       6.21
+                                                  Prob > chi2     =     0.1843
+Log pseudolikelihood = -970.27536                 Pseudo R2       =     0.0035
+
+                                  (Std. Err. adjusted for 2060 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FPC~1 |   .8373434   .1921996    -0.77   0.439     .5339776    1.313059
+      ageyrx |   .9945617   .0041206    -1.32   0.188     .9865182    1.002671
+         sex |   1.248288   .1701527     1.63   0.104     .9556269    1.630576
+        year |   1.113253   .2018051     0.59   0.554     .7803547    1.588165
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.74889   (.101414)
+----------------------------------
+(330 missing values generated)
+(330 missing values generated)
+(330 missing values generated)
+(330 missing values generated)
+(330 missing values generated)
+(330 missing values generated)
+(5042 observations deleted)
+(4137 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Combined"
+
+. save `fpc1601a'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00000s saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & berm==0, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda14FPC0511)
+hcgi3ci10 sspda14FPC0511 
+
+Logistic regression                               Number of obs   =       3304
+                                                  Wald chi2(2)    =       3.63
+                                                  Prob > chi2     =     0.1630
+Log pseudolikelihood = -786.11556                 Pseudo R2       =     0.0048
+
+                                  (Std. Err. adjusted for 1629 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FPC~1 |   .5747895   .1758199    -1.81   0.070      .315601    1.046837
+        year |   1.344069   .2715568     1.46   0.143     .9045739    1.997096
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.80118   (.113798)
+----------------------------------
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(5865 observations deleted)
+(3338 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm closed"
+
+. save `fpc1601b'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00000t saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & berm==1, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda14FPC0511)
+hcgi3ci10 sspda14FPC0511 
+
+Logistic regression                               Number of obs   =        821
+                                                  Wald chi2(3)    =       7.23
+                                                  Prob > chi2     =     0.0648
+Log pseudolikelihood = -186.66755                 Pseudo R2       =     0.0232
+
+                                   (Std. Err. adjusted for 438 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14FPC~1 |   1.600946   .6146684     1.23   0.220     .7543379    3.397721
+      ageyrx |   .9957977   .0096066    -0.44   0.662      .977146    1.014805
+        come |   .9605427   .0188523    -2.05   0.040     .9242945    .9982125
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.74038   (.219847)
+----------------------------------
+(325 missing values generated)
+(325 missing values generated)
+(325 missing values generated)
+(325 missing values generated)
+(325 missing values generated)
+(325 missing values generated)
+(8455 observations deleted)
+(793 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm open"
+
+. save `fpc1601c'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00000u saved
+
+. restore
+
+. 
+. 
+. *------------------------------------------
+. * F- Coliphage EPA 1602
+. *------------------------------------------
+. tempfile fmc1602a fmc1602b fmc1602c
+
+. preserve
+
+. pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda16FMC0811) 
+hcgi3ci10 sspda16FMC0811 
+
+Logistic regression                               Number of obs   =       4012
+                                                  Wald chi2(10)   =      17.25
+                                                  Prob > chi2     =     0.0690
+Log pseudolikelihood = -941.45078                 Pseudo R2       =     0.0112
+
+                                  (Std. Err. adjusted for 2027 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FMC~1 |   1.010341   .1084801     0.10   0.924     .8186056    1.246985
+      ageyrx |   .9981351   .0046258    -0.40   0.687     .9891097    1.007243
+         sex |   1.252185   .1711109     1.65   0.100     .9579696     1.63676
+       white |   1.143083   .1794623     0.85   0.394     .8403121    1.554946
+       animy |   1.197465   .2723412     0.79   0.428     .7667836    1.870048
+        sick |   .6222852    .179013    -1.65   0.099     .3540984    1.093591
+         dig |   .6739829   .1060364    -2.51   0.012     .4951434    .9174168
+     allergy |   1.413359   .2375714     2.06   0.040     1.016656    1.964857
+   multiswim |   .8771477   .1289953    -0.89   0.373      .657496    1.170179
+        year |   1.057288   .1829006     0.32   0.747     .7532582    1.484031
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |    -2.7569   (.080396)
+----------------------------------
+(519 missing values generated)
+(519 missing values generated)
+(519 missing values generated)
+(519 missing values generated)
+(519 missing values generated)
+(519 missing values generated)
+(5042 observations deleted)
+(4192 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Combined"
+
+. save `fmc1602a'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000010 saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & berm==0, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda16FMC0811) 
+hcgi3ci10 sspda16FMC0811 
+
+Logistic regression                               Number of obs   =       3223
+                                                  Wald chi2(8)    =      19.95
+                                                  Prob > chi2     =     0.0105
+Log pseudolikelihood = -756.78399                 Pseudo R2       =     0.0152
+
+                                  (Std. Err. adjusted for 1600 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FMC~1 |   .9474521   .1123285    -0.46   0.649     .7510003    1.195293
+      ageyrx |   .9991253   .0049332    -0.18   0.859      .989503    1.008841
+       white |   1.172037   .2051755     0.91   0.365     .8316312    1.651778
+       animy |   1.038195    .247865     0.16   0.875     .6502167    1.657678
+        sick |   .5963762   .1870175    -1.65   0.099     .3225464    1.102677
+         dig |    .569303   .0970169    -3.31   0.001     .4076499    .7950595
+     allergy |   1.574456   .2881271     2.48   0.013     1.099917    2.253727
+        year |   1.147262   .2054542     0.77   0.443     .8076584    1.629663
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |    -2.8077   (.091543)
+----------------------------------
+(488 missing values generated)
+(488 missing values generated)
+(488 missing values generated)
+(488 missing values generated)
+(488 missing values generated)
+(488 missing values generated)
+(5865 observations deleted)
+(3378 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm closed"
+
+. save `fmc1602b'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000011 saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & berm==1, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda16FMC0811) 
+hcgi3ci10 sspda16FMC0811 
+Warning: at least 1 candidate covariate had collinearity problems, N vars dropp
+> ed: .
+
+Logistic regression                               Number of obs   =        822
+                                                  Wald chi2(1)    =       0.84
+                                                  Prob > chi2     =     0.3580
+Log pseudolikelihood = -193.13717                 Pseudo R2       =     0.0038
+
+                                   (Std. Err. adjusted for 438 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FMC~1 |    1.24021   .2904836     0.92   0.358      .783656    1.962749
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.77106   (.194487)
+----------------------------------
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(8455 observations deleted)
+(804 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm open"
+
+. save `fmc1602c'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000012 saved
+
+. restore
+
+. 
+. *------------------------------------------
+. * F+ Coliphage EPA 1602
+. *------------------------------------------
+. tempfile fpc1602a fpc1602b fpc1602c
+
+. preserve
+
+. pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda16FPC0811) 
+hcgi3ci10 sspda16FPC0811 
+
+Logistic regression                               Number of obs   =       4119
+                                                  Wald chi2(2)    =       9.75
+                                                  Prob > chi2     =     0.0076
+Log pseudolikelihood = -978.12504                 Pseudo R2       =     0.0053
+
+                                  (Std. Err. adjusted for 2066 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FPC~1 |   1.466651   .5145026     1.09   0.275     .7374359    2.916951
+         dig |   .6793927    .092482    -2.84   0.005     .5202972     .887136
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.59349    (.14716)
+----------------------------------
+(318 missing values generated)
+(318 missing values generated)
+(318 missing values generated)
+(318 missing values generated)
+(318 missing values generated)
+(318 missing values generated)
+(5042 observations deleted)
+(4225 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Combined"
+
+. save `fpc1602a'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000016 saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & berm==0, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda16FPC0811) 
+hcgi3ci10 sspda16FPC0811 
+
+Logistic regression                               Number of obs   =       3224
+                                                  Wald chi2(6)    =      22.43
+                                                  Prob > chi2     =     0.0010
+Log pseudolikelihood = -752.64313                 Pseudo R2       =     0.0173
+
+                                  (Std. Err. adjusted for 1604 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FPC~1 |   .8287595   .4550701    -0.34   0.732     .2825111    2.431204
+      ageyrx |   1.000825   .0049901     0.17   0.869      .991092    1.010653
+         sex |   1.378856   .2068984     2.14   0.032     1.027532    1.850301
+        sick |   .6152683   .1894872    -1.58   0.115     .3364463    1.125157
+         dig |   .5805402   .0977008    -3.23   0.001     .4174276    .8073901
+     allergy |   1.585654   .2905201     2.52   0.012     1.107268     2.27072
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.84704   (.227062)
+----------------------------------
+(499 missing values generated)
+(499 missing values generated)
+(499 missing values generated)
+(499 missing values generated)
+(499 missing values generated)
+(499 missing values generated)
+(5865 observations deleted)
+(3405 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm closed"
+
+. save `fpc1602b'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.000017 saved
+
+. restore
+
+. 
+. pillness if bodycontact==1 & berm==1, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda16FPC0811) 
+hcgi3ci10 sspda16FPC0811 
+Warning: at least 1 candidate covariate had collinearity problems, N vars dropp
+> ed: .
+
+Logistic regression                               Number of obs   =        822
+                                                  Wald chi2(1)    =       4.17
+                                                  Prob > chi2     =     0.0411
+Log pseudolikelihood =  -191.2387                 Pseudo R2       =     0.0135
+
+                                   (Std. Err. adjusted for 438 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FPC~1 |   2.394189   1.023274     2.04   0.041      1.03599    5.533005
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.42556   (.200294)
+----------------------------------
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(260 missing values generated)
+(8455 observations deleted)
+(817 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm open"
+
+. 
+. *------------------------------------------
+. * append results into a single output file
+. *------------------------------------------
+. append using `fpc1602a'
+
+. append using `fpc1602b'
+cond was str9 now str11
+
+. 
+. append using `fpc1601a'
+
+. append using `fpc1601b'
+
+. append using `fpc1601c'
+
+. 
+. append using `fmc1602a'
+
+. append using `fmc1602b'
+
+. append using `fmc1602c'
+
+. 
+. append using `fmc1601a'
+
+. append using `fmc1601b'
+
+. * append using `fmc1601c'
+. 
+. order outcome indicator cond lev log10lev
+
+. sort outcome indicator cond lev log10lev
+
+. label var cond "Environmental conditions / population"
+
+. 
+. label data "Doheny coliphage P(illness), created by 1-beaches-coliphage-pilln
+> ess-calculations.do"
+note: label truncated to 80 characters
+
+. save "/Users/jadebc/Dropbox/Coliphage/Data/Temp/doheny-coliphage-pillness.dta
+> ", replace
+(note: file /Users/jadebc/Dropbox/Coliphage/Data/Temp/doheny-coliphage-pillness
+> .dta not found)
+file /Users/jadebc/Dropbox/Coliphage/Data/Temp/doheny-coliphage-pillness.dta sa
+> ved
+
+. 
+. 
+. *-----------------------------------------
+. * MALIBU
+. *-----------------------------------------
+. 
+. * load data and drop incomplete interviews
+. * and individuals with GI illness at baseline
+. use "/Users/jadebc/Dropbox/Coliphage/Data/Untouched/malibu2.dta", clear
+(malibu analysis w/ water indicators, created by 5-merge-indicator-data.do)
+
+. keep if pout==1
+(1580 observations deleted)
+
+. drop if gibase==1
+(134 observations deleted)
+
+. 
+. *-----------------------------------------
+. * restrict to key covariates and the 
+. * coliphage indicators of interest
+. * restrict to the quantiative phage indicators
+. * EPA 1601 and 1602 + / -
+. *-----------------------------------------
+. 
+. keep id diarrheaci10 hcgi3ci10 berm anycontact bodycontact headunder swallwat
+> er ageyrx agecat2 female white animy sick come dig rawfood allergy multiswim 
+> fu12 sspda14FPC0511 sspda16FMC0811 sspda16FPC0811 
+
+. 
+. 
+. 
+. *------------------------------------------
+. * set adjustment covariates for selection
+. *------------------------------------------
+. local Xvars = "i.agecat2 female white animy sick come dig rawfood allergy mul
+> tiswim fu12"
+
+. 
+. *------------------------------------------
+. * F- Coliphage EPA 1601
+. *------------------------------------------
+. 
+. * NOT MEASURED AT MALIBU
+. 
+. *------------------------------------------
+. * F+ Coliphage EPA 1601
+. *------------------------------------------
+. tempfile fpc1601a fpc1601b fpc1601c
+
+. preserve
+
+. pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda14FPC0511)
+hcgi3ci10 sspda14FPC0511 
+
+Logistic regression                               Number of obs   =       2286
+                                                  Wald chi2(3)    =       8.17
+                                                  Prob > chi2     =     0.0426
+Log pseudolikelihood = -596.86321                 Pseudo R2       =     0.0098
+
+                                  (Std. Err. adjusted for 1316 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14~0511 |   .8490234   .0669574    -2.08   0.038     .7274288    .9909435
+        come |   1.007864   .0059798     1.32   0.187     .9962118    1.019653
+         dig |   .6819943   .1181122    -2.21   0.027     .4856956    .9576292
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.63239   (.100942)
+----------------------------------
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(3038 observations deleted)
+(2485 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Combined"
+
+. save `fpc1601a'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00001b saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & berm==0, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda14FPC0511)
+hcgi3ci10 sspda14FPC0511 
+
+Logistic regression                               Number of obs   =       1776
+                                                  Wald chi2(3)    =       7.65
+                                                  Prob > chi2     =     0.0539
+Log pseudolikelihood = -477.97065                 Pseudo R2       =     0.0096
+
+                                  (Std. Err. adjusted for 1021 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14~0511 |    .578853   .1728617    -1.83   0.067     .3223857    1.039348
+        sick |   .7112039   .2677503    -0.91   0.365     .3400465    1.487476
+     allergy |   1.459232   .3265056     1.69   0.091     .9411669    2.262466
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.93871   (.261363)
+----------------------------------
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(3570 observations deleted)
+(1957 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm closed"
+
+. save `fpc1601b'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00001c saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & berm==1, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda14FPC0511)
+hcgi3ci10 sspda14FPC0511 
+
+Logistic regression                               Number of obs   =        510
+                                                  Wald chi2(6)    =       5.92
+                                                  Prob > chi2     =     0.4322
+Log pseudolikelihood = -115.97252                 Pseudo R2       =     0.0301
+
+                                   (Std. Err. adjusted for 295 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda14~0511 |   .9259648   .0893651    -0.80   0.425     .7663811    1.118779
+      ageyrx |   1.002639   .0126085     0.21   0.834     .9782287    1.027658
+      female |   1.510018   .6818415     0.91   0.361      .623198    3.658796
+       white |   1.283845   .5455593     0.59   0.557     .5582155    2.952729
+        come |   1.002156   .0099649     0.22   0.829     .9828142    1.021878
+        fu12 |   .3245042   .2004236    -1.82   0.068     .0967147      1.0888
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.58812   (.253973)
+----------------------------------
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(375 missing values generated)
+(5008 observations deleted)
+(523 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm open"
+
+. save `fpc1601c'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00001d saved
+
+. restore
+
+. 
+. 
+. *------------------------------------------
+. * F- Coliphage EPA 1602
+. *------------------------------------------
+. tempfile fmc1602a fmc1602b fmc1602c
+
+. preserve
+
+. pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda16FMC0811) 
+hcgi3ci10 sspda16FMC0811 
+
+Logistic regression                               Number of obs   =       2476
+                                                  Wald chi2(2)    =       4.39
+                                                  Prob > chi2     =     0.1116
+Log pseudolikelihood = -650.79682                 Pseudo R2       =     0.0030
+
+                                  (Std. Err. adjusted for 1431 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FMC~1 |   1.786073   .6906915     1.50   0.134     .8370117    3.811246
+        sick |   .6178076    .207738    -1.43   0.152     .3196218    1.194181
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.54189   (.088458)
+----------------------------------
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(3038 observations deleted)
+(2493 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Combined"
+
+. save `fmc1602a'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00001h saved
+
+. restore
+
+. 
+. preserve
+
+. pillness if bodycontact==1 & berm==0, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda16FMC0811) 
+hcgi3ci10 sspda16FMC0811 
+Warning: at least 1 candidate covariate had collinearity problems, N vars dropp
+> ed: .
+
+Logistic regression                               Number of obs   =       1948
+                                                  Wald chi2(1)    =       5.41
+                                                  Prob > chi2     =     0.0200
+Log pseudolikelihood = -523.94189                 Pseudo R2       =     0.0042
+
+                                  (Std. Err. adjusted for 1124 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FMC~1 |   2.480566    .968898     2.33   0.020     1.153653    5.333672
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.50424   (.098982)
+----------------------------------
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(3570 observations deleted)
+(1961 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm closed"
+
+. save `fmc1602b'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00001i saved
+
+. restore
+
+. 
+. 
+. pillness if bodycontact==1 & berm==1, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda16FMC0811) 
+hcgi3ci10 sspda16FMC0811 
+
+Logistic regression                               Number of obs   =        528
+                                                  Wald chi2(3)    =       7.20
+                                                  Prob > chi2     =     0.0657
+Log pseudolikelihood = -121.32194                 Pseudo R2       =     0.0382
+
+                                   (Std. Err. adjusted for 307 clusters in id)
+------------------------------------------------------------------------------
+             |               Robust
+   hcgi3ci10 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sspda16FMC~1 |   .0698133   .1271281    -1.46   0.144     .0019675    2.477155
+        sick |   .4316317   .3611073    -1.00   0.315      .083751    2.224523
+        fu12 |   .2728236   .1649292    -2.15   0.032     .0834272    .8921877
+------------------------------------------------------------------------------
+
+----------------------------------
+      All |         xb        stdp
+----------+-----------------------
+          |   -2.70077   (.197504)
+----------------------------------
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(39 missing values generated)
+(5008 observations deleted)
+(527 observations deleted)
+(1 observation deleted)
+
+. gen cond = "Berm open"
+
+. save `fmc1602c'
+file /var/folders/gh/bgfnnwkd7wdg7cw3q0_zwvt40000gp/T//S_06961.00001j saved
+
+. 
+. 
+. *------------------------------------------
+. * F+ Coliphage EPA 1602
+. *------------------------------------------
+. 
+. /* Data are too sparse for any estimation
+> tempfile fpc1602a fpc1602b fpc1602c
+> preserve
+> pillness if bodycontact==1, outcome(hcgi3ci10) xvars("`Xvars'") id(id) exposu
+> re(sspda16FPC0811) 
+> gen cond = "Combined"
+> save `fpc1602a'
+> restore
+> 
+> preserve
+> pillness if bodycontact==1 & berm==0, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda16FPC0811) 
+> gen cond = "Berm closed"
+> save `fpc1602b'
+> restore
+> 
+> pillness if bodycontact==1 & berm==1, outcome(hcgi3ci10) xvars("`Xvars'") id(
+> id) exposure(sspda16FPC0811) 
+> gen cond = "Berm open"
+> 
+> */ 
+. 
+. *------------------------------------------
+. * append results into a single output file
+. *------------------------------------------
+. * append using `fpc1602a'
+. * append using `fpc1602b'
+. 
+. append using `fpc1601a'
+
+. append using `fpc1601b'
+cond was str9 now str11
+
+. append using `fpc1601c'
+
+. 
+. append using `fmc1602a'
+
+. append using `fmc1602b'
+
+. * append using `fmc1602c'
+. 
+. 
+. order outcome indicator cond lev log10lev
+
+. sort outcome indicator cond lev log10lev
+
+. label var cond "Environmental conditions / population"
+
+. 
+. label data "Doheny coliphage P(illness), created by 1-beaches-coliphage-pilln
+> ess-calculations.do"
+note: label truncated to 80 characters
+
+. save "/Users/jadebc/Dropbox/Coliphage/Data/Temp/malibu-coliphage-pillness.dta
+> ", replace
+(note: file /Users/jadebc/Dropbox/Coliphage/Data/Temp/malibu-coliphage-pillness
+> .dta not found)
+file /Users/jadebc/Dropbox/Coliphage/Data/Temp/malibu-coliphage-pillness.dta sa
+> ved
+
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/jadebc/Dropbox/Coliphage/Programs/1-beaches-coliphage-pilln
+> ess-calculations.log
+  log type:  text
+ closed on:   3 Jan 2014, 15:37:17
+-------------------------------------------------------------------------------

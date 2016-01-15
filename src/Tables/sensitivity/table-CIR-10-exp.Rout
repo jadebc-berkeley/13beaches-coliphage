@@ -1,0 +1,42 @@
+
+R version 3.1.3 (2015-03-09) -- "Smooth Sidewalk"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##########################################
+> # Coliphage analysis - 6 beaches
+> # v1 by Jade 7/13/15
+> 
+> # This file makes a table with regression output
+> # For a table with the combined and interaction
+> # results for body immersion
+> ##########################################
+> 
+> 
+> rm(list=ls())
+> 
+> setwd("~/Dropbox/Coliphage/")  
+> 
+> load("results/rawoutput/regress-10day-body.Rdata")
+> load("results/rawoutput/regress-10day-head.Rdata")
+> load("results/rawoutput/regress-10day-swall.Rdata")
+Error in readChar(con, 5L, useBytes = TRUE) : cannot open the connection
+Calls: load -> readChar
+In addition: Warning message:
+In readChar(con, 5L, useBytes = TRUE) :
+  cannot open compressed file 'results/rawoutput/regress-10day-swall.Rdata', probable reason 'No such file or directory'
+Execution halted

@@ -1,0 +1,94 @@
+
+R version 3.1.3 (2015-03-09) -- "Smooth Sidewalk"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> ##########################################
+> # Coliphage analysis - 6 beaches
+> # v1 by Jade 8/17/15
+> 
+> # Scatter plot of enterococcus by coliphage
+> # concentration
+> ##########################################
+> 
+> 
+> rm(list=ls())
+> library(ggplot2)
+> library(grid)
+> library(gridExtra)
+> library(reshape2)
+> source("~/dropbox/coliphage/programs/figures/theme_complete_bw.R")
+> 
+> 
+> setwd("~/Dropbox/Coliphage/")
+> 
+> # --------------------------------------
+> # load the and pre-preprocess the 
+> # analysis dataset
+> # (refer to the base functions script
+> # for details on the pre-processing)
+> # --------------------------------------
+> load("~/dropbox/coliphage/data/temp/beaches-coli-ent-wq.RData")
+> 
+> # drop 1602 values for Malibu
+> wq$fmc1601[wq$beach=="Malibu"]=NA
+> wq$fmc1602[wq$beach=="Malibu"]=NA
+> 
+> wq$logfmc1601=log(wq$fmc1601,base=10)
+> wq$logfmc1602=log(wq$fmc1602,base=10)
+> wq$logfpc1601=log(wq$fpc1601,base=10)
+> wq$logfpc1602=log(wq$fpc1602,base=10)
+> wq$logentero=log(wq$entero,base=10)
+> 
+> wq=wq[,c("beach","logentero","logfmc1601","logfmc1602",
++          "logfpc1601","logfpc1602")]
+> wq.long=melt(wq,ids=c("beach"))
+Using beach as id variables
+> wq.long$logentero=rep(wq.long[wq.long$variable=="logentero","value"],5)
+> wq.long=subset(wq.long,wq.long$variable!="logentero")
+> 
+> wq.long$variable=as.character(wq.long$variable)
+> wq.long$variable[wq.long$variable=="logfmc1601"]="F- Coliphage (EPA 1601)"
+> wq.long$variable[wq.long$variable=="logfmc1602"]="F- Coliphage (EPA 1602)"
+> wq.long$variable[wq.long$variable=="logfpc1601"]="F+ Coliphage (EPA 1601)"
+> wq.long$variable[wq.long$variable=="logfpc1602"]="F+ Coliphage (EPA 1602)"
+> 
+> 
+> 
+> pdf("~/dropbox/coliphage/results/figures/scatter.pdf",height=9,width=11)
+> 
+> ggplot(wq.long,aes(x=logentero,y=value))+geom_point(alpha=0.3)+
++   facet_wrap(~variable)+theme_complete_bw()+
++   xlab("Log10 Enterococcus Concentration")+
++   ylab("Log10 Coliphage Concentration")
+Warning messages:
+1: Removed 4045 rows containing missing values (geom_point). 
+2: Removed 3835 rows containing missing values (geom_point). 
+3: Removed 2604 rows containing missing values (geom_point). 
+4: Removed 3641 rows containing missing values (geom_point). 
+> dev.off()
+null device 
+          1 
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  1.138   0.053   1.203 

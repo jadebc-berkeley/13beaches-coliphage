@@ -1,0 +1,145 @@
+
+R version 3.2.2 (2015-08-14) -- "Fire Safety"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> # ------------------------------------
+> #
+> # Create dataset with water quality
+> # sample-specific information
+> #
+> # version 1 
+> # ------------------------------------
+> 
+> # ------------------------------------
+> # preamble
+> # ------------------------------------
+> rm(list=ls())
+> 
+> 
+> # ------------------------------------
+> # Load the datasets
+> # ------------------------------------
+> 
+> neear <- read.csv("~/dropbox/13beaches/data/final/neear-wq-samples.csv",stringsAsFactors=F)
+> adm   <- read.csv("~/dropbox/13beaches/data/final/adm-wq-samples.csv",stringsAsFactors=F)
+> mb    <- read.csv("~/dropbox/13beaches/data/final/mb-wq-samples.csv",stringsAsFactors=F)
+> 
+> 
+> 
+> # ------------------------------------
+> # Subset the data to common variables
+> # and append
+> # ------------------------------------
+> 
+> neear$stationid <- paste(neear$stationid)
+> neear$beachcode <- neear$beach
+> neear$sampleid <- neear$sampleid_neear1600
+> neear$coldate <- as.Date(neear$coldate,"%d%b%Y")
+> adm$coldate   <- as.Date(adm$coldate,"%d%b%Y")
+> mb$coldate    <- as.Date(mb$coldate,"%d%b%Y")
+> 
+> 
+> varselect.adm <- c("beach","beachcode","stationid","sampleid","coldate","fmc1601mpn",
++                "fmc1601mpn_nd","fmc1602mpn","fmc1602mpn_nd","fpc1601mpn",
++                "fpc1601mpn_nd","fpc1602mpn","fpc1602mpn_nd","entero1600cfu","entero1600cfu_nd")
+> 
+> varselect.mb <- c("beach","beachcode","stationid","coldate","fmc1601mpn",
++                    "fmc1601mpn_nd","fpc1601mpn","fpc1601mpn_nd","enteroELTmpn","enteroELTmpn_nd")
+> 
+> varselect.neear <- c("beach","beachcode","stationid","sampleid","coldate","fpc1601mpn",
++                    "fpc1601mpn_nd","entero1600cfu","entero1600cfu_nd")
+> 
+> 
+> nd <- subset(neear,select=varselect.neear)
+> nd$fmc1601mpn=NA
+> nd$fmc1601mpn_nd=NA
+> nd$fmc1602mpn=NA
+> nd$fmc1602mpn_nd=NA
+> nd$fpc1602mpn=NA
+> nd$fpc1602mpn_nd=NA
+> nd$entero=nd$entero1600cfu
+> nd$entero_nd=nd$entero1600cfu_nd
+> nd$entero1600cfu=NULL
+> nd$entero1600cfu_nd=NULL
+> 
+> ad <- subset(adm,select=varselect.adm)
+> ad$entero=ad$entero1600cfu
+> ad$entero_nd=ad$entero1600cfu_nd
+> ad$entero1600cfu=NULL
+> ad$entero1600cfu_nd=NULL
+> 
+> mb <- subset(mb,select=varselect.mb)
+> mb$fmc1602mpn=NA
+> mb$fmc1602mpn_nd=NA
+> mb$fpc1602mpn=NA
+> mb$fpc1602mpn_nd=NA
+> mb$entero=mb$enteroELTmpn
+> mb$entero_nd=mb$enteroELTmpn_nd
+> mb$enteroELTmpn=NULL
+> mb$enteroELTmpn_nd=NULL
+> mb$sampleid=NA
+> 
+> wq <- rbind(nd,ad,mb)
+> 
+> # ------------------------------------
+> # Subset to beaches with coliphage assays
+> # ------------------------------------
+> beach.list=c("Avalon","Doheny","Malibu","Mission Bay","Goddard","Fairhope")
+> wq=subset(wq,wq$beach %in% beach.list)
+> 
+> 
+> # ------------------------------------
+> # impute non-detects at 0.1 before
+> # calculating summary statistics
+> # ------------------------------------
+> 
+> wq$entero[wq$entero_nd=="Below detection"] <- 0.1
+> wq$fmc1601mpn[wq$fmc1601mpn_nd=="Below detection"] <- 0.1
+> wq$fmc1602mpn[wq$fmc1602mpn_nd=="Below detection"] <- 0.1
+> wq$fpc1601mpn[wq$fpc1601mpn_nd=="Below detection"] <- 0.1
+> wq$fpc1602mpn[wq$fpc1602mpn_nd=="Below detection"] <- 0.1
+> 
+> # ------------------------------------
+> # rename variables for ease of coding
+> # ------------------------------------
+> wq$entero1600cfu=wq$entero
+> wq$fmc1601=wq$fmc1601mpn
+> wq$fmc1602=wq$fmc1602mpn
+> wq$fpc1601=wq$fpc1601mpn
+> wq$fpc1602=wq$fpc1602mpn
+> 
+> wq$fmc1601_nd=wq$fmc1601mpn_nd
+> wq$fmc1602_nd=wq$fmc1602mpn_nd
+> wq$fpc1601_nd=wq$fpc1601mpn_nd
+> wq$fpc1602_nd=wq$fpc1602mpn_nd
+> 
+> drops=c("entero1600cfu_nd","fmc1601mpn","fmc1602mpn","fpc1601mpn","fpc1602mpn")
+> 
+> wq=wq[,!names(wq)%in% drops]
+> 
+> save(wq,file="~/dropbox/coliphage/data/temp/beaches-coli-ent-wq.RData")
+> 
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.500   0.041   0.873 
