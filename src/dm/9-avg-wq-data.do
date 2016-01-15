@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/dropbox/13beaches/src/dm/9-avg-wq-data.log", text replace
+log using "~/dropbox/13beaches-fork-coliphage/src/dm/9-avg-wq-data.log", text replace
 
 *----------------------------------------
 * 9-avg-wq-data.do
@@ -41,7 +41,7 @@ log using "~/dropbox/13beaches/src/dm/9-avg-wq-data.log", text replace
 * Entero QPCR
 * F-plus Coliphage 1601
 *----------------------------------------
-use "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", clear
+use "~/dropbox/13beaches-fork-coliphage/data/final/13beaches-wq-samples.dta", clear
 drop if inlist(beach,"Avalon","Doheny","Malibu","Mission Bay")
 
 * impute non-detects with 0.1
@@ -84,8 +84,19 @@ foreach stub of local stubs {
 }
 
 
+
+* create a variable for the percentage of samples with detectable coliphage
+* each day
+gen fpc1601det=.
+replace fpc1601det=1 if fpc1601mpn >0.1 & fpc1601mpn<.
+replace fpc1601det=0 if fpc1601mpn==0.1
+
+egen fpc1601perdet = mean(fpc1601det), by(beach coldate)
+
+gen fpcperdet = fpc1601perdet
+
 by beach coldate: keep if _n==1
-keep beach coldate avg*
+keep beach coldate avg* fpc1601perdet fpcperdet
 
 gen byte marine = !inlist(beach,"West","Washington Park","Silver","Huntington")
 	label var marine "Marine beach"
@@ -98,7 +109,6 @@ tempfile neearwq
 save `neearwq'
 
 
-
 *----------------------------------------
 * Avalon / Doheny / Malibu (ADM) water quality data
 * Calculate daily average values for
@@ -109,7 +119,7 @@ save `neearwq'
 * F-minus Coliphage 1601
 * F-minus Coliphage 1602
 *----------------------------------------
-use "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", clear
+use "~/dropbox/13beaches-fork-coliphage/data/final/13beaches-wq-samples.dta", clear
 keep if inlist(beach,"Avalon","Doheny","Malibu")
 
 * impute non-detects with 0.1
@@ -159,9 +169,30 @@ foreach stub of local stubs {
 	* label var avgwt`stub' "waist Avg `stublab'"
 }
 
+* create a variable for the percentage of samples with detectable coliphage
+* each day
+
+local stubs "fpc1601 fpc1602 fmc1601 fmc1602"
+foreach stub of local stubs {
+	gen `stub'det=.
+	replace `stub'det=1 if `stub'mpn >0.1 & `stub'mpn<.
+	replace `stub'det=0 if `stub'mpn>0 & `stub'mpn<0.101
+	egen `stub'perdet = mean(`stub'det), by(beach beachcode coldate)
+
+}
+
+gen fpcdet=.
+replace fpcdet = 1 if fpc1601det==1 | fpc1602det==1
+replace fpcdet = 0 if (fpc1601det==0 | fpc1601det==.) & (fpc1602det==0 | fpc1602det==.)
+egen fpcperdet = mean(fpcdet) , by(beach beachcode coldate)
+
+gen fmcdet=0
+replace fmcdet = 1 if fmc1601det==1 | fmc1602det==1
+replace fmcdet = . if fmc1601det==. & fmc1602det==.
+egen fmcperdet = mean(fmcdet) , by(beach beachcode coldate)
 
 by beach beachcode coldate: keep if _n==1
-keep beach beachcode coldate avg*
+keep beach beachcode coldate avg* *perdet 
 
 gen byte marine = 1
 	label var marine "Marine beach"
@@ -174,7 +205,6 @@ tempfile admwq
 save `admwq'
 
 
-
 *----------------------------------------
 * Mission Bay water quality data
 * Calculate daily average values for
@@ -184,7 +214,7 @@ save `admwq'
 * F-plus Coliphage 1601
 * F-minus Coliphage 1601
 *----------------------------------------
-use "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", clear
+use "~/dropbox/13beaches-fork-coliphage/data/final/13beaches-wq-samples.dta", clear
 keep if inlist(beach,"Mission Bay")
 
 * impute non-detects as 0.1 (consistent w/ other datasets)
@@ -217,13 +247,36 @@ foreach stub of local stubs {
 	label var avgdy`stub' "Daily Avg `stublab'"
 }
 
+
+* create a variable for the percentage of samples with detectable coliphage
+* each day
+
+local stubs "fpc1601 fpc1602 fmc1601 fmc1602"
+foreach stub of local stubs {
+	gen `stub'det=.
+	replace `stub'det=1 if `stub'mpn >0.1 & `stub'mpn<.
+	replace `stub'det=0 if `stub'mpn>0 & `stub'mpn<0.101
+	egen `stub'perdet = mean(`stub'det), by(beach beachcode coldate)
+}
+
+* pooled across assay
+gen fpcdet=.
+replace fpcdet = 1 if fpc1601det==1 | fpc1602det==1
+replace fpcdet = 0 if (fpc1601det==0 | fpc1601det==.) & (fpc1602det==0 | fpc1602det==.)
+egen fpcperdet = mean(fpcdet) , by(beach beachcode coldate)
+
+gen fmcdet=0
+replace fmcdet = 1 if fmc1601det==1 | fmc1602det==1
+replace fmcdet = . if fmc1601det==. & fmc1602det==.
+egen fmcperdet = mean(fmcdet) , by(beach beachcode coldate)
+
 * keep 1 obs per beach and day, and subset to relevant variables
 bysort beach beachcode coldate: keep if _n==1
 
 * drop 3 days (may 24, 25, 26) with completely empty data
 drop if coldate < mdy(5,27,2003)
 
-keep beach beachcode coldate avgdy*
+keep beach beachcode coldate avgdy* *perdet
 
 gen marine = 1
 	label var marine "Marine beach"
@@ -310,23 +363,21 @@ note: AM/Mid-Day/PM and shin/waist disaggregations were not available for Missio
 
 compress
 label data "13 beaches water quality data, created by 9-avg-wq-data.do"
-saveold "~/dropbox/13beaches/data/final/13beaches-wq.dta", replace version(12)
-outsheet using "~/dropbox/13beaches/data/final/13beaches-wq.csv", comma replace
+saveold "~/dropbox/13beaches-fork-coliphage/data/final/13beaches-wq.dta", replace version(12)
+outsheet using "~/dropbox/13beaches-fork-coliphage/data/final/13beaches-wq.csv", comma replace
 
 desc
 
 
 * write a codebook to separate file
 log close
-log using "~/dropbox/13beaches/data/final/13beaches-wq-codebook.txt", text replace
+log using "~/dropbox/13beaches-fork-coliphage/data/final/13beaches-wq-codebook.txt", text replace
 desc, s
 notes
 codebook
 log close
 
 exit
-
-
 
 
 
