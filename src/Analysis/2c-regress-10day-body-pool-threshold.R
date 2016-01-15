@@ -334,12 +334,12 @@ aic.fpc.low.75=AIC(all.fit10.fpc.low.75)
 # --------------------------------------
 save(
 
-  all.n10.fmc.25,all.n10.fmc.50,all.n10.fmc.75,
-  all.n10.fpc.25,all.n10.fpc.50,all.n10.fpc.75,
-  all.n10.fmc.high.25,all.n10.fmc.high.50,all.n10.fmc.high.75,
-  all.n10.fmc.low.25,all.n10.fmc.low.50,all.n10.fmc.low.75,
-  all.n10.fpc.high.25,all.n10.fpc.high.50,all.n10.fpc.high.75,
-  all.n10.fpc.low.25,all.n10.fpc.low.50,all.n10.fpc.low.75,
+#   all.n10.fmc.25,all.n10.fmc.50,all.n10.fmc.75,
+#   all.n10.fpc.25,all.n10.fpc.50,all.n10.fpc.75,
+#   all.n10.fmc.high.25,all.n10.fmc.high.50,all.n10.fmc.high.75,
+#   all.n10.fmc.low.25,all.n10.fmc.low.50,all.n10.fmc.low.75,
+#   all.n10.fpc.high.25,all.n10.fpc.high.50,all.n10.fpc.high.75,
+#   all.n10.fpc.low.25,all.n10.fpc.low.50,all.n10.fpc.low.75,
 
   all.VC10.fmc.25, all.VC10.fmc.50, all.VC10.fmc.75, 
   all.VC10.fpc.25, all.VC10.fpc.50, all.VC10.fpc.75,

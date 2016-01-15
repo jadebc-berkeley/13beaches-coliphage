@@ -189,61 +189,61 @@ preprocess.6beaches <- function(dataset) {
 
 # reference group <25%
 
-  ad$fmc1601_25ref <- 0
-  ad$fmc1601_25ref[ad$fmc1601perdet>0.25]  <- 1
-  ad$fmc1601_25ref[is.na(ad$fmc1601perdet)] <- NA
+  ad$fmc1601_25 <- 0
+  ad$fmc1601_25[ad$fmc1601perdet>0.25]  <- 1
+  ad$fmc1601_25[is.na(ad$fmc1601perdet)] <- NA
   
-  ad$fmc1601_50ref <- NA
-  ad$fmc1601_50ref[ad$fmc1601perdet>0.50]  <- 1
-  ad$fmc1601_50ref[ad$fmc1601perdet<0.25]  <- 0
-  ad$fmc1601_50ref[is.na(ad$fmc1601perdet)] <- NA
+  ad$fmc1601_50 <- NA
+  ad$fmc1601_50[ad$fmc1601perdet>0.50]  <- 1
+  ad$fmc1601_50[ad$fmc1601perdet<0.25]  <- 0
+  ad$fmc1601_50[is.na(ad$fmc1601perdet)] <- NA
   
-  ad$fmc1601_75ref <- NA
-  ad$fmc1601_75ref[ad$fmc1601perdet>0.75]  <- 1
-  ad$fmc1601_75ref[ad$fmc1601perdet<0.25]  <- 0
-  ad$fmc1601_75ref[is.na(ad$fmc1601perdet)] <- NA
+  ad$fmc1601_75 <- NA
+  ad$fmc1601_75[ad$fmc1601perdet>0.75]  <- 1
+  ad$fmc1601_75[ad$fmc1601perdet<0.25]  <- 0
+  ad$fmc1601_75[is.na(ad$fmc1601perdet)] <- NA
 
-  ad$fmc1602_25ref <- 0
-  ad$fmc1602_25ref[ad$fmc1602perdet>0.25]  <- 1
-  ad$fmc1602_25ref[is.na(ad$fmc1602perdet)] <- NA
+  ad$fmc1602_25 <- 0
+  ad$fmc1602_25[ad$fmc1602perdet>0.25]  <- 1
+  ad$fmc1602_25[is.na(ad$fmc1602perdet)] <- NA
   
-  ad$fmc1602_50ref <- NA
-  ad$fmc1602_50ref[ad$fmc1602perdet>0.50]  <- 1
-  ad$fmc1602_50ref[ad$fmc1602perdet<0.25]  <- 0
-  ad$fmc1602_50ref[is.na(ad$fmc1602perdet)] <- NA
+  ad$fmc1602_50 <- NA
+  ad$fmc1602_50[ad$fmc1602perdet>0.50]  <- 1
+  ad$fmc1602_50[ad$fmc1602perdet<0.25]  <- 0
+  ad$fmc1602_50[is.na(ad$fmc1602perdet)] <- NA
   
-  ad$fmc1602_75ref <- NA
-  ad$fmc1602_75ref[ad$fmc1602perdet>0.75]  <- 1
-  ad$fmc1602_75ref[ad$fmc1602perdet<0.25]  <- 0
-  ad$fmc1602_75ref[is.na(ad$fmc1602perdet)] <- NA
+  ad$fmc1602_75 <- NA
+  ad$fmc1602_75[ad$fmc1602perdet>0.75]  <- 1
+  ad$fmc1602_75[ad$fmc1602perdet<0.25]  <- 0
+  ad$fmc1602_75[is.na(ad$fmc1602perdet)] <- NA
 
-  ad$fpc1601_25ref <- 0
-  ad$fpc1601_25ref[ad$fpc1601perdet>0.25]  <- 1
-  ad$fpc1601_25ref[is.na(ad$fpc1601perdet)] <- NA
+  ad$fpc1601_25 <- 0
+  ad$fpc1601_25[ad$fpc1601perdet>0.25]  <- 1
+  ad$fpc1601_25[is.na(ad$fpc1601perdet)] <- NA
   
-  ad$fpc1601_50ref <- NA
-  ad$fpc1601_50ref[ad$fpc1601perdet>0.50]  <- 1
-  ad$fpc1601_50ref[ad$fpc1601perdet<0.25]  <- 0
-  ad$fpc1601_50ref[is.na(ad$fpc1601perdet)] <- NA
+  ad$fpc1601_50 <- NA
+  ad$fpc1601_50[ad$fpc1601perdet>0.50]  <- 1
+  ad$fpc1601_50[ad$fpc1601perdet<0.25]  <- 0
+  ad$fpc1601_50[is.na(ad$fpc1601perdet)] <- NA
   
-  ad$fpc1601_75ref <- NA
-  ad$fpc1601_75ref[ad$fpc1601perdet>0.75]  <- 1
-  ad$fpc1601_75ref[ad$fpc1601perdet<0.25]  <- 0
-  ad$fpc1601_75ref[is.na(ad$fpc1601perdet)] <- NA
+  ad$fpc1601_75 <- NA
+  ad$fpc1601_75[ad$fpc1601perdet>0.75]  <- 1
+  ad$fpc1601_75[ad$fpc1601perdet<0.25]  <- 0
+  ad$fpc1601_75[is.na(ad$fpc1601perdet)] <- NA
 
-  ad$fpc1602_25ref <- 0
-  ad$fpc1602_25ref[ad$fpc1602perdet>0.25]  <- 1
-  ad$fpc1602_25ref[is.na(ad$fpc1602perdet)] <- NA
+  ad$fpc1602_25 <- 0
+  ad$fpc1602_25[ad$fpc1602perdet>0.25]  <- 1
+  ad$fpc1602_25[is.na(ad$fpc1602perdet)] <- NA
   
-  ad$fpc1602_50ref <- NA
-  ad$fpc1602_50ref[ad$fpc1602perdet>0.50]  <- 1
-  ad$fpc1602_50ref[ad$fpc1602perdet<0.25]  <- 0
-  ad$fpc1602_50ref[is.na(ad$fpc1602perdet)] <- NA
+  ad$fpc1602_50 <- NA
+  ad$fpc1602_50[ad$fpc1602perdet>0.50]  <- 1
+  ad$fpc1602_50[ad$fpc1602perdet<0.25]  <- 0
+  ad$fpc1602_50[is.na(ad$fpc1602perdet)] <- NA
   
-  ad$fpc1602_75ref <- NA
-  ad$fpc1602_75ref[ad$fpc1602perdet>0.75]  <- 1
-  ad$fpc1602_75ref[ad$fpc1602perdet<0.25]  <- 0
-  ad$fpc1602_75ref[is.na(ad$fpc1602perdet)] <- NA
+  ad$fpc1602_75 <- NA
+  ad$fpc1602_75[ad$fpc1602perdet>0.75]  <- 1
+  ad$fpc1602_75[ad$fpc1602perdet<0.25]  <- 0
+  ad$fpc1602_75[is.na(ad$fpc1602perdet)] <- NA
 
   # pooled by assay 
 
@@ -271,33 +271,33 @@ preprocess.6beaches <- function(dataset) {
   ad$fpc_75[ad$fpcperdet>0.75] <- 1
   ad$fpc_75[is.na(ad$fpcperdet)] <- NA
   
-  ad$fmc_25ref <- 0
-  ad$fmc_25ref[ad$fmcperdet>0.25] <- 1
-  ad$fmc_25ref[is.na(ad$fmcperdet)] <- NA
+  ad$fmc_25 <- 0
+  ad$fmc_25[ad$fmcperdet>0.25] <- 1
+  ad$fmc_25[is.na(ad$fmcperdet)] <- NA
   
-  ad$fmc_50ref <- NA
-  ad$fmc_50ref[ad$fmcperdet>0.50] <- 1
-  ad$fmc_50ref[ad$fmcperdet<0.25] <- 0
-  ad$fmc_50ref[is.na(ad$fmcperdet)] <- NA
+  ad$fmc_50 <- NA
+  ad$fmc_50[ad$fmcperdet>0.50] <- 1
+  ad$fmc_50[ad$fmcperdet<0.25] <- 0
+  ad$fmc_50[is.na(ad$fmcperdet)] <- NA
   
-  ad$fmc_75ref <- NA
-  ad$fmc_75ref[ad$fmcperdet>0.75] <- 1
-  ad$fmc_75ref[ad$fmcperdet<0.25] <- 0
-  ad$fmc_75ref[is.na(ad$fmcperdet)] <- NA
+  ad$fmc_75 <- NA
+  ad$fmc_75[ad$fmcperdet>0.75] <- 1
+  ad$fmc_75[ad$fmcperdet<0.25] <- 0
+  ad$fmc_75[is.na(ad$fmcperdet)] <- NA
   
-  ad$fpc_25ref <- 0
-  ad$fpc_25ref[ad$fpcperdet>0.25] <- 1
-  ad$fpc_25ref[is.na(ad$fpcperdet)] <- NA
+  ad$fpc_25 <- 0
+  ad$fpc_25[ad$fpcperdet>0.25] <- 1
+  ad$fpc_25[is.na(ad$fpcperdet)] <- NA
   
-  ad$fpc_50ref <- NA
-  ad$fpc_50ref[ad$fpcperdet>0.50] <- 1
-  ad$fpc_50ref[ad$fpcperdet<0.25] <- 0
-  ad$fpc_50ref[is.na(ad$fpcperdet)] <- NA
+  ad$fpc_50 <- NA
+  ad$fpc_50[ad$fpcperdet>0.50] <- 1
+  ad$fpc_50[ad$fpcperdet<0.25] <- 0
+  ad$fpc_50[is.na(ad$fpcperdet)] <- NA
   
-  ad$fpc_75ref <- NA
-  ad$fpc_75ref[ad$fpcperdet>0.75] <- 1
-  ad$fpc_75ref[ad$fpcperdet<0.25] <- 0
-  ad$fpc_75ref[is.na(ad$fpcperdet)] <- NA
+  ad$fpc_75 <- NA
+  ad$fpc_75[ad$fpcperdet>0.75] <- 1
+  ad$fpc_75[ad$fpcperdet<0.25] <- 0
+  ad$fpc_75[is.na(ad$fpcperdet)] <- NA
 
 
   # risk variable

@@ -40,24 +40,24 @@ all=subset(all,all$bodycontact=="Yes")
 all$beach=as.character(all$beach)
 
 fmctab=cbind(sprintf("%0.2f",prop.table(table(all$beach,all$fmc.pres),1)[,2]),
-             sprintf("%0.2f",prop.table(table(all$beach,all$fmc_25),1)[,2]),
-             sprintf("%0.2f",prop.table(table(all$beach,all$fmc_50),1)[,2]),
-             sprintf("%0.2f",prop.table(table(all$beach,all$fmc_75),1)[,2]))
+             sprintf("%0.2f",prop.table(table(all$beach,all$fmc_25ref),1)[,2]),
+             sprintf("%0.2f",prop.table(table(all$beach,all$fmc_50ref),1)[,2]),
+             sprintf("%0.2f",prop.table(table(all$beach,all$fmc_75ref),1)[,2]))
 
-fmctab.out=data.frame(cbind(names(table(all$beach)),fmctab))
+fmctab.out.ref=data.frame(cbind(names(table(all$beach)),fmctab))
 
 fpctab=cbind(sprintf("%0.2f",prop.table(table(all$beach,all$fpc.pres),1)[,2]),
-             sprintf("%0.2f",prop.table(table(all$beach,all$fpc_25),1)[,2]),
-             sprintf("%0.2f",prop.table(table(all$beach,all$fpc_50),1)[,2]),
-             sprintf("%0.2f",prop.table(table(all$beach,all$fpc_75),1)[,2]))
+             sprintf("%0.2f",prop.table(table(all$beach,all$fpc_25ref),1)[,2]),
+             sprintf("%0.2f",prop.table(table(all$beach,all$fpc_50ref),1)[,2]),
+             sprintf("%0.2f",prop.table(table(all$beach,all$fpc_75ref),1)[,2]))
 
-fpctab.out=data.frame(cbind(names(table(all$beach)),fpctab))
+fpctab.out.ref=data.frame(cbind(names(table(all$beach)),fpctab))
 
-fmctab.out$X2=as.character(fmctab.out$X2)
-fmctab.out$X3=as.character(fmctab.out$X3)
-fmctab.out$X4=as.character(fmctab.out$X4)
-fmctab.out$X5=as.character(fmctab.out$X5)
+fmctab.out.ref$X2=as.character(fmctab.out.ref$X2)
+fmctab.out.ref$X3=as.character(fmctab.out.ref$X3)
+fmctab.out.ref$X4=as.character(fmctab.out.ref$X4)
+fmctab.out.ref$X5=as.character(fmctab.out.ref$X5)
 
-fmctab.out[c(3:4),c(2:5)]="N/A"
+fmctab.out.ref[c(3:4),c(2:5)]="N/A"
 
-save(fmctab.out,fpctab.out,file="~/Dropbox/Coliphage/Data/Temp/table-threshold.RData")
+save(fmctab.out.ref,fpctab.out.ref,file="~/Dropbox/Coliphage/Data/Temp/table-threshold.RData")

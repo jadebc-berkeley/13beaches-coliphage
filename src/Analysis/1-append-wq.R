@@ -16,15 +16,15 @@ rm(list=ls())
 # Load the datasets
 # ------------------------------------
 
-neear <- read.csv("~/dropbox/13beaches/data/final/neear-wq-samples.csv",stringsAsFactors=F)
-adm   <- read.csv("~/dropbox/13beaches/data/final/adm-wq-samples.csv",stringsAsFactors=F)
-mb    <- read.csv("~/dropbox/13beaches/data/final/mb-wq-samples.csv",stringsAsFactors=F)
+neear <- read.csv("~/Documents/CRG/coliphage/13beaches-data/final/neear-wq-samples.csv",stringsAsFactors=F)
+adm   <- read.csv("~/Documents/CRG/coliphage/13beaches-data/final/adm-wq-samples.csv",stringsAsFactors=F)
+mb    <- read.csv("~/Documents/CRG/coliphage/13beaches-data/final/mb-wq-samples.csv",stringsAsFactors=F)
 
 # ------------------------------------
 # Import berm and groundwater flow 
 # variables into the adm dataset
 # ------------------------------------
-epi=read.csv("~/dropbox/13beaches/data/final/13beaches-epi.csv")
+epi=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-epi.csv")
 epi$bermyn=ifelse(epi$berm=="Open",1,0)
 epi$bermyn[epi$berm==""]=NA
 epi$groundyn=ifelse(epi$groundwater=="Above median flow",1,0)
@@ -162,7 +162,7 @@ wq$groundwater=NULL
 wq$fmc1601[wq$beach=="Malibu"]=NA
 wq$fmc1602[wq$beach=="Malibu"]=NA
 
-save(wq,file="~/dropbox/coliphage/data/temp/beaches-coli-ent-wq.RData")
+save(wq,file="~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.RData")
 
 
 

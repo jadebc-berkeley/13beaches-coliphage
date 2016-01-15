@@ -228,59 +228,64 @@ aic.fpc1602.75=AIC(all.fit10.fpc1602.75)
 
 # fmc 1602 --------
 # high risk conditions
-data=all[!is.na(all$fmc1602),]
-data.high=subset(data,data$risk=="High")
+data.high=subset(all,all$risk=="High")
 all.fit10.fmc1602.high.25 <- glm(gici10~fmc1602_25+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.high)
+    rawfood+beach,family=poisson(link="log"),data=data.high[!is.na(data.high$fmc1602_25),])
 
-all.VC10.fmc1602.high.25 <- cl(data.high,fm=all.fit10.fmc1602.high.25, cluster=data.high$hhid)
+all.VC10.fmc1602.high.25 <- cl(data.high[!is.na(data.high$fmc1602_25),],
+        fm=all.fit10.fmc1602.high.25, cluster=data.high$hhid[!is.na(data.high$fmc1602_25)])
 overall.fit10.fmc1602.high.25 <- coeftest(all.fit10.fmc1602.high.25, all.VC10.fmc1602.high.25)
 summary(all.fit10.fmc1602.high.25)
 overall.fit10.fmc1602.high.25
 aic.fmc1602.high.25=AIC(all.fit10.fmc1602.high.25)
 
 all.fit10.fmc1602.high.50 <- glm(gici10~fmc1602_50+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.high)
+    rawfood+beach,family=poisson(link="log"),data=data.high[!is.na(data.high$fmc1602_50),])
 
-all.VC10.fmc1602.high.50 <- cl(data.high,fm=all.fit10.fmc1602.high.50, cluster=data.high$hhid)
+all.VC10.fmc1602.high.50 <- cl(data.high[!is.na(data.high$fmc1602_50),],fm=all.fit10.fmc1602.high.50, 
+                               cluster=data.high$hhid[!is.na(data.high$fmc1602_50)])
 overall.fit10.fmc1602.high.50 <- coeftest(all.fit10.fmc1602.high.50, all.VC10.fmc1602.high.50)
 summary(all.fit10.fmc1602.high.50)
 overall.fit10.fmc1602.high.50
 aic.fmc1602.high.50=AIC(all.fit10.fmc1602.high.50)
 
 all.fit10.fmc1602.high.75 <- glm(gici10~fmc1602_75+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.high)
+    rawfood+beach,family=poisson(link="log"),data=data.high[!is.na(data.high$fmc1602_75),])
 
-all.VC10.fmc1602.high.75 <- cl(data.high,fm=all.fit10.fmc1602.high.75, cluster=data.high$hhid)
+all.VC10.fmc1602.high.75 <- cl(data.high[!is.na(data.high$fmc1602_50),],fm=all.fit10.fmc1602.high.75, 
+                      cluster=data.high$hhid[!is.na(data.high$fmc1602_75)])
 overall.fit10.fmc1602.high.75 <- coeftest(all.fit10.fmc1602.high.75, all.VC10.fmc1602.high.75)
 summary(all.fit10.fmc1602.high.75)
 overall.fit10.fmc1602.high.75
 aic.fmc1602.high.75=AIC(all.fit10.fmc1602.high.75)
 
 # low risk conditions
-data.low=subset(data,data$risk=="Low")
+data.low=subset(all,all$risk=="Low")
 all.fit10.fmc1602.low.25 <- glm(gici10~fmc1602_25+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.low)
+    rawfood+beach,family=poisson(link="log"),data=data.low[!is.na(data.low$fmc1602_25),])
 
-all.VC10.fmc1602.low.25 <- cl(data.low,fm=all.fit10.fmc1602.low.25, cluster=data.low$hhid)
+all.VC10.fmc1602.low.25 <- cl(data.low[!is.na(data.low$fmc1602_25),],
+     fm=all.fit10.fmc1602.low.25, cluster=data.low$hhid[!is.na(data.low$fmc1602_25)])
 overall.fit10.fmc1602.low.25 <- coeftest(all.fit10.fmc1602.low.25, all.VC10.fmc1602.low.25)
 summary(all.fit10.fmc1602.low.25)
 overall.fit10.fmc1602.low.25
 aic.fmc1602.low.25=AIC(all.fit10.fmc1602.low.25)
 
 all.fit10.fmc1602.low.50 <- glm(gici10~fmc1602_50+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.low)
+    rawfood+beach,family=poisson(link="log"),data=data.low[!is.na(data.low$fmc1602_50),])
 
-all.VC10.fmc1602.low.50 <- cl(data.low,fm=all.fit10.fmc1602.low.50, cluster=data.low$hhid)
+all.VC10.fmc1602.low.50 <- cl(data.low[!is.na(data.low$fmc1602_50),],
+            fm=all.fit10.fmc1602.low.50, cluster=data.low$hhid[!is.na(data.low$fmc1602_50)])
 overall.fit10.fmc1602.low.50 <- coeftest(all.fit10.fmc1602.low.50, all.VC10.fmc1602.low.50)
 summary(all.fit10.fmc1602.low.50)
 overall.fit10.fmc1602.low.50
 aic.fmc1602.low.50=AIC(all.fit10.fmc1602.low.50)
 
 all.fit10.fmc1602.low.75 <- glm(gici10~fmc1602_75+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.low)
+    rawfood+beach,family=poisson(link="log"),data=data.low[!is.na(data.low$fmc1602_75),])
 
-all.VC10.fmc1602.low.75 <- cl(data.low,fm=all.fit10.fmc1602.low.75, cluster=data.low$hhid)
+all.VC10.fmc1602.low.75 <- cl(data.low[!is.na(data.low$fmc1602_75),],
+            fm=all.fit10.fmc1602.low.75, cluster=data.low$hhid[!is.na(data.low$fmc1602_75)])
 overall.fit10.fmc1602.low.75 <- coeftest(all.fit10.fmc1602.low.75, all.VC10.fmc1602.low.75)
 summary(all.fit10.fmc1602.low.75)
 overall.fit10.fmc1602.low.75
@@ -288,59 +293,64 @@ aic.fmc1602.low.75=AIC(all.fit10.fmc1602.low.75)
 
 # fpc 1601 --------
 # high risk conditions
-data=all[!is.na(all$fpc1601),]
-data.high=subset(data,data$risk=="High")
+data.high=subset(all,all$risk=="High")
 all.fit10.fpc1601.high.25 <- glm(gici10~fpc1601_25+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.high)
+    rawfood+beach,family=poisson(link="log"),data=data.high[!is.na(data.high$fpc1601_25),])
 
-all.VC10.fpc1601.high.25 <- cl(data.high,fm=all.fit10.fpc1601.high.25, cluster=data.high$hhid)
+all.VC10.fpc1601.high.25 <- cl(data.high[!is.na(data.high$fpc1601_25),],
+      fm=all.fit10.fpc1601.high.25, cluster=data.high$hhid[!is.na(data.high$fpc1601_25)])
 overall.fit10.fpc1601.high.25 <- coeftest(all.fit10.fpc1601.high.25, all.VC10.fpc1601.high.25)
 summary(all.fit10.fpc1601.high.25)
 overall.fit10.fpc1601.high.25
 aic.fpc1601.high.25=AIC(all.fit10.fpc1601.high.25)
 
 all.fit10.fpc1601.high.50 <- glm(gici10~fpc1601_50+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.high)
+    rawfood+beach,family=poisson(link="log"),data=data.high[!is.na(data.high$fpc1601_50),])
 
-all.VC10.fpc1601.high.50 <- cl(data.high,fm=all.fit10.fpc1601.high.50, cluster=data.high$hhid)
+all.VC10.fpc1601.high.50 <- cl(data.high[!is.na(data.high$fpc1601_50),],
+      fm=all.fit10.fpc1601.high.50, cluster=data.high$hhid[!is.na(data.high$fpc1601_50)])
 overall.fit10.fpc1601.high.50 <- coeftest(all.fit10.fpc1601.high.50, all.VC10.fpc1601.high.50)
 summary(all.fit10.fpc1601.high.50)
 overall.fit10.fpc1601.high.50
 aic.fpc1601.high.50=AIC(all.fit10.fpc1601.high.50)
 
 all.fit10.fpc1601.high.75 <- glm(gici10~fpc1601_75+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.high)
+    rawfood+beach,family=poisson(link="log"),data=data.high[!is.na(data.high$fpc1601_75),])
 
-all.VC10.fpc1601.high.75 <- cl(data.high,fm=all.fit10.fpc1601.high.75, cluster=data.high$hhid)
+all.VC10.fpc1601.high.75 <- cl(data.high[!is.na(data.high$fpc1601_75),],
+    fm=all.fit10.fpc1601.high.75, cluster=data.high$hhid[!is.na(data.high$fpc1601_75)])
 overall.fit10.fpc1601.high.75 <- coeftest(all.fit10.fpc1601.high.75, all.VC10.fpc1601.high.75)
 summary(all.fit10.fpc1601.high.75)
 overall.fit10.fpc1601.high.75
 aic.fpc1601.high.75=AIC(all.fit10.fpc1601.high.75)
 
 # low risk conditions
-data.low=subset(data,data$risk=="Low")
+data.low=subset(all,all$risk=="Low")
 all.fit10.fpc1601.low.25 <- glm(gici10~fpc1601_25+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.low)
+    rawfood+beach,family=poisson(link="log"),data=data.low[!is.na(data.low$fpc1601_25),])
 
-all.VC10.fpc1601.low.25 <- cl(data.low,fm=all.fit10.fpc1601.low.25, cluster=data.low$hhid)
+all.VC10.fpc1601.low.25 <- cl(data.low[!is.na(data.low$fpc1601_25),],
+    fm=all.fit10.fpc1601.low.25, cluster=data.low$hhid[!is.na(data.low$fpc1601_25)])
 overall.fit10.fpc1601.low.25 <- coeftest(all.fit10.fpc1601.low.25, all.VC10.fpc1601.low.25)
 summary(all.fit10.fpc1601.low.25)
 overall.fit10.fpc1601.low.25
 aic.fpc1601.low.25=AIC(all.fit10.fpc1601.low.25)
 
 all.fit10.fpc1601.low.50 <- glm(gici10~fpc1601_50+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.low)
+    rawfood+beach,family=poisson(link="log"),data=data.low[!is.na(data.low$fpc1601_50),])
 
-all.VC10.fpc1601.low.50 <- cl(data.low,fm=all.fit10.fpc1601.low.50, cluster=data.low$hhid)
+all.VC10.fpc1601.low.50 <- cl(data.low[!is.na(data.low$fpc1601_50),],
+    fm=all.fit10.fpc1601.low.50, cluster=data.low$hhid[!is.na(data.low$fpc1601_50)])
 overall.fit10.fpc1601.low.50 <- coeftest(all.fit10.fpc1601.low.50, all.VC10.fpc1601.low.50)
 summary(all.fit10.fpc1601.low.50)
 overall.fit10.fpc1601.low.50
 aic.fpc1601.low.50=AIC(all.fit10.fpc1601.low.50)
 
 all.fit10.fpc1601.low.75 <- glm(gici10~fpc1601_75+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.low)
+    rawfood+beach,family=poisson(link="log"),data=data.low[!is.na(data.low$fpc1601_75),])
 
-all.VC10.fpc1601.low.75 <- cl(data.low,fm=all.fit10.fpc1601.low.75, cluster=data.low$hhid)
+all.VC10.fpc1601.low.75 <- cl(data.low[!is.na(data.low$fpc1601_75),],
+    fm=all.fit10.fpc1601.low.75, cluster=data.low$hhid[!is.na(data.low$fpc1601_75)])
 overall.fit10.fpc1601.low.75 <- coeftest(all.fit10.fpc1601.low.75, all.VC10.fpc1601.low.75)
 summary(all.fit10.fpc1601.low.75)
 overall.fit10.fpc1601.low.75
@@ -349,21 +359,22 @@ aic.fpc1601.low.75=AIC(all.fit10.fpc1601.low.75)
 
 # fpc 1602 --------
 # high risk conditions
-data=all[!is.na(all$fpc1602),]
-data.high=subset(data,data$risk=="High")
+data.high=subset(all,all$risk=="High")
 all.fit10.fpc1602.high.25 <- glm(gici10~fpc1602_25+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.high)
+    rawfood+beach,family=poisson(link="log"),data=data.high[!is.na(data.high$fpc1602_25),])
 
-all.VC10.fpc1602.high.25 <- cl(data.high,fm=all.fit10.fpc1602.high.25, cluster=data.high$hhid)
+all.VC10.fpc1602.high.25 <- cl(data.high[!is.na(data.high$fpc1602_25),],
+    fm=all.fit10.fpc1602.high.25, cluster=data.high$hhid[!is.na(data.high$fpc1602_25)])
 overall.fit10.fpc1602.high.25 <- coeftest(all.fit10.fpc1602.high.25, all.VC10.fpc1602.high.25)
 summary(all.fit10.fpc1602.high.25)
 overall.fit10.fpc1602.high.25
 aic.fpc1602.high.25=AIC(all.fit10.fpc1602.high.25)
 
 all.fit10.fpc1602.high.50 <- glm(gici10~fpc1602_50+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.high)
+    rawfood+beach,family=poisson(link="log"),data=data.high[!is.na(data.high$fpc1602_50),])
 
-all.VC10.fpc1602.high.50 <- cl(data.high,fm=all.fit10.fpc1602.high.50, cluster=data.high$hhid)
+all.VC10.fpc1602.high.50 <- cl(data.high[!is.na(data.high$fpc1602_50),],
+    fm=all.fit10.fpc1602.high.50, cluster=data.high$hhid[!is.na(data.high$fpc1602_50)])
 overall.fit10.fpc1602.high.50 <- coeftest(all.fit10.fpc1602.high.50, all.VC10.fpc1602.high.50)
 summary(all.fit10.fpc1602.high.50)
 overall.fit10.fpc1602.high.50
@@ -371,9 +382,10 @@ aic.fpc1602.high.50=AIC(all.fit10.fpc1602.high.50)
 
 
 all.fit10.fpc1602.high.75 <- glm(gici10~fpc1602_75+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.high)
+    rawfood+beach,family=poisson(link="log"),data=data.high[!is.na(data.high$fpc1602_75),])
 
-all.VC10.fpc1602.high.75 <- cl(data.high,fm=all.fit10.fpc1602.high.75, cluster=data.high$hhid)
+all.VC10.fpc1602.high.75 <- cl(data.high[!is.na(data.high$fpc1602_75),],
+    fm=all.fit10.fpc1602.high.75, cluster=data.high$hhid[!is.na(data.high$fpc1602_75)])
 overall.fit10.fpc1602.high.75 <- coeftest(all.fit10.fpc1602.high.75, all.VC10.fpc1602.high.75)
 summary(all.fit10.fpc1602.high.75)
 overall.fit10.fpc1602.high.75
@@ -382,29 +394,32 @@ aic.fpc1602.high.75=AIC(all.fit10.fpc1602.high.75)
 
 
 # low risk conditions
-data.low=subset(data,data$risk=="Low")
+data.low=subset(all,all$risk=="Low")
 all.fit10.fpc1602.low.25 <- glm(gici10~fpc1602_25+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.low)
+    rawfood+beach,family=poisson(link="log"),data=data.low[!is.na(data.low$fpc1602_25),])
 
-all.VC10.fpc1602.low.25 <- cl(data.low,fm=all.fit10.fpc1602.low.25, cluster=data.low$hhid)
+all.VC10.fpc1602.low.25 <- cl(data.low[!is.na(data.low$fpc1602_25),],
+   fm=all.fit10.fpc1602.low.25, cluster=data.low$hhid[!is.na(data.low$fpc1602_25)])
 overall.fit10.fpc1602.low.25 <- coeftest(all.fit10.fpc1602.low.25, all.VC10.fpc1602.low.25)
 summary(all.fit10.fpc1602.low.25)
 overall.fit10.fpc1602.low.25
 aic.fpc1602.low.25=AIC(all.fit10.fpc1602.low.25)
 
 all.fit10.fpc1602.low.50 <- glm(gici10~fpc1602_50+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.low)
+    rawfood+beach,family=poisson(link="log"),data=data.low[!is.na(data.low$fpc1602_50),])
 
-all.VC10.fpc1602.low.50 <- cl(data.low,fm=all.fit10.fpc1602.low.50, cluster=data.low$hhid)
+all.VC10.fpc1602.low.50 <- cl(data.low[!is.na(data.low$fpc1602_50),],
+    fm=all.fit10.fpc1602.low.50, cluster=data.low$hhid[!is.na(data.low$fpc1602_50)])
 overall.fit10.fpc1602.low.50 <- coeftest(all.fit10.fpc1602.low.50, all.VC10.fpc1602.low.50)
 summary(all.fit10.fpc1602.low.50)
 overall.fit10.fpc1602.low.50
 aic.fpc1602.low.50=AIC(all.fit10.fpc1602.low.50)
 
 all.fit10.fpc1602.low.75 <- glm(gici10~fpc1602_75+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=data.low)
+    rawfood+beach,family=poisson(link="log"),data=data.low[!is.na(data.low$fpc1602_75),])
 
-all.VC10.fpc1602.low.75 <- cl(data.low,fm=all.fit10.fpc1602.low.75, cluster=data.low$hhid)
+all.VC10.fpc1602.low.75 <- cl(data.low[!is.na(data.low$fpc1602_75),],
+    fm=all.fit10.fpc1602.low.75, cluster=data.low$hhid[!is.na(data.low$fpc1602_75)])
 overall.fit10.fpc1602.low.75 <- coeftest(all.fit10.fpc1602.low.75, all.VC10.fpc1602.low.75)
 summary(all.fit10.fpc1602.low.75)
 overall.fit10.fpc1602.low.75
