@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/13beaches/src/dm/2-format-adm-epi.log", text replace
+log using "~/13beaches-coliphage/src/dm/2-format-adm-epi.log", text replace
 
 *----------------------------------------
 * 2-format-adm-epi.do
@@ -46,7 +46,7 @@ log using "~/13beaches/src/dm/2-format-adm-epi.log", text replace
 *----------------------------------------
 
 
-use "~/dropbox/beaches/avalon/data/final/avalon2.dta", clear
+use "~/13beaches-data/avalon/data/final/avalon2.dta", clear
 keep if pout==1
 capture drop beach
 gen beach = "AV"
@@ -55,7 +55,7 @@ tempfile avalon
 save `avalon'
 
 
-use "~/dropbox/beaches/doheny/data/final/doheny2.dta", clear
+use "~/13beaches-data/doheny/data/final/doheny2.dta", clear
 keep if pout==1
 capture drop beach
 gen beach = "DO"
@@ -65,7 +65,7 @@ rename personid psid
 tempfile doheny
 save `doheny'
 
-use "~/dropbox/beaches/malibu/data/final/malibu2.dta", clear
+use "~/13beaches-data/malibu/data/final/malibu2.dta", clear
 keep if pout==1
 capture drop beach
 gen beach = "MA"
@@ -320,7 +320,7 @@ drop hcgi3* uridays befdays aftdays fudays siteid2
 preserve
 desc, replace clear
 label data "variables for adm-epi.dta"
-save "~/dropbox/13beaches/data/temp/adm-epi-vars.dta", replace
+save "~/13beaches-data/temp/adm-epi-vars.dta", replace
 restore
 
 
@@ -330,7 +330,7 @@ restore
 * other beaches
 *----------------------------------------
 label data "Avalon, Doheny, Malibu epi data, created by 2-format-adm-epi.do"
-save "~/dropbox/13beaches/data/final/adm-epi.dta", replace
+save "~/13beaches-data/final/adm-epi.dta", replace
 
 codebook, c
 
@@ -338,7 +338,7 @@ log close
 
 
 * write a codebook
-log using "~/dropbox/13beaches/data/final/adm-epi-codebook.txt", text replace
+log using "~/13beaches-data/final/adm-epi-codebook.txt", text replace
 desc, s
 *aorder
 codebook

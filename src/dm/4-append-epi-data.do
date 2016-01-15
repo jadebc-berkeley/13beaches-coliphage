@@ -2,7 +2,7 @@ capture log close
 set more off
 clear all
 
-log using "~/dropbox/13beaches/src/dm/4-append-epi-data.log", text replace
+log using "~/13beaches-coliphage/src/dm/4-append-epi-data.log", text replace
 
 *----------------------------------------
 * 4-append-epi-data.do
@@ -28,11 +28,11 @@ log using "~/dropbox/13beaches/src/dm/4-append-epi-data.log", text replace
 *----------------------------------------
 * read in NEEAR and append ADM
 *----------------------------------------
-use "~/dropbox/13beaches/data/final/neear-epi.dta", clear
+use "~/13beaches-data/final/neear-epi.dta", clear
 
 desc, s
 
-append using "~/dropbox/13beaches/data/final/adm-epi.dta"
+append using "~/13beaches-data/final/adm-epi.dta"
 
 desc, s
 
@@ -40,7 +40,7 @@ desc, s
 * append Mission Bay
 *----------------------------------------
 
-append using "~/dropbox/13beaches/data/final/mb-epi.dta"
+append using "~/13beaches-data/final/mb-epi.dta"
 
 desc, s
 
@@ -139,15 +139,15 @@ log close
 * variable reconciliation
 *---------------------------------------------
 
-log using "~/dropbox/13beaches/src/dm/4-append-epi-data.log", text append
+log using "~/13beaches-coliphage/src/dm/4-append-epi-data.log", text append
 
 
-use "~/dropbox/13beaches/data/temp/neear-epi-vars.dta", clear
+use "~/13beaches-data/temp/neear-epi-vars.dta", clear
 sort name
 tempfile neear
 save `neear'
 
-use "~/dropbox/13beaches/data/temp/adm-epi-vars.dta", clear
+use "~/13beaches-data/temp/adm-epi-vars.dta", clear
 sort name
 merge 1:1 name using `neear'
 
@@ -159,7 +159,7 @@ gen byte inADM = inlist(_merge,1,3)
 
 save `neear', replace
 
-use "~/dropbox/13beaches/data/temp/mb-epi-vars.dta", clear
+use "~/13beaches-data/temp/mb-epi-vars.dta", clear
 sort name
 merge 1:1 name using `neear'
 gen byte inMB = inlist(_merge,1,3)
@@ -185,8 +185,8 @@ list name if inMB & !(inNEEAR | inADM)
 
 
 label data "13 beaches variable list, created by 4-append-epi-data.do"
-saveold "~/dropbox/13beaches/data/final/13beaches-epi-varlist.dta", replace version(12)
-outsheet using "~/dropbox/13beaches/data/final/13beaches-epi-varlist.csv", comma replace
+saveold "~/13beaches-data/final/13beaches-epi-varlist.dta", replace version(12)
+outsheet using "13beaches-data/final/13beaches-epi-varlist.csv", comma replace
 
 
 

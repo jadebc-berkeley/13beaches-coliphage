@@ -3,7 +3,7 @@ capture log close
 set more off
 clear all
 
-log using "~/dropbox/13beaches/src/dm/8-append-wq-data.log", text replace
+log using "~/13beaches-coliphage/src/dm/8-append-wq-data.log", text replace
 
 *----------------------------------------
 * 8-append-wq-data.do
@@ -37,11 +37,11 @@ log using "~/dropbox/13beaches/src/dm/8-append-wq-data.log", text replace
 * append 
 *----------------------------------------
 
-use "~/dropbox/13beaches/data/final/neear-wq-samples.dta", clear
+use "~/13beaches-data/final/neear-wq-samples.dta", clear
 
-append using "~/dropbox/13beaches/data/final/adm-wq-samples.dta"
+append using "~/13beaches-data/final/adm-wq-samples.dta"
 
-append using  "~/dropbox/13beaches/data/final/mb-wq-samples.dta"
+append using  "~/13beaches-data/final/mb-wq-samples.dta"
 
 
 * restrict the data to sample labels and common WQ indicators
@@ -70,14 +70,14 @@ notes enteroQPCRcce_qc: Only recorded for NEEAR Entero qPCR samples.  For NEEAR 
 
 compress
 label data "13 beaches water quality data, created by 8-append-wq-data.do"
-saveold "~/dropbox/13beaches/data/final/13beaches-wq-samples.dta", replace version(12)
-outsheet using "~/dropbox/13beaches/data/final/13beaches-wq-samples.csv", comma replace
+saveold "~/13beaches-data/final/13beaches-wq-samples.dta", replace version(12)
+outsheet using "~/13beaches-data/final/13beaches-wq-samples.csv", comma replace
 
 desc
 
 * write a codebook to separate file
 log close
-log using "~/dropbox/13beaches/data/final/13beaches-wq-samples-codebook.txt", text replace
+log using "~/13beaches-data/final/13beaches-wq-samples-codebook.txt", text replace
 desc, s
 notes
 codebook
