@@ -12,9 +12,9 @@ library(plyr)
 library(scales)
 library(grid)
 
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-body-threshold.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-threshold.Rdata")
 
-source("~/dropbox/coliphage/programs/figures/theme_complete_bw.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/figures/theme_complete_bw.R")
 # ------------------------------------------------
 # function to make table row with exponentiated point estimate
 # and 95% ci in parentheses
@@ -107,7 +107,7 @@ gici10.plot$type.f=factor(gici10.plot$type,
 
 
 
-pdf("~/dropbox/coliphage/results/figures/forestplots-threshold.pdf",height=5,width=14)
+pdf("~/Documents/CRG/coliphage/results/figures/forestplots-threshold.pdf",height=5,width=14)
 ggplot(gici10.plot,aes(x=lab.f,y=pt.est))+
   geom_errorbar(aes(ymin=lb,ymax=ub,color=type.f),width=0.3,
                 position=position_dodge(width=0.4))+

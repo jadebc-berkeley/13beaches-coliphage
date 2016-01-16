@@ -12,8 +12,6 @@ rm(list=ls())
 library(ggplot2)
 library(foreign)
 
-setwd("~/Dropbox/Coliphage/")
-
 #######################################
 # Probabiliy of illness plots - code from Ben
 #######################################
@@ -198,10 +196,10 @@ plotPy.em <- function(pYcurve1,pYcurve0,xtics=c(0.1,1,10,100,1000),xlab,ytics,yt
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-beaches13=read.csv("~/Dropbox/13beaches/data/final/13beaches-analysis.csv")
+beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
 
 # load base functions
-source("Programs/Analysis/0-base-functions.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
 
 data=preprocess.6beaches(beaches13)
 
@@ -216,7 +214,7 @@ all=subset(all,nowq==0)
 # to make the robust CI calcs work
 all=subset(all,all$bodycontact=="Yes")
 
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-continuous-body-unadj.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-unadj.Rdata")
 
 
 

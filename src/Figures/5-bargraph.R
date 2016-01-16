@@ -13,9 +13,9 @@ library(plyr)
 library(scales)
 library(grid)
 
-source("~/dropbox/coliphage/programs/figures/theme_complete_bw.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/figures/theme_complete_bw.R")
 
-load("~/dropbox/coliphage/results/rawoutput/bargraph-output.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/bargraph-output.Rdata")
 
 bargraph=data.frame(pt.est=c(ns, swim, s.som, s.male, s.som.ent, s.male.ent))
 
@@ -63,7 +63,7 @@ male.plot=ggplot(male,aes(x=lab.f,y=pt.est))+geom_bar(fill="grey",stat="identity
   geom_text(data=male, mapping=aes(x=lab,y=pt.est,label=pt.est.lab),vjust=3.8)+
   ylim(c(0,9))+xlab("")+ggtitle("Male-Specific Coliphage")
 
-pdf("~/dropbox/coliphage/results/figures/bargraph.pdf",height=9,width=8)
+pdf("~/Documents/CRG/coliphage/results/figures/bargraph.pdf",height=9,width=8)
 grid.arrange(somatic.plot, male.plot)
 dev.off()
 

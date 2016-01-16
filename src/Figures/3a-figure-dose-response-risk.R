@@ -12,8 +12,6 @@ rm(list=ls())
 library(ggplot2)
 library(foreign)
 
-setwd("~/Dropbox/Coliphage/")
-
 #######################################
 # Probabiliy of illness plots - code from Ben
 #######################################
@@ -193,10 +191,10 @@ plotPy.em <- function(pYcurve1,pYcurve0,xtics=c(0.1,1,10,100,1000),xlab,ytics,yt
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-beaches13=read.csv("~/Dropbox/13beaches/data/final/13beaches-analysis.csv")
+beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
 
 # load base functions
-source("Programs/Analysis/0-base-functions.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
 
 data=preprocess.6beaches(beaches13)
 
@@ -211,7 +209,7 @@ all=subset(all,nowq==0)
 # to make the robust CI calcs work
 all=subset(all,all$bodycontact=="Yes")
 
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-continuous-body-risk.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-risk.Rdata")
 
 
 
@@ -219,7 +217,7 @@ load("~/dropbox/coliphage/results/rawoutput/regress-10day-continuous-body-risk.R
 # make figures
 # --------------------------------------
 
-pdf("~/dropbox/coliphage/results/figures/dose-response-pool-risk-fmc1601.pdf",height=7,width=5)
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-risk-fmc1601.pdf",height=7,width=5)
 plotPy(all.fmc1601.pY,
        xlab="Concentration PFU / 100ml",
        ytics=seq(-10,100,10),
@@ -231,7 +229,7 @@ plotPy(all.fmc1601.pY,
 )
 dev.off()
 
-pdf("~/dropbox/coliphage/results/figures/dose-response-pool-risk-fmc1602.pdf",height=6,width=7)
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-risk-fmc1602.pdf",height=6,width=7)
 plotPy.em(all.fmc1602.pY.low,all.fmc1602.pY.high,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100,1000,10000),
@@ -249,7 +247,7 @@ plotPy.em(all.fmc1602.pY.low,all.fmc1602.pY.high,
 )
 dev.off()
 
-pdf("~/dropbox/coliphage/results/figures/dose-response-pool-risk-fpc1601.pdf",height=6,width=7)
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-risk-fpc1601.pdf",height=6,width=7)
 plotPy.em(all.fpc1601.pY.low,all.fpc1601.pY.high,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100),
@@ -267,7 +265,7 @@ plotPy.em(all.fpc1601.pY.low,all.fpc1601.pY.high,
 )
 dev.off()
 
-pdf("~/dropbox/coliphage/results/figures/dose-response-pool-risk-fpc1602.pdf",height=6,width=7)
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-risk-fpc1602.pdf",height=6,width=7)
 plotPy.em(all.fpc1602.pY.low,all.fpc1602.pY.high,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100),

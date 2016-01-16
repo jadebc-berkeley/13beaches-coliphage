@@ -12,10 +12,8 @@ library(ggplot2)
 library(grid)
 library(gridExtra)
 library(reshape2)
-source("~/dropbox/coliphage/programs/figures/theme_complete_bw.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/figures/theme_complete_bw.R")
 
-
-setwd("~/Dropbox/Coliphage/")
 
 # --------------------------------------
 # load the and pre-preprocess the 
@@ -23,7 +21,7 @@ setwd("~/Dropbox/Coliphage/")
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-load("~/dropbox/coliphage/data/temp/beaches-coli-ent-wq.RData")
+load("~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.RData")
 
 # drop 1602 values for Malibu
 wq$fmc1601[wq$beach=="Malibu"]=NA
@@ -49,7 +47,7 @@ wq.long$variable[wq.long$variable=="logfpc1602"]="Male-Specific Coliphage (EPA 1
 
 
 
-pdf("~/dropbox/coliphage/results/figures/scatter.pdf",height=9,width=11)
+pdf("~/Documents/CRG/coliphage/results/figures/scatter.pdf",height=9,width=11)
 ggplot(wq.long,aes(x=logentero,y=value))+geom_point(alpha=0.3)+
   facet_wrap(~variable)+theme_complete_bw()+
   xlab("Log10 Enterococcus Concentration")+
@@ -57,7 +55,7 @@ ggplot(wq.long,aes(x=logentero,y=value))+geom_point(alpha=0.3)+
 dev.off()
 
 
-pdf("~/dropbox/coliphage/results/figures/scatter_presentation.pdf",height=5,width=7)
+pdf("~/Documents/CRG/coliphage/results/figures/scatter_presentation.pdf",height=5,width=7)
 ggplot(wq.long,aes(x=logentero,y=value))+geom_point(alpha=0.3)+
   facet_wrap(~variable)+theme_complete_bw()+
   xlab("Log10 Enterococcus Concentration")+
