@@ -12,11 +12,9 @@
 
 rm(list=ls())
 
-setwd("~/Dropbox/Coliphage/")  
-
-load("results/rawoutput/regress-10day-body.Rdata")
-load("results/rawoutput/regress-10day-body-entero.Rdata")
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-body-joint.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-entero.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-joint.Rdata")
 
 # ------------------------------------------------
 # combine output
@@ -202,7 +200,7 @@ gici10.tab.out=cbind(lab,gici10.tab.out)
 
 rownames(gici10.tab.out)=NULL
 
-save(gici10.tab.out,file="~/Dropbox/Coliphage/Results/Tables/CIR-10.RData")
+save(gici10.tab.out,file="~/Documents/CRG/coliphage/Results/Tables/CIR-10.RData")
 
 
 

@@ -10,8 +10,6 @@
 rm(list=ls())
 library(foreign)
 
-setwd("~/Dropbox/Coliphage/")
-
 # --------------------------------------
 # paste n followed by percent in parentheses
 # input numeric variables
@@ -27,7 +25,7 @@ n.p.paren=function(n,p){
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-load("~/dropbox/coliphage/data/temp/beaches-coli-ent-wq.RData")
+load("~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.RData")
 
 
 #-------------------------------------------------------
@@ -113,7 +111,7 @@ wq.table=wq.table[,c(6,1:5)]
 
 rownames(wq.table)=NULL
 
-save(wq.table,file="~/Dropbox/Coliphage/Data/Temp/wqtable.RData")
+save(wq.table,file="~/Documents/CRG/coliphage/13beaches-data/Temp/wqtable.RData")
 
 wq.table[which(wq.table$lab=="~~~Avalon"),"lab"]="Avalon"
 wq.table[which(wq.table$lab=="~~~Doheny"),"lab"]="Doheny"
@@ -122,7 +120,7 @@ wq.table[which(wq.table$lab=="~~~Mission Bay"),"lab"]="Mission Bay"
 wq.table[which(wq.table$lab=="~~~Fairhope"),"lab"]="Fairhope"
 wq.table[which(wq.table$lab=="~~~Goddard"),"lab"]="Goddard"
 
-write.csv(wq.table,file="~/Dropbox/Coliphage/Results/Tables/Table1.csv",na="",row.names=FALSE)
+write.csv(wq.table,file="~/Documents/CRG/coliphage/Results/Tables/Table1.csv",na="",row.names=FALSE)
 
 
 

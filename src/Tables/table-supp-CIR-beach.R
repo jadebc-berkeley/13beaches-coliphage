@@ -8,10 +8,9 @@
 ##########################################
 
 rm(list=ls())
-setwd("~/Dropbox/Coliphage/")  
 
-load("results/rawoutput/regress-3day-body-beach.Rdata")
-load("results/rawoutput/regress-10day-body-beach.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-3day-body-beach.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-beach.Rdata")
 
 # ------------------------------------------------
 # combine output
@@ -172,7 +171,8 @@ gici10.comb.print=gici10.comb.print[,c(1,4,2:3)]
 
 colnames(gici10.comb.print)=c("label","cond","N","CIR")
 
-save(gici3.comb.print,gici10.comb.print,file="~/Dropbox/Coliphage/Results/Tables/reg-combined.RData")
+save(gici3.comb.print,gici10.comb.print,
+     file="~/Documents/CRG/coliphage/Results/Tables/reg-combined.RData")
 
 
 

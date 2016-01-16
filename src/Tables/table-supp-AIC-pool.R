@@ -8,9 +8,9 @@
 
 rm(list=ls())
 
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-body-pool.Rdata")
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-body-entero-pool.Rdata")
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-body-joint-pool.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-pool.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-entero-pool.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-joint-pool.Rdata")
 
 # ------------------------------------------------
 # combine output
@@ -45,6 +45,6 @@ aic.tab.out=aic.tab.out[,c("ind","type","all","low","high")]
 
 aic.tab.out=aic.tab.out[order(aic.tab.out$ind,aic.tab.out$type),]
 
-save(aic.tab.out,file="~/dropbox/coliphage/results/tables/aic-pool.RData")
+save(aic.tab.out,file="~/Documents/CRG/coliphage/results/tables/aic-pool.RData")
 
 

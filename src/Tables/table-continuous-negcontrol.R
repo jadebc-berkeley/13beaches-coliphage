@@ -10,10 +10,10 @@
 
 
 rm(list=ls())
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-continuous-body.Rdata")
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-continuous-body-negcontrol.Rdata")
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-continuous-body-entero.Rdata")
-load("~/dropbox/coliphage/results/rawoutput/regress-10day-continuous-body-entero-negcontrol.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-negcontrol.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-entero.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-entero-negcontrol.Rdata")
 
 
 
@@ -124,14 +124,11 @@ cont.tab.nc=rbind(col.tab.nc[1,],ent.tab.nc[1,],col.tab.nc[2,],ent.tab.nc[2,],
 
 cont.tab.out=rbind(cont.tab,cont.tab.nc)
 
-# label=rep(c("F- Coliphage (EPA 1601)","Enterococcus","F- Coliphage (EPA 1602)",
-#             "Enterococcus","F+ Coliphage (EPA 1601)","Enterococcus","F+ Coliphage EPA (1602)",
-#             "Enterococcus"))
 label=rep(c("Coliphage","Enterococcus"),8)
 analysis=c(rep("Main",8),rep("Neg control",8))
 
 cont.tab.out=cbind(label,analysis,cont.tab.out)
 
-save(cont.tab.out,file="~/dropbox/coliphage/results/tables/table-cont-negcontrol.RData")
+save(cont.tab.out,file="~/Documents/CRG/coliphage/results/tables/table-cont-negcontrol.RData")
 
 

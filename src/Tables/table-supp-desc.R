@@ -8,8 +8,6 @@
 
 rm(list=ls())
 
-setwd("~/Dropbox/Coliphage/")
-
 # --------------------------------------
 # paste n followed by percent in parentheses
 # input numeric variables
@@ -27,10 +25,10 @@ n.p.paren=function(n,p){
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-beaches13=read.csv("~/Dropbox/13beaches/data/final/13beaches-analysis.csv")
+beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
 
 # load base functions
-source("Programs/Analysis/0-base-functions.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
 
 data=preprocess.6beaches(beaches13)
 
@@ -133,7 +131,7 @@ table.print=rbind(table.print[1:2,],agelab,table.print[3:12,],
                       sexlab,table.print[13:15,],racelab,table.print[16:18,],
                       waterlab,table.print[19:22,])
 
-save(table.print,file="~/Dropbox/Coliphage/Results/Tables/desctab.RData")
+save(table.print,file="~/Documents/CRG/coliphage/Results/Tables/desctab.RData")
 
 
 

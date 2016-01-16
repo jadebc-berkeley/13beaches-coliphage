@@ -10,18 +10,16 @@
 rm(list=ls())
 library(foreign)
 
-setwd("~/Dropbox/Coliphage/")
-
 # --------------------------------------
 # load the and pre-preprocess the 
 # analysis dataset
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-beaches13=read.csv("~/Dropbox/13beaches-fork-coliphage/data/final/13beaches-analysis.csv")
+beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
 
 # load base functions
-source("Programs/Analysis/0-base-functions.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
 
 data=preprocess.6beaches(beaches13)
 
@@ -60,4 +58,5 @@ fmctab.out.ref$X5=as.character(fmctab.out.ref$X5)
 
 fmctab.out.ref[c(3:4),c(2:5)]="N/A"
 
-save(fmctab.out.ref,fpctab.out.ref,file="~/Dropbox/Coliphage/Data/Temp/table-threshold.RData")
+save(fmctab.out.ref,fpctab.out.ref,
+     file="~/Documents/CRG/coliphage/13beaches-data/Temp/table-threshold.RData")
