@@ -10,7 +10,6 @@
 
 rm(list=ls())
 library(ggplot2)
-library(foreign)
 
 #######################################
 # Probabiliy of illness plots - code from Ben

@@ -12,9 +12,9 @@
 
 rm(list=ls())
 
-load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-pool-diarrhea.Rdata")
-load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-entero-pool-diarrhea.Rdata")
-load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-joint-pool-diarrhea.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-pool.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-entero-pool.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-joint-pool.Rdata")
 
 # ------------------------------------------------
 # combine output
@@ -159,7 +159,7 @@ gici10.tab.pool=cbind(lab,gici10.tab.pool)
 
 rownames(gici10.tab.pool)=NULL
 
-save(gici10.tab.pool,file="~/Documents/CRG/coliphage/Results/Tables/CIR-10-pool-diarrhea.RData")
+save(gici10.tab.pool,file="~/Documents/CRG/coliphage/Results/Tables/CIR-10-pool.RData")
 
 
 
