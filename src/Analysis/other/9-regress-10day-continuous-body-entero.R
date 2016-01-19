@@ -20,7 +20,7 @@ library(foreign)
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-beaches13=read.csv("~~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
+beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
 
 # load base functions
 source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")

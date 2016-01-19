@@ -25,7 +25,7 @@ setwd("~/Dropbox/Coliphage/")
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-beaches13=read.csv("~/Dropbox/13beaches/data/final/13beaches-analysis.csv")
+beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
 
 # load base functions
 source("Programs/Analysis/0-base-functions.R")

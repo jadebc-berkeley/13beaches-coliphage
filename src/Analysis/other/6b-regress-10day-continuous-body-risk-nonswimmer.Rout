@@ -1,0 +1,211 @@
+
+R version 3.1.3 (2015-03-09) -- "Smooth Sidewalk"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> ##########################################
+> # Coliphage analysis - 6 beaches
+> # v1 by Jade 7/13/15
+> 
+> # Estimate the RR across the range of concentration
+> 
+> # Results pooled across beaches
+> 
+> # 10 day gi illness
+> ##########################################
+> 
+> 
+> rm(list=ls())
+> library(foreign)
+> 
+> # --------------------------------------
+> # load the and pre-preprocess the 
+> # analysis dataset
+> # (refer to the base functions script
+> # for details on the pre-processing)
+> # --------------------------------------
+> beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
+> 
+> # load base functions
+> source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
+> 
+> data=preprocess.6beaches(beaches13)
+
+Successfully loaded the data
+ Total sample size = 84411 
+
+Dropping individuals with GI illness at enrollment
+ N = 1948 
+
+Final sample size = 82463 
+
+Subsetting the data to relevant variables and completing final variable pre-processing> 
+> # restrict to 6 beaches with coliphage data
+> beach.list=c("Avalon","Doheny","Malibu","Mission Bay",
++              "Fairhope","Goddard")
+> 
+> all=data[data$beach %in% beach.list,]
+> all=subset(all,nowq==0)
+> all=subset(all,all$bodycontact=="Yes" | all$anycontact=="No")
+> 
+> #-------------------------------------------
+> # estimating probability of illness over
+> # observed range of exposure
+> #-------------------------------------------
+> iter=2
+> 
+> set.seed(92203789)
+> 
+> # fmc 1601 ---------------------------------
+> all.fmc1601.pY = boot.pY.risk(fmla=gici10~swim.fmc1601+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+rawfood+beach,dat=all[!is.na(all$fmc1601),],nameX="fmc1601",
++     ID=all[!is.na(all$fmc1601),"hhid"],iter)
+
+
+
+Bootstrap Iterations (2) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..
+ Bootstrap Run Time: 0.038  Minutes 
+
+> 
+> # fmc 1602 ---------------------------------
+> all.fmc1602.pY = boot.pY.risk(fmla=gici10~swim.fmc1602+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+rawfood+beach,dat=all[!is.na(all$fmc1602),],nameX="fmc1602",
++     ID=all[!is.na(all$fmc1602),"hhid"],iter)
+
+
+
+Bootstrap Iterations (2) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..
+ Bootstrap Run Time: 0.055  Minutes 
+
+> data=all[!is.na(all$fmc1602),]
+> data.high=subset(data,data$risk=="High")
+> all.fmc1602.pY.high = boot.pY.risk(fmla=gici10~swim.fmc1602+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+ rawfood+beach,dat=data.high,nameX="fmc1602",ID=data.high$hhid,iter)
+
+
+
+Bootstrap Iterations (2) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..
+ Bootstrap Run Time: 0.023  Minutes 
+
+> data.low=subset(data,data$risk=="Low")
+> all.fmc1602.pY.low = boot.pY.risk(fmla=gici10~swim.fmc1602+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+ rawfood+beach,dat=data.low,nameX="fmc1602",ID=data.low$hhid,iter)
+
+
+
+Bootstrap Iterations (2) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..
+ Bootstrap Run Time: 0.039  Minutes 
+
+> 
+> # fpc 1601 ---------------------------------
+> all.fpc1601.pY = boot.pY.risk(fmla=gici10~swim.fpc1601+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+rawfood+beach,dat=all[!is.na(all$fpc1601),],nameX="fpc1601",
++     ID=all[!is.na(all$fpc1601),"hhid"],iter)
+
+
+
+Bootstrap Iterations (2) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..
+ Bootstrap Run Time: 0.09  Minutes 
+
+> data=all[!is.na(all$fpc1601),]
+> data.high=subset(data,data$risk=="High")
+> all.fpc1601.pY.high = boot.pY.risk(fmla=gici10~swim.fpc1601+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+ rawfood+beach,dat=data.high,nameX="fpc1601",ID=data.high$hhid,iter)
+
+
+
+Bootstrap Iterations (2) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..
+ Bootstrap Run Time: 0.029  Minutes 
+
+> data.low=subset(data,data$risk=="Low")
+> all.fpc1601.pY.low = boot.pY.risk(fmla=gici10~swim.fpc1601+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+ rawfood+beach,dat=data.low,nameX="fpc1601",ID=data.low$hhid,iter)
+
+
+
+Bootstrap Iterations (2) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..
+ Bootstrap Run Time: 0.056  Minutes 
+
+> 
+> # fpc 1602 ---------------------------------
+> all.fpc1602.pY = boot.pY.risk(fmla=gici10~swim.fpc1602+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+rawfood+beach,dat=all[!is.na(all$fpc1602),],nameX="fpc1602",
++     ID=all[!is.na(all$fpc1602),"hhid"],iter)
+
+
+
+Bootstrap Iterations (2) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..
+ Bootstrap Run Time: 0.037  Minutes 
+
+> data=all[!is.na(all$fpc1602),]
+> data.high=subset(data,data$risk=="High")
+> all.fpc1602.pY.high = boot.pY.risk(fmla=gici10~swim.fpc1602+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+ rawfood+beach,dat=data.high,nameX="fpc1602",ID=data.high$hhid,iter)
+
+
+
+Bootstrap Iterations (2) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..
+ Bootstrap Run Time: 0.017  Minutes 
+
+> data.low=subset(data,data$risk=="Low")
+> all.fpc1602.pY.low = boot.pY.risk(fmla=gici10~swim.fpc1602+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+ rawfood+beach,dat=data.low,nameX="fpc1602",ID=data.low$hhid,iter)
+
+
+
+Bootstrap Iterations (2) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..
+ Bootstrap Run Time: 0.026  Minutes 
+
+> 
+> 
+> save(
++ 
++   all.fmc1601.pY,all.fmc1602.pY,all.fmc1602.pY.high,all.fmc1602.pY.low,
++   all.fpc1601.pY,all.fpc1601.pY.high,all.fpc1601.pY.low,all.fpc1602.pY,
++   all.fpc1602.pY.high,all.fpc1602.pY.low,
++   
++   file="~/Documents/CRG/coliphage/13beaches-coliphage/results/rawoutput/regress-10day-continuous-body-risk-nonswimmer.Rdata"
++   
++ )
+Error in gzfile(file, "wb") : cannot open the connection
+Calls: save -> gzfile
+In addition: Warning message:
+In gzfile(file, "wb") :
+  cannot open compressed file '/Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/results/rawoutput/regress-10day-continuous-body-risk-nonswimmer.Rdata', probable reason 'No such file or directory'
+Execution halted

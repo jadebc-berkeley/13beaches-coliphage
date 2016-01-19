@@ -1,0 +1,670 @@
+
+R version 3.1.3 (2015-03-09) -- "Smooth Sidewalk"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> ##########################################
+> # Coliphage analysis - 6 beaches
+> # v1 by Jade 7/13/15
+> 
+> # This file conducts maximum likelihood regression
+> # to estimate prevalence ratios
+> 
+> # Results pooled across beaches and assay
+> 
+> # 10 day gi illness
+> ##########################################
+> 
+> rm(list=ls())
+> library(foreign)
+> 
+> # --------------------------------------
+> # load the and pre-preprocess the 
+> # analysis dataset
+> # (refer to the base functions script
+> # for details on the pre-processing)
+> # --------------------------------------
+> beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
+> 
+> # load base functions
+> source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
+> 
+> data=preprocess.6beaches(beaches13)
+
+Successfully loaded the data
+ Total sample size = 84411 
+
+Dropping individuals with GI illness at enrollment
+ N = 1948 
+
+Final sample size = 82463 
+
+Subsetting the data to relevant variables and completing final variable pre-processing> 
+> # restrict to 6 beaches with coliphage data
+> beach.list=c("Avalon","Doheny","Malibu","Mission Bay",
++              "Fairhope","Goddard")
+> 
+> all=data[data$beach %in% beach.list,]
+> 
+> # drop individuals with no water quality information
+> all=subset(all,nowq==0)
+> # subset to non-missing exposure categories
+> # to make the robust CI calcs work
+> all=subset(all,all$headunder=="Yes")
+> 
+> 
+> # --------------------------------------
+> # Calculate the actual Ns for each cell
+> # and store them for plotting and tables
+> # --------------------------------------
+> regN <- function(outcome,exposurecat) {
++   sum(table(outcome,exposurecat))
++ }
+> 
+> # n's pooled across assay and beach ---------------------------------------
+> all.n10.fmc = regN(all$gici10[!is.na(all$fmc.pres)],
++                        all$fmc.pres[!is.na(all$fmc.pres)])
+> all.n10.fpc = regN(all$gici10[!is.na(all$fmc.pres)],
++                        all$fmc.pres[!is.na(all$fmc.pres)])
+> 
+> # pooled n's by risk level---------------------------------------
+> data=all[!is.na(all$fmc.pres),]
+> data.high=subset(data,data$risk=="High")
+> all.n10.fmc.high = regN(data.high$gici10,data.high$fmc.pres)
+> data.low=subset(data,data$risk=="Low")
+> all.n10.fmc.low = regN(data.low$gici10,data.low$fmc.pres)
+> 
+> data=all[!is.na(all$fpc.pres),]
+> data.high=subset(data,data$risk=="High")
+> all.n10.fpc.high = regN(data.high$gici10,data.high$fpc.pres)
+> data.low=subset(data,data$risk=="Low")
+> all.n10.fpc.low = regN(data.low$gici10,data.low$fpc.pres)
+> 
+> 
+> 
+> # --------------------------------------
+> # Estimates pooled across beach and assay method
+> # (can't use the mpreg fn because we 
+> # need the actual glm returned object 
+> # for the LR tests)
+> 
+> # 10-day GI illness
+> 
+> # f- coliphage ----------------
+> all.fit10.fmc <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++                            rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$fmc.pres),])
+> 
+> all.VC10.fmc <- cl(all[!is.na(all$fmc.pres)],fm=all.fit10.fmc,
++                        cluster=all$hhid[!is.na(all$fmc.pres)])
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+> overall.fit10.fmc <- coeftest(all.fit10.fmc, all.VC10.fmc)
+> summary(all.fit10.fmc)
+
+Call:
+glm(formula = gici10 ~ fmc.pres + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = all[!is.na(all$fmc.pres), ])
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.8108  -0.3900  -0.3670  -0.3409   2.3315  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.33049    0.15760 -14.788  < 2e-16 ***
+fmc.pres               0.13922    0.08720   1.597 0.110360    
+agecat5-14            -0.57936    0.12004  -4.826 1.39e-06 ***
+agecat15-24           -0.61438    0.15113  -4.065 4.80e-05 ***
+agecat25-34           -0.44994    0.14862  -3.027 0.002467 ** 
+agecat35-44           -0.48908    0.14574  -3.356 0.000791 ***
+agecat45-54           -0.59471    0.16540  -3.596 0.000324 ***
+agecat55-64           -1.11093    0.28206  -3.939 8.20e-05 ***
+agecat65-74           -1.41225    0.71662  -1.971 0.048756 *  
+agecat75+            -12.31745  196.26981  -0.063 0.949959    
+agecatMissing         -1.48735    0.71558  -2.079 0.037662 *  
+female                -0.01749    0.07414  -0.236 0.813450    
+racewhiteYes           0.19557    0.08810   2.220 0.026417 *  
+racewhiteMissing      -0.68533    0.38583  -1.776 0.075692 .  
+gichronYes             0.94926    0.19511   4.865 1.14e-06 ***
+anim_anyYes            0.09970    0.08765   1.137 0.255365    
+gicontactbaseYes       0.35819    0.15351   2.333 0.019631 *  
+gicontactbaseMissing  -0.29902    0.33677  -0.888 0.374598    
+rawfood               -0.03487    0.08843  -0.394 0.693312    
+beachDoheny           -0.16494    0.09914  -1.664 0.096152 .  
+beachMalibu            0.03800    0.11835   0.321 0.748146    
+beachMission Bay       0.12484    0.11434   1.092 0.274897    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 3960.1  on 10419  degrees of freedom
+Residual deviance: 3880.8  on 10398  degrees of freedom
+AIC: 5432.8
+
+Number of Fisher Scoring iterations: 12
+
+> overall.fit10.fmc
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.330492   0.166955 -13.9588 < 2.2e-16 ***
+fmc.pres               0.139218   0.092717   1.5015 0.1332185    
+agecat5-14            -0.579357   0.117276  -4.9401 7.808e-07 ***
+agecat15-24           -0.614378   0.147476  -4.1659 3.101e-05 ***
+agecat25-34           -0.449939   0.137729  -3.2669 0.0010875 ** 
+agecat35-44           -0.489081   0.141275  -3.4619 0.0005364 ***
+agecat45-54           -0.594712   0.165500  -3.5934 0.0003263 ***
+agecat55-64           -1.110929   0.277738  -3.9999 6.337e-05 ***
+agecat65-74           -1.412253   0.713560  -1.9792 0.0477973 *  
+agecat75+            -12.317446   0.300376 -41.0067 < 2.2e-16 ***
+agecatMissing         -1.487348   0.689847  -2.1561 0.0310793 *  
+female                -0.017495   0.072425  -0.2416 0.8091237    
+racewhiteYes           0.195575   0.099917   1.9574 0.0503041 .  
+racewhiteMissing      -0.685331   0.419255  -1.6346 0.1021249    
+gichronYes             0.949260   0.181015   5.2441 1.571e-07 ***
+anim_anyYes            0.099695   0.091324   1.0917 0.2749783    
+gicontactbaseYes       0.358186   0.155691   2.3006 0.0214134 *  
+gicontactbaseMissing  -0.299016   0.355152  -0.8419 0.3998225    
+rawfood               -0.034873   0.092720  -0.3761 0.7068367    
+beachDoheny           -0.164942   0.110436  -1.4936 0.1352922    
+beachMalibu            0.038002   0.124694   0.3048 0.7605494    
+beachMission Bay       0.124840   0.134669   0.9270 0.3539195    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fmc=AIC(all.fit10.fmc)
+> 
+> # f+ coliphage ----------------
+> all.fit10.fpc <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++                        rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$fpc.pres),])
+> 
+> all.VC10.fpc <- cl(all[!is.na(all$fpc.pres)],fm=all.fit10.fpc,
++                    cluster=all$hhid[!is.na(all$fpc.pres)])
+> overall.fit10.fpc <- coeftest(all.fit10.fpc, all.VC10.fpc)
+> summary(all.fit10.fpc)
+
+Call:
+glm(formula = gici10 ~ fpc.pres + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = all[!is.na(all$fpc.pres), ])
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.8055  -0.3915  -0.3655  -0.3348   2.3551  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.154647   0.158953 -13.555  < 2e-16 ***
+fpc.pres              -0.134289   0.099890  -1.344 0.178829    
+agecat5-14            -0.572212   0.113277  -5.051 4.38e-07 ***
+agecat15-24           -0.591852   0.142198  -4.162 3.15e-05 ***
+agecat25-34           -0.466533   0.141152  -3.305 0.000949 ***
+agecat35-44           -0.469164   0.137798  -3.405 0.000662 ***
+agecat45-54           -0.607214   0.158192  -3.838 0.000124 ***
+agecat55-64           -1.056901   0.264940  -3.989 6.63e-05 ***
+agecat65-74           -1.521555   0.715412  -2.127 0.033435 *  
+agecat75+            -12.267035 177.881900  -0.069 0.945020    
+agecatMissing         -1.563875   0.714690  -2.188 0.028656 *  
+female                -0.002153   0.070747  -0.030 0.975722    
+racewhiteYes           0.204482   0.083933   2.436 0.014840 *  
+racewhiteMissing      -0.672594   0.385334  -1.745 0.080901 .  
+gichronYes             0.879538   0.194562   4.521 6.17e-06 ***
+anim_anyYes            0.126154   0.082767   1.524 0.127456    
+gicontactbaseYes       0.346698   0.144525   2.399 0.016445 *  
+gicontactbaseMissing  -0.278193   0.336860  -0.826 0.408893    
+rawfood               -0.017835   0.084990  -0.210 0.833785    
+beachDoheny           -0.125808   0.098053  -1.283 0.199468    
+beachFairhope          0.405101   0.199999   2.026 0.042814 *  
+beachGoddard          -0.349405   0.177800  -1.965 0.049396 *  
+beachMalibu           -0.061636   0.116415  -0.529 0.596494    
+beachMission Bay       0.023127   0.136467   0.169 0.865429    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 4330.9  on 11408  degrees of freedom
+Residual deviance: 4235.4  on 11385  degrees of freedom
+AIC: 5931.4
+
+Number of Fisher Scoring iterations: 12
+
+> overall.fit10.fpc
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.154647   0.170777 -12.6168 < 2.2e-16 ***
+fpc.pres              -0.134289   0.108604  -1.2365 0.2162737    
+agecat5-14            -0.572212   0.110549  -5.1761 2.266e-07 ***
+agecat15-24           -0.591852   0.138522  -4.2726 1.932e-05 ***
+agecat25-34           -0.466533   0.130543  -3.5738 0.0003519 ***
+agecat35-44           -0.469164   0.132628  -3.5375 0.0004040 ***
+agecat45-54           -0.607214   0.157489  -3.8556 0.0001154 ***
+agecat55-64           -1.056901   0.259809  -4.0680 4.742e-05 ***
+agecat65-74           -1.521555   0.710457  -2.1417 0.0322211 *  
+agecat75+            -12.267035   0.278314 -44.0762 < 2.2e-16 ***
+agecatMissing         -1.563875   0.688245  -2.2723 0.0230705 *  
+female                -0.002153   0.069550  -0.0310 0.9753044    
+racewhiteYes           0.204482   0.095260   2.1466 0.0318276 *  
+racewhiteMissing      -0.672594   0.420197  -1.6007 0.1094513    
+gichronYes             0.879539   0.182051   4.8313 1.357e-06 ***
+anim_anyYes            0.126154   0.084942   1.4852 0.1374962    
+gicontactbaseYes       0.346698   0.145459   2.3835 0.0171499 *  
+gicontactbaseMissing  -0.278193   0.355853  -0.7818 0.4343522    
+rawfood               -0.017835   0.088696  -0.2011 0.8406349    
+beachDoheny           -0.125808   0.109482  -1.1491 0.2505061    
+beachFairhope          0.405101   0.220905   1.8338 0.0666794 .  
+beachGoddard          -0.349405   0.185126  -1.8874 0.0591080 .  
+beachMalibu           -0.061636   0.122673  -0.5024 0.6153578    
+beachMission Bay       0.023127   0.158478   0.1459 0.8839762    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fpc=AIC(all.fit10.fpc)
+> 
+> 
+> # --------------------------------------
+> # Estimates pooled across beach and stratified by conditions
+> # (can't use the mpreg fn because we 
+> # need the actual glm returned object 
+> # for the LR tests)
+> 
+> # 10-day GI illness
+> 
+> # all beaches ----------------
+> # f- coliphage --------
+> # high risk conditions
+> data=all[!is.na(all$fmc.pres),]
+> data.high=subset(data,data$risk=="High")
+> all.fit10.fmc.high <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++     rawfood+beach,family=poisson(link="log"),data=data.high)
+> 
+> all.VC10.fmc.high <- cl(data.high,fm=all.fit10.fmc.high, cluster=data.high$hhid)
+> overall.fit10.fmc.high <- coeftest(all.fit10.fmc.high, all.VC10.fmc.high)
+> summary(all.fit10.fmc.high)
+
+Call:
+glm(formula = gici10 ~ fmc.pres + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = data.high)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9735  -0.3876  -0.3482  -0.2881   2.2879  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            -2.19448    0.33712  -6.510 7.54e-11 ***
+fmc.pres                0.52907    0.21268   2.488  0.01286 *  
+agecat5-14             -1.16262    0.25950  -4.480 7.46e-06 ***
+agecat15-24            -1.11446    0.34069  -3.271  0.00107 ** 
+agecat25-34            -0.74582    0.32888  -2.268  0.02335 *  
+agecat35-44            -0.98760    0.32625  -3.027  0.00247 ** 
+agecat45-54            -0.95240    0.34757  -2.740  0.00614 ** 
+agecat55-64            -1.83557    0.63041  -2.912  0.00359 ** 
+agecat65-74           -15.60135  896.59291  -0.017  0.98612    
+agecat75+             -15.71807 1516.60852  -0.010  0.99173    
+agecatMissing         -15.77763 2451.77243  -0.006  0.99487    
+female                  0.02488    0.17065   0.146  0.88407    
+racewhiteYes            0.12824    0.20089   0.638  0.52324    
+racewhiteMissing       -0.82247    1.02036  -0.806  0.42021    
+gichronYes              1.17824    0.38019   3.099  0.00194 ** 
+anim_anyYes            -0.24185    0.22347  -1.082  0.27913    
+gicontactbaseYes        0.45753    0.30768   1.487  0.13700    
+gicontactbaseMissing  -14.47153  654.57559  -0.022  0.98236    
+rawfood                 0.33294    0.20878   1.595  0.11079    
+beachDoheny            -0.09897    0.19380  -0.511  0.60958    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 740.76  on 1949  degrees of freedom
+Residual deviance: 693.29  on 1930  degrees of freedom
+AIC: 1015.3
+
+Number of Fisher Scoring iterations: 15
+
+> overall.fit10.fmc.high
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.194479   0.326680  -6.7175 1.848e-11 ***
+fmc.pres               0.529075   0.234605   2.2552 0.0241227 *  
+agecat5-14            -1.162619   0.252252  -4.6090 4.047e-06 ***
+agecat15-24           -1.114462   0.332463  -3.3521 0.0008019 ***
+agecat25-34           -0.745816   0.307072  -2.4288 0.0151490 *  
+agecat35-44           -0.987599   0.300264  -3.2891 0.0010051 ** 
+agecat45-54           -0.952396   0.335940  -2.8350 0.0045823 ** 
+agecat55-64           -1.835566   0.606632  -3.0258 0.0024795 ** 
+agecat65-74          -15.601353   0.405327 -38.4908 < 2.2e-16 ***
+agecat75+            -15.718073   0.519901 -30.2328 < 2.2e-16 ***
+agecatMissing        -15.777634   0.756539 -20.8550 < 2.2e-16 ***
+female                 0.024884   0.166625   0.1493 0.8812844    
+racewhiteYes           0.128238   0.208652   0.6146 0.5388159    
+racewhiteMissing      -0.822469   0.890301  -0.9238 0.3555853    
+gichronYes             1.178242   0.358626   3.2854 0.0010182 ** 
+anim_anyYes           -0.241852   0.248098  -0.9748 0.3296471    
+gicontactbaseYes       0.457529   0.336548   1.3595 0.1739965    
+gicontactbaseMissing -14.471532   0.365815 -39.5597 < 2.2e-16 ***
+rawfood                0.332935   0.204410   1.6288 0.1033638    
+beachDoheny           -0.098967   0.213716  -0.4631 0.6433075    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fmc.high=AIC(all.fit10.fmc.high)
+> 
+> # low risk conditions
+> data.low=subset(data,data$risk=="Low")
+> all.fit10.fmc.low <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++     rawfood+beach,family=poisson(link="log"),data=data.low)
+> 
+> all.VC10.fmc.low <- cl(data.low,fm=all.fit10.fmc.low, cluster=data.low$hhid)
+> overall.fit10.fmc.low <- coeftest(all.fit10.fmc.low, all.VC10.fmc.low)
+> summary(all.fit10.fmc.low)
+
+Call:
+glm(formula = gici10 ~ fmc.pres + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = data.low)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7965  -0.3933  -0.3675  -0.3423   2.3531  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.35922    0.18613 -12.675  < 2e-16 ***
+fmc.pres               0.04303    0.09704   0.443 0.657425    
+agecat5-14            -0.42452    0.13596  -3.122 0.001794 ** 
+agecat15-24           -0.47318    0.16949  -2.792 0.005240 ** 
+agecat25-34           -0.36037    0.16774  -2.148 0.031681 *  
+agecat35-44           -0.35401    0.16372  -2.162 0.030595 *  
+agecat45-54           -0.49627    0.18858  -2.632 0.008499 ** 
+agecat55-64           -0.93563    0.31613  -2.960 0.003080 ** 
+agecat65-74           -1.04356    0.71990  -1.450 0.147173    
+agecat75+            -12.24462  238.73423  -0.051 0.959095    
+agecatMissing         -1.34354    0.71781  -1.872 0.061246 .  
+female                -0.03018    0.08234  -0.367 0.713980    
+racewhiteYes           0.21122    0.09769   2.162 0.030605 *  
+racewhiteMissing      -0.66974    0.41714  -1.606 0.108371    
+gichronYes             0.85918    0.22966   3.741 0.000183 ***
+anim_anyYes            0.17108    0.09560   1.790 0.073530 .  
+gicontactbaseYes       0.37908    0.17782   2.132 0.033016 *  
+gicontactbaseMissing  -0.14085    0.33774  -0.417 0.676644    
+rawfood               -0.09857    0.09750  -1.011 0.312042    
+beachDoheny           -0.20583    0.12172  -1.691 0.090832 .  
+beachMalibu           -0.03346    0.13691  -0.244 0.806954    
+beachMission Bay       0.11551    0.13260   0.871 0.383703    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 3219.4  on 8469  degrees of freedom
+Residual deviance: 3164.6  on 8448  degrees of freedom
+AIC: 4434.6
+
+Number of Fisher Scoring iterations: 12
+
+> overall.fit10.fmc.low
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.359224   0.202663 -11.6411 < 2.2e-16 ***
+fmc.pres               0.043032   0.103760   0.4147  0.678340    
+agecat5-14            -0.424520   0.131827  -3.2203  0.001281 ** 
+agecat15-24           -0.473181   0.164791  -2.8714  0.004087 ** 
+agecat25-34           -0.360374   0.155962  -2.3106  0.020852 *  
+agecat35-44           -0.354007   0.158935  -2.2274  0.025923 *  
+agecat45-54           -0.496266   0.189374  -2.6206  0.008779 ** 
+agecat55-64           -0.935629   0.311009  -3.0084  0.002627 ** 
+agecat65-74           -1.043559   0.715225  -1.4591  0.144548    
+agecat75+            -12.244621   0.372557 -32.8664 < 2.2e-16 ***
+agecatMissing         -1.343540   0.689754  -1.9479  0.051432 .  
+female                -0.030179   0.080464  -0.3751  0.707615    
+racewhiteYes           0.211216   0.112131   1.8837  0.059611 .  
+racewhiteMissing      -0.669740   0.465632  -1.4383  0.150336    
+gichronYes             0.859178   0.213918   4.0164  5.91e-05 ***
+anim_anyYes            0.171082   0.098108   1.7438  0.081193 .  
+gicontactbaseYes       0.379085   0.173261   2.1879  0.028674 *  
+gicontactbaseMissing  -0.140852   0.354893  -0.3969  0.691452    
+rawfood               -0.098568   0.103083  -0.9562  0.338974    
+beachDoheny           -0.205827   0.134428  -1.5311  0.125738    
+beachMalibu           -0.033456   0.147590  -0.2267  0.820673    
+beachMission Bay       0.115510   0.156718   0.7371  0.461086    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fmc.low=AIC(all.fit10.fmc.low)
+> 
+> # f+ coliphage  --------
+> # high risk conditions
+> data=all[!is.na(all$fpc.pres),]
+> data.high=subset(data,data$risk=="High")
+> all.fit10.fpc.high <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++     rawfood+beach,family=poisson(link="log"),data=data.high)
+> 
+> all.VC10.fpc.high <- cl(data.high,fm=all.fit10.fpc.high, cluster=data.high$hhid)
+> overall.fit10.fpc.high <- coeftest(all.fit10.fpc.high, all.VC10.fpc.high)
+> summary(all.fit10.fpc.high)
+
+Call:
+glm(formula = gici10 ~ fpc.pres + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = data.high)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9653  -0.3990  -0.3501  -0.3024   2.2683  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -2.348e+00  3.138e-01  -7.483 7.27e-14 ***
+fpc.pres              2.991e-01  2.275e-01   1.315  0.18859    
+agecat5-14           -9.467e-01  2.087e-01  -4.537 5.71e-06 ***
+agecat15-24          -8.453e-01  2.647e-01  -3.193  0.00141 ** 
+agecat25-34          -6.730e-01  2.663e-01  -2.527  0.01150 *  
+agecat35-44          -7.176e-01  2.601e-01  -2.759  0.00579 ** 
+agecat45-54          -8.906e-01  2.940e-01  -3.030  0.00245 ** 
+agecat55-64          -1.333e+00  4.900e-01  -2.720  0.00653 ** 
+agecat65-74          -1.538e+01  6.879e+02  -0.022  0.98216    
+agecat75+            -1.542e+01  1.196e+03  -0.013  0.98971    
+agecatMissing        -1.522e+01  1.038e+03  -0.015  0.98830    
+female                8.004e-02  1.387e-01   0.577  0.56383    
+racewhiteYes          2.038e-01  1.640e-01   1.242  0.21408    
+racewhiteMissing     -6.470e-01  1.013e+00  -0.638  0.52320    
+gichronYes            9.006e-01  3.712e-01   2.426  0.01526 *  
+anim_anyYes           1.891e-03  1.635e-01   0.012  0.99077    
+gicontactbaseYes      3.002e-01  2.490e-01   1.206  0.22797    
+gicontactbaseMissing -1.458e+01  6.880e+02  -0.021  0.98309    
+rawfood               2.757e-01  1.725e-01   1.598  0.11011    
+beachDoheny           9.670e-03  1.890e-01   0.051  0.95920    
+beachFairhope         4.236e-01  2.272e-01   1.864  0.06230 .  
+beachGoddard         -3.659e-01  2.085e-01  -1.755  0.07926 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 1111.5  on 2938  degrees of freedom
+Residual deviance: 1056.2  on 2917  degrees of freedom
+AIC: 1522.2
+
+Number of Fisher Scoring iterations: 15
+
+> overall.fit10.fpc.high
+
+z test of coefficients:
+
+                        Estimate  Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.3482038   0.3249867  -7.2255 4.991e-13 ***
+fpc.pres               0.2991083   0.2587975   1.1558  0.247778    
+agecat5-14            -0.9467334   0.2061854  -4.5917 4.397e-06 ***
+agecat15-24           -0.8452550   0.2607965  -3.2411  0.001191 ** 
+agecat25-34           -0.6730369   0.2451637  -2.7453  0.006046 ** 
+agecat35-44           -0.7176291   0.2443148  -2.9373  0.003311 ** 
+agecat45-54           -0.8906050   0.2862190  -3.1116  0.001861 ** 
+agecat55-64           -1.3325750   0.4727588  -2.8187  0.004822 ** 
+agecat65-74          -15.3809732   0.3073726 -50.0402 < 2.2e-16 ***
+agecat75+            -15.4235292   0.4158186 -37.0920 < 2.2e-16 ***
+agecatMissing        -15.2155280   0.4127258 -36.8659 < 2.2e-16 ***
+female                 0.0800422   0.1393950   0.5742  0.565825    
+racewhiteYes           0.2037937   0.1773094   1.1494  0.250404    
+racewhiteMissing      -0.6470201   0.9580120  -0.6754  0.499436    
+gichronYes             0.9006144   0.3473081   2.5931  0.009511 ** 
+anim_anyYes            0.0018912   0.1669160   0.0113  0.990960    
+gicontactbaseYes       0.3002238   0.2703594   1.1105  0.266800    
+gicontactbaseMissing -14.5812451   0.3320395 -43.9142 < 2.2e-16 ***
+rawfood                0.2756557   0.1694134   1.6271  0.103712    
+beachDoheny            0.0096704   0.2102155   0.0460  0.963309    
+beachFairhope          0.4236088   0.2472042   1.7136  0.086602 .  
+beachGoddard          -0.3659235   0.2233163  -1.6386  0.101299    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fpc.high=AIC(all.fit10.fpc.high)
+> 
+> # low risk conditions
+> data.low=subset(data,data$risk=="Low")
+> all.fit10.fpc.low <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++     rawfood+beach,family=poisson(link="log"),data=data.low)
+> 
+> all.VC10.fpc.low <- cl(data.low,fm=all.fit10.fpc.low, cluster=data.low$hhid)
+> overall.fit10.fpc.low <- coeftest(all.fit10.fpc.low, all.VC10.fpc.low)
+> summary(all.fit10.fpc.low)
+
+Call:
+glm(formula = gici10 ~ fpc.pres + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = data.low)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7986  -0.3961  -0.3661  -0.3381   2.3653  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.12839    0.19227 -11.070  < 2e-16 ***
+fpc.pres              -0.26170    0.11402  -2.295 0.021716 *  
+agecat5-14            -0.41068    0.13601  -3.020 0.002532 ** 
+agecat15-24           -0.46734    0.16951  -2.757 0.005832 ** 
+agecat25-34           -0.35538    0.16769  -2.119 0.034061 *  
+agecat35-44           -0.35152    0.16365  -2.148 0.031716 *  
+agecat45-54           -0.49716    0.18865  -2.635 0.008405 ** 
+agecat55-64           -0.93677    0.31609  -2.964 0.003040 ** 
+agecat65-74           -1.04960    0.72003  -1.458 0.144919    
+agecat75+            -12.24172  235.84982  -0.052 0.958605    
+agecatMissing         -1.34022    0.71781  -1.867 0.061889 .  
+female                -0.03385    0.08232  -0.411 0.680946    
+racewhiteYes           0.20956    0.09785   2.142 0.032223 *  
+racewhiteMissing      -0.66654    0.41714  -1.598 0.110075    
+gichronYes             0.85540    0.22966   3.725 0.000196 ***
+anim_anyYes            0.17904    0.09561   1.873 0.061133 .  
+gicontactbaseYes       0.37275    0.17773   2.097 0.035966 *  
+gicontactbaseMissing  -0.12015    0.33786  -0.356 0.722135    
+rawfood               -0.09690    0.09742  -0.995 0.319915    
+beachDoheny           -0.17639    0.12146  -1.452 0.146439    
+beachMalibu           -0.13761    0.13367  -1.029 0.303257    
+beachMission Bay      -0.08837    0.15786  -0.560 0.575623    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 3219.4  on 8469  degrees of freedom
+Residual deviance: 3159.6  on 8448  degrees of freedom
+AIC: 4429.6
+
+Number of Fisher Scoring iterations: 12
+
+> overall.fit10.fpc.low
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.128393   0.211712 -10.0533 < 2.2e-16 ***
+fpc.pres              -0.261702   0.124498  -2.1021  0.035548 *  
+agecat5-14            -0.410682   0.131928  -3.1129  0.001852 ** 
+agecat15-24           -0.467341   0.164573  -2.8397  0.004515 ** 
+agecat25-34           -0.355383   0.155660  -2.2831  0.022426 *  
+agecat35-44           -0.351520   0.158424  -2.2189  0.026496 *  
+agecat45-54           -0.497161   0.189334  -2.6258  0.008643 ** 
+agecat55-64           -0.936769   0.310201  -3.0199  0.002529 ** 
+agecat65-74           -1.049597   0.713255  -1.4716  0.141140    
+agecat75+            -12.241716   0.385946 -31.7187 < 2.2e-16 ***
+agecatMissing         -1.340220   0.688854  -1.9456  0.051705 .  
+female                -0.033849   0.080229  -0.4219  0.673090    
+racewhiteYes           0.209561   0.112858   1.8569  0.063332 .  
+racewhiteMissing      -0.666538   0.466343  -1.4293  0.152922    
+gichronYes             0.855401   0.215964   3.9608 7.469e-05 ***
+anim_anyYes            0.179040   0.097913   1.8286  0.067466 .  
+gicontactbaseYes       0.372752   0.171982   2.1674  0.030205 *  
+gicontactbaseMissing  -0.120145   0.355324  -0.3381  0.735266    
+rawfood               -0.096896   0.102762  -0.9429  0.345722    
+beachDoheny           -0.176390   0.134379  -1.3126  0.189306    
+beachMalibu           -0.137611   0.144336  -0.9534  0.340384    
+beachMission Bay      -0.088370   0.189169  -0.4671  0.640393    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fpc.low=AIC(all.fit10.fpc.low)
+> 
+> 
+> 
+> 
+> # --------------------------------------
+> # save the results
+> # exclude glm objects and data frames
+> # (they are really large)
+> # --------------------------------------
+> save(
++ 
++   all.n10.fmc,all.n10.fpc,
++   all.n10.fmc.high,all.n10.fmc.low,all.n10.fpc.high,all.n10.fpc.low,
++ 
++   all.VC10.fmc, all.VC10.fpc,overall.fit10.fmc,overall.fit10.fpc,
++ 
++   all.VC10.fmc.high,all.VC10.fpc.high,
++   overall.fit10.fmc.high,overall.fit10.fpc.high,
++   
++   all.VC10.fmc.low,all.VC10.fpc.low,
++   overall.fit10.fmc.low,overall.fit10.fpc.low,
++   
++   aic.fmc, aic.fpc,
++   aic.fmc.high, aic.fpc.high,aic.fmc.low, aic.fpc.low,
++   
++   file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-head-pool.Rdata"
++ )
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 59.898   3.203  65.626 
