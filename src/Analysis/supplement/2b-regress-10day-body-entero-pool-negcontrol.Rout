@@ -1,0 +1,638 @@
+
+R version 3.1.3 (2015-03-09) -- "Smooth Sidewalk"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> ##########################################
+> # Coliphage analysis - 6 beaches
+> # v1 by Jade 7/13/15
+> 
+> # This file conducts maximum likelihood regression
+> # to estimate prevalence ratios
+> # for enterococcus
+> 
+> # Results pooled across beaches and assay
+> 
+> # 10 day gi illness
+> ##########################################
+> 
+> rm(list=ls())
+> library(foreign)
+> 
+> # --------------------------------------
+> # load the and pre-preprocess the 
+> # analysis dataset
+> # (refer to the base functions script
+> # for details on the pre-processing)
+> # --------------------------------------
+> beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
+> 
+> # load base functions
+> source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
+> 
+> data=preprocess.6beaches(beaches13)
+
+Successfully loaded the data
+ Total sample size = 84411 
+
+Dropping individuals with GI illness at enrollment
+ N = 1948 
+
+Final sample size = 82463 
+
+Subsetting the data to relevant variables and completing final variable pre-processing> 
+> # restrict to 6 beaches with coliphage data
+> beach.list=c("Avalon","Doheny","Malibu","Mission Bay",
++              "Fairhope","Goddard")
+> 
+> all=data[data$beach %in% beach.list,]
+> 
+> # drop individuals with no water quality information
+> all=subset(all,nowq==0)
+> # subset to non-missing exposure categories
+> # to make the robust CI calcs work
+> all=subset(all,all$bodycontact=="No")
+> 
+> # --------------------------------------
+> # Estimates pooled across beach
+> # (can't use the mpreg fn because we 
+> # need the actual glm returned object 
+> # for the LR tests)
+> 
+> # 10-day GI illness
+> # --------------------------------------
+> 
+> # f- coliphage --------------------------------
+> all.fit10.entero.fmc <- glm(gici10~entero35+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++     rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$entero35) & 
++     !is.na(all$fmc.pres),])
+> 
+> all.VC10.entero.fmc <- cl(all[!is.na(all$entero35) & !is.na(all$fmc.pres)],
++   fm=all.fit10.entero.fmc, cluster=
++       all$hhid[!is.na(all$entero35)  & !is.na(all$fmc.pres)])
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+> overall.fit10.entero.fmc <- coeftest(all.fit10.entero.fmc, all.VC10.entero.fmc)
+> summary(all.fit10.entero.fmc)
+
+Call:
+glm(formula = gici10 ~ entero35 + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = all[!is.na(all$entero35) & !is.na(all$fmc.pres), ])
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9411  -0.3667  -0.3239  -0.2895   2.8208  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -2.822115   0.160855 -17.544  < 2e-16 ***
+entero351             0.059782   0.101419   0.589 0.555556    
+agecat5-14           -0.185759   0.152479  -1.218 0.223127    
+agecat15-24          -0.072016   0.147208  -0.489 0.624688    
+agecat25-34           0.106354   0.130777   0.813 0.416076    
+agecat35-44          -0.191313   0.131498  -1.455 0.145704    
+agecat45-54          -0.336958   0.145223  -2.320 0.020326 *  
+agecat55-64          -0.497736   0.185955  -2.677 0.007436 ** 
+agecat65-74          -0.391570   0.252177  -1.553 0.120481    
+agecat75+            -0.125623   0.395655  -0.318 0.750860    
+agecatMissing        -1.990764   1.005985  -1.979 0.047825 *  
+female                0.041768   0.070250   0.595 0.552139    
+racewhiteYes         -0.003512   0.075748  -0.046 0.963023    
+racewhiteMissing     -0.974016   0.451301  -2.158 0.030909 *  
+gichronYes            0.964189   0.131811   7.315 2.58e-13 ***
+anim_anyYes           0.303670   0.078422   3.872 0.000108 ***
+gicontactbaseYes      0.652650   0.120841   5.401 6.63e-08 ***
+gicontactbaseMissing -0.176377   0.336710  -0.524 0.600400    
+rawfood               0.137800   0.076955   1.791 0.073347 .  
+beachDoheny          -0.200339   0.115437  -1.735 0.082657 .  
+beachMalibu          -0.020176   0.125179  -0.161 0.871952    
+beachMission Bay      0.021346   0.119582   0.179 0.858330    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 4903.3  on 14535  degrees of freedom
+Residual deviance: 4756.4  on 14514  degrees of freedom
+AIC: 6542.4
+
+Number of Fisher Scoring iterations: 6
+
+> overall.fit10.entero.fmc
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)          -2.8221147  0.1639366 -17.2147 < 2.2e-16 ***
+entero351             0.0597818  0.1112923   0.5372 0.5911572    
+agecat5-14           -0.1857586  0.1540619  -1.2057 0.2279177    
+agecat15-24          -0.0720165  0.1433126  -0.5025 0.6153065    
+agecat25-34           0.1063543  0.1293181   0.8224 0.4108356    
+agecat35-44          -0.1913126  0.1320958  -1.4483 0.1475370    
+agecat45-54          -0.3369579  0.1474406  -2.2854 0.0222905 *  
+agecat55-64          -0.4977365  0.1849258  -2.6915 0.0071122 ** 
+agecat65-74          -0.3915696  0.2538641  -1.5424 0.1229672    
+agecat75+            -0.1256227  0.3797650  -0.3308 0.7408027    
+agecatMissing        -1.9907642  1.0118090  -1.9675 0.0491222 *  
+female                0.0417675  0.0643483   0.6491 0.5162834    
+racewhiteYes         -0.0035117  0.0794526  -0.0442 0.9647461    
+racewhiteMissing     -0.9740155  0.4489054  -2.1698 0.0300253 *  
+gichronYes            0.9641894  0.1220389   7.9007 2.774e-15 ***
+anim_anyYes           0.3036699  0.0783044   3.8781 0.0001053 ***
+gicontactbaseYes      0.6526500  0.1140875   5.7206 1.061e-08 ***
+gicontactbaseMissing -0.1763772  0.3140027  -0.5617 0.5743163    
+rawfood               0.1378003  0.0800881   1.7206 0.0853219 .  
+beachDoheny          -0.2003389  0.1218407  -1.6443 0.1001206    
+beachMalibu          -0.0201763  0.1282114  -0.1574 0.8749551    
+beachMission Bay      0.0213455  0.1210524   0.1763 0.8600322    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # f+ coliphage --------------------------------
+> all.fit10.entero.fpc <- glm(gici10~entero35+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++     rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$entero35) & 
++     !is.na(all$fpc.pres),])
+> 
+> all.VC10.entero.fpc <- cl(all[!is.na(all$entero35) & !is.na(all$fpc.pres)],
++   fm=all.fit10.entero.fpc, cluster=
++       all$hhid[!is.na(all$entero35)  & !is.na(all$fpc.pres)])
+> overall.fit10.entero.fpc <- coeftest(all.fit10.entero.fpc, all.VC10.entero.fpc)
+> summary(all.fit10.entero.fpc)
+
+Call:
+glm(formula = gici10 ~ entero35 + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = all[!is.na(all$entero35) & !is.na(all$fpc.pres), ])
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9535  -0.3592  -0.3192  -0.2861   2.8709  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.838479   0.155172 -18.292  < 2e-16 ***
+entero351              0.086626   0.095772   0.905 0.365728    
+agecat5-14            -0.241551   0.147027  -1.643 0.100402    
+agecat15-24           -0.072672   0.138392  -0.525 0.599501    
+agecat25-34            0.038026   0.125440   0.303 0.761780    
+agecat35-44           -0.206121   0.125697  -1.640 0.101041    
+agecat45-54           -0.340445   0.137469  -2.477 0.013267 *  
+agecat55-64           -0.357634   0.166126  -2.153 0.031336 *  
+agecat65-74           -0.409904   0.232223  -1.765 0.077541 .  
+agecat75+             -0.408318   0.371791  -1.098 0.272098    
+agecatMissing         -2.152453   1.005899  -2.140 0.032368 *  
+female                 0.060351   0.066366   0.909 0.363156    
+racewhiteYes          -0.010492   0.071831  -0.146 0.883870    
+racewhiteMissing      -0.980558   0.451033  -2.174 0.029703 *  
+gichronYes             0.985836   0.121975   8.082 6.36e-16 ***
+gichronMissing        -7.933090 172.654578  -0.046 0.963352    
+anim_anyYes            0.300996   0.074216   4.056 5.00e-05 ***
+gicontactbaseYes       0.625537   0.114379   5.469 4.53e-08 ***
+gicontactbaseMissing  -0.104215   0.319476  -0.326 0.744269    
+rawfood                0.167847   0.072627   2.311 0.020829 *  
+beachDoheny           -0.184327   0.114570  -1.609 0.107648    
+beachFairhope          0.213071   0.199234   1.069 0.284866    
+beachGoddard          -0.558551   0.156095  -3.578 0.000346 ***
+beachMalibu            0.002464   0.124011   0.020 0.984149    
+beachMission Bay       0.042550   0.117945   0.361 0.718277    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 5554.2  on 16731  degrees of freedom
+Residual deviance: 5376.3  on 16707  degrees of freedom
+AIC: 7382.3
+
+Number of Fisher Scoring iterations: 9
+
+> overall.fit10.entero.fpc
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)          -2.8384790  0.1573256 -18.0421 < 2.2e-16 ***
+entero351             0.0866258  0.1046559   0.8277 0.4078288    
+agecat5-14           -0.2415511  0.1489468  -1.6217 0.1048618    
+agecat15-24          -0.0726719  0.1356963  -0.5355 0.5922710    
+agecat25-34           0.0380263  0.1248610   0.3045 0.7607098    
+agecat35-44          -0.2061210  0.1253966  -1.6438 0.1002273    
+agecat45-54          -0.3404446  0.1393045  -2.4439 0.0145299 *  
+agecat55-64          -0.3576340  0.1660512  -2.1538 0.0312592 *  
+agecat65-74          -0.4099041  0.2332762  -1.7572 0.0788902 .  
+agecat75+            -0.4083175  0.3596106  -1.1354 0.2561895    
+agecatMissing        -2.1524531  1.0102996  -2.1305 0.0331296 *  
+female                0.0603515  0.0608025   0.9926 0.3209136    
+racewhiteYes         -0.0104921  0.0758002  -0.1384 0.8899108    
+racewhiteMissing     -0.9805577  0.4488037  -2.1848 0.0289017 *  
+gichronYes            0.9858365  0.1124839   8.7642 < 2.2e-16 ***
+gichronMissing       -7.9330898  1.0119677  -7.8393 4.532e-15 ***
+anim_anyYes           0.3009956  0.0750117   4.0127 6.004e-05 ***
+gicontactbaseYes      0.6255373  0.1080743   5.7880 7.122e-09 ***
+gicontactbaseMissing -0.1042150  0.2985636  -0.3491 0.7270484    
+rawfood               0.1678471  0.0753873   2.2265 0.0259831 *  
+beachDoheny          -0.1843273  0.1208099  -1.5258 0.1270688    
+beachFairhope         0.2130708  0.2172811   0.9806 0.3267786    
+beachGoddard         -0.5585505  0.1621061  -3.4456 0.0005698 ***
+beachMalibu           0.0024639  0.1268852   0.0194 0.9845076    
+beachMission Bay      0.0425502  0.1192632   0.3568 0.7212596    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # --------------------------------------
+> # Estimates pooled across beach and stratified by conditions
+> # (can't use the mpreg fn because we 
+> # need the actual glm returned object 
+> # for the LR tests)
+> 
+> # 10-day GI illness
+> 
+> # all beaches ----------------
+> # F- coliphage #####################
+> # high risk conditions --------------------------------
+> data=all[!is.na(all$entero35) & !is.na(all$fmc.pres),]
+> data.high=subset(data,data$risk=="High")
+> all.fit10.entero.high.fmc <- glm(gici10~entero35+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++     rawfood+beach,family=poisson(link="log"),data=data.high)
+> 
+> all.VC10.entero.high.fmc <- cl(data.high,fm=all.fit10.entero.high.fmc, cluster=data.high$hhid)
+> overall.fit10.entero.high.fmc <- coeftest(all.fit10.entero.high.fmc, all.VC10.entero.high.fmc)
+> summary(all.fit10.entero.high.fmc)
+
+Call:
+glm(formula = gici10 ~ entero35 + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = data.high)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.8786  -0.3794  -0.3359  -0.2879   2.3536  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)           -2.526380   0.304623  -8.293  < 2e-16 ***
+entero351              0.008092   0.162615   0.050  0.96031    
+agecat5-14            -0.366710   0.332872  -1.102  0.27061    
+agecat15-24           -0.304700   0.329785  -0.924  0.35552    
+agecat25-34           -0.174400   0.290996  -0.599  0.54896    
+agecat35-44           -0.482411   0.275424  -1.752  0.07986 .  
+agecat45-54           -0.843124   0.314163  -2.684  0.00728 ** 
+agecat55-64           -0.430537   0.346229  -1.244  0.21368    
+agecat65-74           -0.731939   0.508602  -1.439  0.15012    
+agecat75+             -0.501220   0.746549  -0.671  0.50198    
+agecatMissing        -14.086977 542.913584  -0.026  0.97930    
+female                 0.381324   0.172841   2.206  0.02737 *  
+racewhiteYes          -0.156265   0.172288  -0.907  0.36441    
+racewhiteMissing      -0.803163   1.012135  -0.794  0.42747    
+gichronYes             0.858927   0.308057   2.788  0.00530 ** 
+anim_anyYes            0.109489   0.201244   0.544  0.58640    
+gicontactbaseYes       0.500482   0.260167   1.924  0.05439 .  
+gicontactbaseMissing  -0.146710   0.717947  -0.204  0.83808    
+rawfood               -0.147720   0.211660  -0.698  0.48523    
+beachDoheny           -0.072713   0.165361  -0.440  0.66014    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 915.20  on 2641  degrees of freedom
+Residual deviance: 886.12  on 2622  degrees of freedom
+AIC: 1256.1
+
+Number of Fisher Scoring iterations: 14
+
+> overall.fit10.entero.high.fmc
+
+z test of coefficients:
+
+                        Estimate  Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.5263800   0.3042841  -8.3027 < 2.2e-16 ***
+entero351              0.0080916   0.1850882   0.0437  0.965130    
+agecat5-14            -0.3667098   0.3314950  -1.1062  0.268627    
+agecat15-24           -0.3046996   0.3260628  -0.9345  0.350056    
+agecat25-34           -0.1744000   0.2748292  -0.6346  0.525705    
+agecat35-44           -0.4824111   0.2628662  -1.8352  0.066477 .  
+agecat45-54           -0.8431235   0.2953815  -2.8544  0.004312 ** 
+agecat55-64           -0.4305366   0.3269799  -1.3167  0.187937    
+agecat65-74           -0.7319385   0.4929550  -1.4848  0.137597    
+agecat75+             -0.5012198   0.7187059  -0.6974  0.485557    
+agecatMissing        -14.0869770   0.4000865 -35.2098 < 2.2e-16 ***
+female                 0.3813238   0.1711103   2.2285  0.025845 *  
+racewhiteYes          -0.1562647   0.2000065  -0.7813  0.434627    
+racewhiteMissing      -0.8031634   0.9195873  -0.8734  0.382448    
+gichronYes             0.8589269   0.2900773   2.9610  0.003066 ** 
+anim_anyYes            0.1094889   0.2101450   0.5210  0.602356    
+gicontactbaseYes       0.5004823   0.2594717   1.9289  0.053749 .  
+gicontactbaseMissing  -0.1467099   0.6596140  -0.2224  0.823989    
+rawfood               -0.1477197   0.2558710  -0.5773  0.563723    
+beachDoheny           -0.0727125   0.1691472  -0.4299  0.667285    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # low risk conditions --------------------------------
+> data.low=subset(data,data$risk=="Low")
+> all.fit10.entero.low.fmc <- glm(gici10~entero35+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++     rawfood+beach,family=poisson(link="log"),data=data.low)
+> 
+> all.VC10.entero.low.fmc <- cl(data.low,fm=all.fit10.entero.low.fmc, cluster=data.low$hhid)
+> overall.fit10.entero.low.fmc <- coeftest(all.fit10.entero.low.fmc, all.VC10.entero.low.fmc)
+> summary(all.fit10.entero.low.fmc)
+
+Call:
+glm(formula = gici10 ~ entero35 + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = data.low)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.0153  -0.3647  -0.3197  -0.2836   2.8107  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -2.853699   0.200660 -14.222  < 2e-16 ***
+entero351             0.006535   0.134484   0.049   0.9612    
+agecat5-14           -0.127282   0.172246  -0.739   0.4599    
+agecat15-24          -0.016458   0.165736  -0.099   0.9209    
+agecat25-34           0.173698   0.147912   1.174   0.2403    
+agecat35-44          -0.111852   0.150072  -0.745   0.4561    
+agecat45-54          -0.205247   0.164604  -1.247   0.2124    
+agecat55-64          -0.553812   0.221943  -2.495   0.0126 *  
+agecat65-74          -0.276855   0.290469  -0.953   0.3405    
+agecat75+            -0.004960   0.467029  -0.011   0.9915    
+agecatMissing        -1.726457   1.008230  -1.712   0.0868 .  
+female               -0.028966   0.077684  -0.373   0.7092    
+racewhiteYes          0.019810   0.083871   0.236   0.8133    
+racewhiteMissing     -1.012538   0.504477  -2.007   0.0447 *  
+gichronYes            0.996004   0.146117   6.816 9.33e-12 ***
+anim_anyYes           0.334284   0.085752   3.898 9.69e-05 ***
+gicontactbaseYes      0.707926   0.136259   5.195 2.04e-07 ***
+gicontactbaseMissing -0.181749   0.382068  -0.476   0.6343    
+rawfood               0.188407   0.083314   2.261   0.0237 *  
+beachDoheny          -0.333689   0.163968  -2.035   0.0418 *  
+beachMalibu          -0.050248   0.160142  -0.314   0.7537    
+beachMission Bay     -0.019289   0.154462  -0.125   0.9006    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 3987.7  on 11893  degrees of freedom
+Residual deviance: 3848.1  on 11872  degrees of freedom
+AIC: 5304.1
+
+Number of Fisher Scoring iterations: 6
+
+> overall.fit10.entero.low.fmc
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)          -2.8536995  0.2100868 -13.5834 < 2.2e-16 ***
+entero351             0.0065349  0.1394409   0.0469   0.96262    
+agecat5-14           -0.1272817  0.1763041  -0.7219   0.47033    
+agecat15-24          -0.0164584  0.1619150  -0.1016   0.91904    
+agecat25-34           0.1736982  0.1489264   1.1663   0.24348    
+agecat35-44          -0.1118525  0.1525583  -0.7332   0.46345    
+agecat45-54          -0.2052470  0.1700924  -1.2067   0.22756    
+agecat55-64          -0.5538124  0.2237254  -2.4754   0.01331 *  
+agecat65-74          -0.2768545  0.2962965  -0.9344   0.35011    
+agecat75+            -0.0049598  0.4439227  -0.0112   0.99109    
+agecatMissing        -1.7264572  1.0164193  -1.6986   0.08940 .  
+female               -0.0289660  0.0702900  -0.4121   0.68027    
+racewhiteYes          0.0198101  0.0857516   0.2310   0.81730    
+racewhiteMissing     -1.0125379  0.5059930  -2.0011   0.04538 *  
+gichronYes            0.9960039  0.1349800   7.3789 1.596e-13 ***
+anim_anyYes           0.3342835  0.0854687   3.9112 9.185e-05 ***
+gicontactbaseYes      0.7079256  0.1270350   5.5727 2.508e-08 ***
+gicontactbaseMissing -0.1817495  0.3533816  -0.5143   0.60703    
+rawfood               0.1884066  0.0853206   2.2082   0.02723 *  
+beachDoheny          -0.3336892  0.1708948  -1.9526   0.05087 .  
+beachMalibu          -0.0502476  0.1656715  -0.3033   0.76166    
+beachMission Bay     -0.0192887  0.1598146  -0.1207   0.90393    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # F+ coliphage #####################
+> # high risk conditions --------------------------------
+> data=all[!is.na(all$entero35) & !is.na(all$fpc.pres),]
+> data.high=subset(data,data$risk=="High")
+> all.fit10.entero.high.fpc <- glm(gici10~entero35+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++                                 rawfood+beach,family=poisson(link="log"),data=data.high)
+> 
+> all.VC10.entero.high.fpc <- cl(data.high,fm=all.fit10.entero.high.fpc, cluster=data.high$hhid)
+> overall.fit10.entero.high.fpc <- coeftest(all.fit10.entero.high.fpc, all.VC10.entero.high.fpc)
+> summary(all.fit10.entero.high.fpc)
+
+Call:
+glm(formula = gici10 ~ entero35 + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = data.high)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.7872  -0.3600  -0.3115  -0.2646   2.3968  
+
+Coefficients:
+                       Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -2.674e+00  2.601e-01 -10.279  < 2e-16 ***
+entero351             8.321e-02  1.430e-01   0.582  0.56067    
+agecat5-14           -5.343e-01  2.875e-01  -1.858  0.06314 .  
+agecat15-24          -2.481e-01  2.528e-01  -0.982  0.32630    
+agecat25-34          -3.823e-01  2.438e-01  -1.568  0.11685    
+agecat35-44          -4.515e-01  2.314e-01  -1.951  0.05109 .  
+agecat45-54          -6.784e-01  2.504e-01  -2.710  0.00673 ** 
+agecat55-64          -2.115e-01  2.626e-01  -0.805  0.42065    
+agecat65-74          -7.252e-01  3.884e-01  -1.867  0.06186 .  
+agecat75+            -1.019e+00  6.126e-01  -1.663  0.09629 .  
+agecatMissing        -1.364e+01  3.160e+02  -0.043  0.96558    
+female                3.142e-01  1.324e-01   2.373  0.01765 *  
+racewhiteYes         -9.279e-02  1.383e-01  -0.671  0.50218    
+racewhiteMissing     -6.815e-01  1.010e+00  -0.675  0.49969    
+gichronYes            9.551e-01  2.230e-01   4.283 1.85e-05 ***
+gichronMissing       -1.265e+01  2.103e+03  -0.006  0.99520    
+anim_anyYes           2.150e-01  1.467e-01   1.466  0.14265    
+gicontactbaseYes      4.548e-01  2.096e-01   2.170  0.03002 *  
+gicontactbaseMissing  1.032e-01  5.849e-01   0.176  0.86000    
+rawfood               1.188e-01  1.503e-01   0.791  0.42911    
+beachDoheny          -9.302e-03  1.627e-01  -0.057  0.95440    
+beachFairhope         2.523e-01  2.289e-01   1.102  0.27049    
+beachGoddard         -4.988e-01  1.931e-01  -2.583  0.00980 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 1565.9  on 4837  degrees of freedom
+Residual deviance: 1502.0  on 4815  degrees of freedom
+AIC: 2092
+
+Number of Fisher Scoring iterations: 14
+
+> overall.fit10.entero.high.fpc
+
+z test of coefficients:
+
+                        Estimate  Std. Error  z value  Pr(>|z|)    
+(Intercept)           -2.6737872   0.2540229 -10.5258 < 2.2e-16 ***
+entero351              0.0832134   0.1603724   0.5189  0.603847    
+agecat5-14            -0.5342590   0.2903276  -1.8402  0.065740 .  
+agecat15-24           -0.2481302   0.2504770  -0.9906  0.321866    
+agecat25-34           -0.3822685   0.2397444  -1.5945  0.110828    
+agecat35-44           -0.4514601   0.2173363  -2.0772  0.037779 *  
+agecat45-54           -0.6784413   0.2381267  -2.8491  0.004385 ** 
+agecat55-64           -0.2114945   0.2525013  -0.8376  0.402257    
+agecat65-74           -0.7252452   0.3793384  -1.9119  0.055893 .  
+agecat75+             -1.0187729   0.5924182  -1.7197  0.085490 .  
+agecatMissing        -13.6350385   0.2921836 -46.6660 < 2.2e-16 ***
+female                 0.3142338   0.1281722   2.4517  0.014220 *  
+racewhiteYes          -0.0927866   0.1573890  -0.5895  0.555501    
+racewhiteMissing      -0.6815180   0.9262523  -0.7358  0.461865    
+gichronYes             0.9550689   0.2054866   4.6478 3.354e-06 ***
+gichronMissing       -12.6548963   1.0340130 -12.2386 < 2.2e-16 ***
+anim_anyYes            0.2150371   0.1518768   1.4159  0.156815    
+gicontactbaseYes       0.4548315   0.2050497   2.2182  0.026544 *  
+gicontactbaseMissing   0.1031594   0.5533548   0.1864  0.852111    
+rawfood                0.1188366   0.1641276   0.7241  0.469035    
+beachDoheny           -0.0093021   0.1688711  -0.0551  0.956071    
+beachFairhope          0.2522564   0.2468055   1.0221  0.306740    
+beachGoddard          -0.4988466   0.1996232  -2.4989  0.012457 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # low risk conditions --------------------------------
+> data.low=subset(data,data$risk=="Low")
+> all.fit10.entero.low.fpc <- glm(gici10~entero35+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++                                rawfood+beach,family=poisson(link="log"),data=data.low)
+> 
+> all.VC10.entero.low.fpc <- cl(data.low,fm=all.fit10.entero.low.fpc, cluster=data.low$hhid)
+> overall.fit10.entero.low.fpc <- coeftest(all.fit10.entero.low.fpc, all.VC10.entero.low.fpc)
+> summary(all.fit10.entero.low.fpc)
+
+Call:
+glm(formula = gici10 ~ entero35 + agecat + female + racewhite + 
+    gichron + anim_any + gicontactbase + rawfood + beach, family = poisson(link = "log"), 
+    data = data.low)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.0153  -0.3647  -0.3197  -0.2836   2.8107  
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -2.853699   0.200660 -14.222  < 2e-16 ***
+entero351             0.006535   0.134484   0.049   0.9612    
+agecat5-14           -0.127282   0.172246  -0.739   0.4599    
+agecat15-24          -0.016458   0.165736  -0.099   0.9209    
+agecat25-34           0.173698   0.147912   1.174   0.2403    
+agecat35-44          -0.111852   0.150072  -0.745   0.4561    
+agecat45-54          -0.205247   0.164604  -1.247   0.2124    
+agecat55-64          -0.553812   0.221943  -2.495   0.0126 *  
+agecat65-74          -0.276855   0.290469  -0.953   0.3405    
+agecat75+            -0.004960   0.467029  -0.011   0.9915    
+agecatMissing        -1.726457   1.008230  -1.712   0.0868 .  
+female               -0.028966   0.077684  -0.373   0.7092    
+racewhiteYes          0.019810   0.083871   0.236   0.8133    
+racewhiteMissing     -1.012538   0.504477  -2.007   0.0447 *  
+gichronYes            0.996004   0.146117   6.816 9.33e-12 ***
+anim_anyYes           0.334284   0.085752   3.898 9.69e-05 ***
+gicontactbaseYes      0.707926   0.136259   5.195 2.04e-07 ***
+gicontactbaseMissing -0.181749   0.382068  -0.476   0.6343    
+rawfood               0.188407   0.083314   2.261   0.0237 *  
+beachDoheny          -0.333689   0.163968  -2.035   0.0418 *  
+beachMalibu          -0.050248   0.160142  -0.314   0.7537    
+beachMission Bay     -0.019289   0.154462  -0.125   0.9006    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 3987.7  on 11893  degrees of freedom
+Residual deviance: 3848.1  on 11872  degrees of freedom
+AIC: 5304.1
+
+Number of Fisher Scoring iterations: 6
+
+> overall.fit10.entero.low.fpc
+
+z test of coefficients:
+
+                       Estimate Std. Error  z value  Pr(>|z|)    
+(Intercept)          -2.8536995  0.2100868 -13.5834 < 2.2e-16 ***
+entero351             0.0065349  0.1394409   0.0469   0.96262    
+agecat5-14           -0.1272817  0.1763041  -0.7219   0.47033    
+agecat15-24          -0.0164584  0.1619150  -0.1016   0.91904    
+agecat25-34           0.1736982  0.1489264   1.1663   0.24348    
+agecat35-44          -0.1118525  0.1525583  -0.7332   0.46345    
+agecat45-54          -0.2052470  0.1700924  -1.2067   0.22756    
+agecat55-64          -0.5538124  0.2237254  -2.4754   0.01331 *  
+agecat65-74          -0.2768545  0.2962965  -0.9344   0.35011    
+agecat75+            -0.0049598  0.4439227  -0.0112   0.99109    
+agecatMissing        -1.7264572  1.0164193  -1.6986   0.08940 .  
+female               -0.0289660  0.0702900  -0.4121   0.68027    
+racewhiteYes          0.0198101  0.0857516   0.2310   0.81730    
+racewhiteMissing     -1.0125379  0.5059930  -2.0011   0.04538 *  
+gichronYes            0.9960039  0.1349800   7.3789 1.596e-13 ***
+anim_anyYes           0.3342835  0.0854687   3.9112 9.185e-05 ***
+gicontactbaseYes      0.7079256  0.1270350   5.5727 2.508e-08 ***
+gicontactbaseMissing -0.1817495  0.3533816  -0.5143   0.60703    
+rawfood               0.1884066  0.0853206   2.2082   0.02723 *  
+beachDoheny          -0.3336892  0.1708948  -1.9526   0.05087 .  
+beachMalibu          -0.0502476  0.1656715  -0.3033   0.76166    
+beachMission Bay     -0.0192887  0.1598146  -0.1207   0.90393    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> 
+> # --------------------------------------
+> # save the results
+> # exclude glm objects and data frames
+> # (they are really large)
+> # --------------------------------------
+> save(
++ 
++   overall.fit10.entero.fmc,overall.fit10.entero.fpc,
++   
++   overall.fit10.entero.high.fmc,overall.fit10.entero.high.fpc,
++   overall.fit10.entero.low.fmc,overall.fit10.entero.low.fpc,
++   
++   all.VC10.entero.fmc,all.VC10.entero.fpc,
++ 
++   all.VC10.entero.high.fmc, all.VC10.entero.low.fmc,
++   all.VC10.entero.high.fpc, all.VC10.entero.low.fpc,
++   
++   file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-entero-pool-negcontrol.Rdata"
++ )
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 87.179   8.871 113.477 

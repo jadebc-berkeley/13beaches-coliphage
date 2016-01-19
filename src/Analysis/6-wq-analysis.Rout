@@ -1,0 +1,199 @@
+
+R version 3.1.3 (2015-03-09) -- "Smooth Sidewalk"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> ##########################################
+> # Coliphage analysis - 6 beaches
+> # v1 by Jade 11/3/15
+> 
+> # Analysis of water quality associations for main text
+> ##########################################
+> 
+> 
+> rm(list=ls())
+> library(ggplot2)
+> library(grid)
+> library(gridExtra)
+> library(reshape2)
+> source("~/Documents/CRG/coliphage/13beaches-coliphage/src/figures/theme_complete_bw.R")
+> 
+> # --------------------------------------
+> # load the and pre-preprocess the 
+> # analysis dataset
+> # (refer to the base functions script
+> # for details on the pre-processing)
+> # --------------------------------------
+> load("~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.RData")
+> 
+> wq$logfmc1601=log(wq$fmc1601,base=10)
+> wq$logfmc1602=log(wq$fmc1602,base=10)
+> wq$logfpc1601=log(wq$fpc1601,base=10)
+> wq$logfpc1602=log(wq$fpc1602,base=10)
+> wq$logentero=log(wq$entero,base=10)
+> 
+> wq=wq[,c("beach","logentero","logfmc1601","logfmc1602",
++          "logfpc1601","logfpc1602","risk",
++          "fmc1601","fmc1602","fpc1601","fpc1602")]
+> 
+> 
+> 
+> # --------------------------------------
+> # summary statistics for correlations
+> # --------------------------------------
+> fmc1601=subset(wq,!is.na(wq$logfmc1601))
+> fmc1601=fmc1601[!is.na(fmc1601$logentero),]
+> cor(fmc1601$logentero,fmc1601$logfmc1601,method="spearman")
+[1] 0.1679043
+> 
+> fmc1602=subset(wq,!is.na(wq$logfmc1602))
+> fmc1602=fmc1602[!is.na(fmc1602$logentero),]
+> cor(fmc1602$logentero,fmc1602$logfmc1602,method="spearman")
+[1] 0.3298355
+> 
+> fpc1601=subset(wq,!is.na(wq$logfpc1601))
+> fpc1601=fpc1601[!is.na(fpc1601$logentero),]
+> cor(fpc1601$logentero,fpc1601$logfpc1601,method="spearman")
+[1] 0.1033123
+> 
+> fpc1602=subset(wq,!is.na(wq$logfpc1602))
+> fpc1602=fpc1602[!is.na(fpc1602$logentero),]
+> cor(fpc1602$logentero,fpc1602$logfpc1602,method="spearman")
+[1] 0.2689288
+> 
+> # --------------------------------------
+> # compare presence absence of entero and coli
+> # --------------------------------------
+> wq$ent.pres=ifelse(wq$logentero==-1,0,1)
+> wq$ent.pres[is.na(wq$logentero)]=NA
+> wq$ent35=ifelse(wq$logentero>log(35, base=10),1,0)
+> wq$ent35[is.na(wq$logentero)]=NA
+> wq$fmc1601.pres=ifelse(wq$logfmc1601==-1,0,1)
+> wq$fmc1601.pres[is.na(wq$logfmc1601)]=NA
+> wq$fmc1602.pres=ifelse(wq$logfmc1602==-1,0,1)
+> wq$fmc1602.pres[is.na(wq$logfmc1602)]=NA
+> wq$fpc1601.pres=ifelse(wq$logfpc1601==-1,0,1)
+> wq$fpc1601.pres[is.na(wq$logfpc1601)]=NA
+> wq$fpc1602.pres=ifelse(wq$logfpc1602==-1,0,1)
+> wq$fpc1602.pres[is.na(wq$logfpc1602)]=NA
+> 
+> prop.table(table(wq$fmc1601.pres[wq$ent.pres==1]))
+
+        0         1 
+0.5100287 0.4899713 
+> prop.table(table(wq$fmc1602.pres[wq$ent.pres==1]))
+
+        0         1 
+0.5730337 0.4269663 
+> prop.table(table(wq$fpc1601.pres[wq$ent.pres==1]))
+
+        0         1 
+0.4798177 0.5201823 
+> prop.table(table(wq$fpc1602.pres[wq$ent.pres==1]))
+
+         0          1 
+0.94796062 0.05203938 
+> 
+> prop.table(table(wq$fmc1601.pres[wq$ent35==1]))
+
+        0         1 
+0.4320388 0.5679612 
+> prop.table(table(wq$fmc1602.pres[wq$ent35==1]))
+
+       0        1 
+0.514881 0.485119 
+> prop.table(table(wq$fpc1601.pres[wq$ent35==1]))
+
+        0         1 
+0.4157651 0.5842349 
+> prop.table(table(wq$fpc1602.pres[wq$ent35==1]))
+
+         0          1 
+0.91071429 0.08928571 
+> 
+> # --------------------------------------
+> # wq by risk level
+> # --------------------------------------
+> gm_mean = function(a){
++   a=a[!is.na(a)]
++   if(length(a)==0){
++     NA
++   }else{
++     prod(a)^(1/length(a))
++   }
++ }
+> 
+> gm_mean(wq$fmc1601[wq$risk=="Low"])
+[1] 0.5941467
+> gm_mean(wq$fmc1601[wq$risk=="High"])
+[1] 0.5159256
+> min(wq$fmc1601[wq$risk=="Low"],na.rm=TRUE)
+[1] 0.1
+> max(wq$fmc1601[wq$risk=="Low"],na.rm=TRUE)
+[1] 1400
+> min(wq$fmc1601[wq$risk=="High"],na.rm=TRUE)
+[1] 0.1
+> max(wq$fmc1601[wq$risk=="High"],na.rm=TRUE)
+[1] 370
+> 
+> gm_mean(wq$fmc1602[wq$risk=="Low"])
+[1] 0.4385567
+> gm_mean(wq$fmc1602[wq$risk=="High"])
+[1] 0.4394435
+> min(wq$fmc1602[wq$risk=="Low"],na.rm=TRUE)
+[1] 0.1
+> max(wq$fmc1602[wq$risk=="Low"],na.rm=TRUE)
+[1] 4000
+> min(wq$fmc1602[wq$risk=="High"],na.rm=TRUE)
+[1] 0.1
+> max(wq$fmc1602[wq$risk=="High"],na.rm=TRUE)
+[1] 1000
+> 
+> gm_mean(wq$fpc1601[wq$risk=="Low"])
+[1] 0
+> gm_mean(wq$fpc1601[wq$risk=="High"])
+[1] 0.507607
+> min(wq$fpc1601[wq$risk=="Low"],na.rm=TRUE)
+[1] 0.1
+> max(wq$fpc1601[wq$risk=="Low"],na.rm=TRUE)
+[1] 37
+> min(wq$fpc1601[wq$risk=="High"],na.rm=TRUE)
+[1] 0.1
+> max(wq$fpc1601[wq$risk=="High"],na.rm=TRUE)
+[1] 330
+> 
+> gm_mean(wq$fpc1602[wq$risk=="Low"])
+[1] 0
+> gm_mean(wq$fpc1602[wq$risk=="High"])
+[1] 0.1198066
+> min(wq$fpc1602[wq$risk=="Low"],na.rm=TRUE)
+[1] 0.1
+> max(wq$fpc1602[wq$risk=="Low"],na.rm=TRUE)
+[1] 26
+> min(wq$fpc1602[wq$risk=="High"],na.rm=TRUE)
+[1] 0.1
+> max(wq$fpc1602[wq$risk=="High"],na.rm=TRUE)
+[1] 48
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  3.782   0.258   4.039 
