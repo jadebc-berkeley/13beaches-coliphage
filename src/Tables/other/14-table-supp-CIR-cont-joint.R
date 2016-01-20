@@ -27,10 +27,13 @@ CIRformat <- function(x) {
 # response figures
 # --------------------------------------
 # function to get CIR Estimates and CIs from simple stratified models
-getCIR <- function(x) {
+getCIR <- function(x,coliphage) {
   # x : log-linear model object returned from coeftest (class=coeftest)
   # NOTE: assumes exposure of interest is the first covariate and there are no interactions
-  est <- exp(x[2,1]+x[3,1]+x[23,1])
+  row.coli=grep(coliphage,rownames(x))[1]
+  row.entero=grep("entero",rownames(x))[1]
+  row.joint=grep(":",rownames(x))
+  est <- exp(x[row.coli,1]+x[row.entero,1]+x[row.joint,1])
   se  <- x[2,2]  
   lb <- exp(log(est)-1.96*se)
   ub <- exp(log(est)+1.96*se)
@@ -39,15 +42,25 @@ getCIR <- function(x) {
 }
 
 # print output 
-CIRformat(getCIR(overall.fit10.fmc1601))
-CIRformat(getCIR(overall.fit10.fmc1602))
-CIRformat(getCIR(overall.fit10.fpc1601))
-CIRformat(getCIR(overall.fit10.fpc1602))
+all=rbind(CIRformat(getCIR(overall.fit10.fmc1601,"fmc1601")),
+  CIRformat(getCIR(overall.fit10.fmc1602,"fmc1602")),
+  CIRformat(getCIR(overall.fit10.fpc1601,"fpc1601")),
+  CIRformat(getCIR(overall.fit10.fpc1602,"fpc1602")))
 
-CIRformat(getCIR(overall.fit10.fmc1602.low))
-CIRformat(getCIR(overall.fit10.fmc1602.high))
-CIRformat(getCIR(overall.fit10.fpc1601.low))
-CIRformat(getCIR(overall.fit10.fpc1601.high))
-CIRformat(getCIR(overall.fit10.fpc1602.low))
-CIRformat(getCIR(overall.fit10.fpc1602.high))
+low=rbind(NA,CIRformat(getCIR(overall.fit10.fmc1602.low,"fmc1602")),
+  CIRformat(getCIR(overall.fit10.fpc1601.low,"fpc1601")),
+  CIRformat(getCIR(overall.fit10.fpc1602.low,"fpc1602")))
+
+high=rbind(NA,CIRformat(getCIR(overall.fit10.fmc1602.high,"fmc1602")),
+  CIRformat(getCIR(overall.fit10.fpc1601.high,"fpc1601")),
+  CIRformat(getCIR(overall.fit10.fpc1602.high,"fpc1602")))
+
+tab=cbind(all, low, high)
+label=c("Somatic coliphage 1601","Somatic coliphage 1602",
+        "Male-specific coliphage 1601","Male-specific coliphage 1602")
+tab.out=cbind(label,tab)
+
+save(tab.out,file="~/Documents/CRG/coliphage/Results/Tables/CIR-10-cont-joint.RData")
+
+
 

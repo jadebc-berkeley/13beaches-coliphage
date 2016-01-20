@@ -15,9 +15,6 @@ load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-
 load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-entero.Rdata")
 load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-entero-negcontrol.Rdata")
 
-
-
-     
 # --------------------------------------
 # formatting function for CIR results
 # --------------------------------------
