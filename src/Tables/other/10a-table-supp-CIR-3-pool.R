@@ -1,0 +1,167 @@
+##########################################
+# Coliphage analysis - 6 beaches
+# v1 by Jade 7/13/15
+
+# This file makes a table with regression output
+# For a table with the combined and interaction
+# results for body immersion
+
+# Single & joint indicators pooled across assay
+##########################################
+
+
+rm(list=ls())
+
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-3day-body-pool.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-3day-body-entero-pool.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-3day-body-joint-pool.Rdata")
+
+# ------------------------------------------------
+# combine output
+# ------------------------------------------------
+
+# n's --------------------------------------------
+gici3.n.body.pool=c(all.n3.fmc,all.n3.fpc)
+
+gici3.n.body.high=c(all.n3.fmc.high,all.n3.fpc.high)
+
+gici3.n.body.low=c(all.n3.fmc.low,all.n3.fpc.low)
+
+# add comma
+gici3.n.body.pool=format(gici3.n.body.pool,scientific=FALSE,big.mark=",")
+gici3.n.body.high=format(gici3.n.body.high,scientific=FALSE,big.mark=",")
+gici3.n.body.low=format(gici3.n.body.low,scientific=FALSE,big.mark=",")
+
+# entero n's  --------------------------------------------
+
+entero.n.body.pool=c(n3.entero35.fmc, n3.entero35.fpc)
+
+entero.n.body.high=c(n3.entero35.fmc.high, n3.entero35.fpc.high)
+
+entero.n.body.low=c(n3.entero35.fmc.low, n3.entero35.fpc.low)
+
+# add comma
+entero.n.body.pool=format(entero.n.body.pool,scientific=FALSE,big.mark=",")
+entero.n.body.high=format(entero.n.body.high,scientific=FALSE,big.mark=",")
+entero.n.body.low=format(entero.n.body.low,scientific=FALSE,big.mark=",")
+
+# joint n's --------------------------------------------
+gici3.n.joint=c(all.n3.fmc.joint, all.n3.fpc.joint)
+gici3.n.joint.high=c(all.n3.fmc.high.joint, all.n3.fpc.high.joint)
+gici3.n.joint.low=c(all.n3.fmc.low.joint,all.n3.fpc.low.joint)
+
+# add comma
+gici3.n.joint=format(gici3.n.joint,scientific=FALSE,big.mark=",")
+gici3.n.joint.high=format(gici3.n.joint.high,scientific=FALSE,big.mark=",")
+gici3.n.joint.low=format(gici3.n.joint.low,scientific=FALSE,big.mark=",")
+
+# single indicator estimates --------------------------------------------
+gici3.body.pool=list(overall.fit3.fmc, overall.fit3.fpc)
+gici3.body.high=list(overall.fit3.fmc.high, overall.fit3.fpc.high)
+gici3.body.low=list(overall.fit3.fmc.low, overall.fit3.fpc.low)
+
+# entero estimates  --------------------------------------------
+gici3.entero.pool=list(overall.fit3.entero.fmc,overall.fit3.entero.fpc)
+gici3.entero.high=list(overall.fit3.entero.high.fmc,overall.fit3.entero.high.fpc)
+gici3.entero.low=list(overall.fit3.entero.low.fmc,overall.fit3.entero.low.fpc)
+
+# joint indicator estimates  --------------------------------------------
+gici3.joint.int=list(overall.fit3.fmc.int, overall.fit3.fpc.int)
+gici3.joint.high.int=list(overall.fit3.fmc.high.int, overall.fit3.fpc.high.int)
+gici3.joint.low.int=list(overall.fit3.fmc.low.int, overall.fit3.fpc.low.int)
+
+
+# ------------------------------------------------
+# function to make table row with exponentiated point estimate
+# and 95% ci in parentheses
+# ------------------------------------------------
+mkrow.pool=function(out){
+  pt.est=out[2,1]
+  lb=pt.est-qnorm(.975)*out[2,2]
+  ub=pt.est+qnorm(.975)*out[2,2]
+  paste(sprintf("%0.2f",exp(pt.est))," (",
+        sprintf("%0.2f",exp(lb)),",",
+        sprintf("%0.2f",exp(ub)), ")",sep="")
+}
+
+mkrow.joint=function(out){
+  row=grep("ent4",rownames(out))
+  pt.est=out[row,1]
+  lb=pt.est-qnorm(.975)*out[4,2]
+  ub=pt.est+qnorm(.975)*out[4,2]
+  paste(sprintf("%0.2f",exp(pt.est))," (",
+        sprintf("%0.2f",exp(lb)),",",
+        sprintf("%0.2f",exp(ub)), ")",sep="")
+}
+
+# ------------------------------------------------
+# convert results into table format
+# pooled results
+# ------------------------------------------------
+# single indicator results
+gici3.tab.body.pool=data.frame(combined=unlist(lapply(gici3.body.pool,mkrow.pool)))
+gici3.tab.body.pool.high=data.frame(combined=unlist(lapply(gici3.body.high,mkrow.pool)))
+gici3.tab.body.pool.low=data.frame(combined=unlist(lapply(gici3.body.low,mkrow.pool)))
+
+gici3.tab=data.frame(cbind(gici3.n.body.pool,gici3.tab.body.pool,
+                            gici3.n.body.low,gici3.tab.body.pool.low,
+                            gici3.n.body.high,gici3.tab.body.pool.high))
+colnames(gici3.tab)=NULL
+gici3.tab[,1]=as.character(gici3.tab[,1])
+gici3.tab[,2]=as.character(gici3.tab[,2])
+gici3.tab[,3]=as.character(gici3.tab[,3])
+gici3.tab[,4]=as.character(gici3.tab[,4])
+gici3.tab[,5]=as.character(gici3.tab[,5])
+gici3.tab[,6]=as.character(gici3.tab[,6])
+
+# entero results
+entero.tab.pool=data.frame(combined=unlist(lapply(gici3.entero.pool,mkrow.pool)))
+entero.tab.high=data.frame(combined=unlist(lapply(gici3.entero.high,mkrow.pool)))
+entero.tab.low=data.frame(combined=unlist(lapply(gici3.entero.low,mkrow.pool)))
+
+entero.tab=data.frame(cbind(entero.n.body.pool,entero.tab.pool,
+                            entero.n.body.low,entero.tab.low,
+                            entero.n.body.high,entero.tab.high))
+colnames(entero.tab)=NULL
+entero.tab[,1]=as.character(entero.tab[,1])
+entero.tab[,2]=as.character(entero.tab[,2])
+entero.tab[,3]=as.character(entero.tab[,3])
+entero.tab[,4]=as.character(entero.tab[,4])
+entero.tab[,5]=as.character(entero.tab[,5])
+entero.tab[,6]=as.character(entero.tab[,6])
+
+# joint results
+joint.tab.pool=data.frame(combined=unlist(lapply(gici3.joint.int,mkrow.joint)))
+joint.tab.high=data.frame(combined=unlist(lapply(gici3.joint.high.int,mkrow.joint)))
+joint.tab.low=data.frame(combined=unlist(lapply(gici3.joint.low.int,mkrow.joint)))
+
+joint.tab=data.frame(cbind(gici3.n.joint,joint.tab.pool,
+                           gici3.n.joint.low,joint.tab.low,
+                           gici3.n.joint.high,joint.tab.high))
+colnames(joint.tab)=NULL
+joint.tab[,1]=as.character(joint.tab[,1])
+joint.tab[,2]=as.character(joint.tab[,2])
+joint.tab[,3]=as.character(joint.tab[,3])
+joint.tab[,4]=as.character(joint.tab[,4])
+joint.tab[,5]=as.character(joint.tab[,5])
+joint.tab[,6]=as.character(joint.tab[,6])
+
+colnames(gici3.tab)=c("npool","pool","nlow","low","nhigh","high")
+colnames(entero.tab)=c("npool","pool","nlow","low","nhigh","high")
+colnames(joint.tab)=c("npool","pool","nlow","low","nhigh","high")
+
+gici3.tab.pool=rbind(gici3.tab[1,],entero.tab[1,],joint.tab[1,],
+                     gici3.tab[2,],entero.tab[2,],joint.tab[2,])
+
+lab=c(rep(c("Coliphage detected","Enterococcus > 35 CFU/100 ml",
+          "Coliphage detected $\\&$ Enterococcus > 35 CFU/100 ml"),2))
+gici3.tab.pool=cbind(lab,gici3.tab.pool)
+
+rownames(gici3.tab.pool)=NULL
+
+save(gici3.tab.pool,file="~/Documents/CRG/coliphage/Results/Tables/CIR-3-pool.RData")
+
+
+
+
+
