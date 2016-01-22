@@ -965,10 +965,10 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 +   aic.nc.fmc1602.high,aic.nc.fmc1602.low,
 +   aic.nc.fpc1601.high,aic.nc.fpc1601.low,aic.nc.fpc1602.high,aic.nc.fpc1602.low,
 + 
-+   file="~/dropbox/coliphage/results/rawoutput/regress-10day-body-negcontrol.Rdata"
++   file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-negcontrol.Rdata"
 + )
 > 
 > 
 > proc.time()
    user  system elapsed 
- 60.773   3.058  64.084 
+ 61.928   3.208  65.676 

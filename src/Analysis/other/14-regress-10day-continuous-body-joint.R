@@ -15,6 +15,7 @@
 
 rm(list=ls())
 library(foreign)
+library(msm)
 
 # --------------------------------------
 # load the and pre-preprocess the 
@@ -131,6 +132,11 @@ save(
   overall.fit10.fmc1602.low,overall.fit10.fpc1601,overall.fit10.fpc1601.high,
   overall.fit10.fpc1601.low,overall.fit10.fpc1602,overall.fit10.fpc1602.high,
   overall.fit10.fpc1602.low,
+  
+  all.fit10.fmc1601, all.fit10.fmc1602, all.fit10.fmc1602.high,
+  all.fit10.fmc1602.low,all.fit10.fpc1601,all.fit10.fpc1601.high,
+  all.fit10.fpc1601.low,all.fit10.fpc1602,all.fit10.fpc1602.high,
+  all.fit10.fpc1602.low,
   
   file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-joint.Rdata"
   

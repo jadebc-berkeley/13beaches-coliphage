@@ -1,0 +1,474 @@
+
+R version 3.1.3 (2015-03-09) -- "Smooth Sidewalk"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> ##########################################
+> # Coliphage analysis - 6 beaches
+> # v1 by Jade 7/13/15
+> 
+> # This file conducts maximum likelihood regression
+> # to estimate prevalence ratios
+> 
+> # Results pooled across beaches
+> 
+> # 10 day gi illness
+> ##########################################
+> 
+> rm(list=ls())
+> 
+> # --------------------------------------
+> # load the and pre-preprocess the 
+> # analysis dataset
+> # (refer to the base functions script
+> # for details on the pre-processing)
+> # --------------------------------------
+> beaches13=read.csv("~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis.csv")
+> 
+> # load base functions
+> source("~/Documents/CRG/coliphage/13beaches-coliphage/src/Analysis/0-base-functions.R")
+> 
+> data=preprocess.6beaches(beaches13)
+
+Successfully loaded the data
+ Total sample size = 84411 
+
+Dropping individuals with GI illness at enrollment
+ N = 1948 
+
+Final sample size = 82463 
+
+Subsetting the data to relevant variables and completing final variable pre-processing> 
+> # restrict to 6 beaches with coliphage data
+> beach.list=c("Avalon","Doheny","Malibu","Mission Bay",
++              "Fairhope","Goddard")
+> 
+> all=data[data$beach %in% beach.list,]
+> all=subset(all,nowq==0)
+> all=subset(all,all$bodycontact=="Yes")
+> 
+> # subset to observations with no missing enterococcus information
+> all=subset(all,!is.na(all$entero35))
+> 
+> # --------------------------------------
+> # Creating joint indicator variable for
+> # regressions
+> # --------------------------------------
+> all$fmc.ent=NA
+> all$fmc.ent[all$fmc.pres==0 & all$entero35==0]=1
+> all$fmc.ent[all$fmc.pres==1 & all$entero35==0]=2
+> all$fmc.ent[all$fmc.pres==0 & all$entero35==1]=3
+> all$fmc.ent[all$fmc.pres==1 & all$entero35==1]=4
+> all$fmc.ent=as.factor(all$fmc.ent)
+> 
+> all$fpc.ent=NA
+> all$fpc.ent[all$fpc.pres==0 & all$entero35==0]=1
+> all$fpc.ent[all$fpc.pres==1 & all$entero35==0]=2
+> all$fpc.ent[all$fpc.pres==0 & all$entero35==1]=3
+> all$fpc.ent[all$fpc.pres==1 & all$entero35==1]=4
+> all$fpc.ent=as.factor(all$fpc.ent)
+> 
+> # --------------------------------------
+> # Calculate the actual Ns for each cell
+> # and store them for plotting and tables
+> # --------------------------------------
+> regN <- function(outcome,exposurecat) {
++   sum(table(outcome,exposurecat))
++ }
+> 
+> # all conditions
+> all.n10.fmc.joint=regN(all$gici10[!is.na(all$fmc.ent)],
++      all$fmc.ent[!is.na(all$fmc.ent)])
+> all.n10.fpc.joint=regN(all$gici10[!is.na(all$fmc.ent)],
++      all$fmc.ent[!is.na(all$fmc.ent)])
+> 
+> # stratified by risk conditions
+> data=all[!is.na(all$fmc.ent),]
+> data.high=subset(data,data$risk=="High")
+> all.n10.fmc.high.joint = regN(data.high$gici10,data.high$fmc.ent)
+> data.low=subset(data,data$risk=="Low")
+> all.n10.fmc.low.joint = regN(data.low$gici10,data.low$fmc.ent)
+> 
+> data=all[!is.na(all$fpc.ent),]
+> data.high=subset(data,data$risk=="High")
+> all.n10.fpc.high.joint = regN(data.high$gici10,data.high$fpc.ent)
+> data.low=subset(data,data$risk=="Low")
+> all.n10.fpc.low.joint = regN(data.low$gici10,data.low$fpc.ent)
+> 
+> # --------------------------------------
+> # All conditions
+> 
+> # Estimates pooled across beach
+> # (can't use the mpreg fn because we 
+> # need the actual glm returned object 
+> # for the LR tests)
+> 
+> # 10-day GI illness
+> 
+> # all beaches ----------------
+> 
+> # -------------------------------------
+> # f- coliphage
+> # -------------------------------------
+> all.fit10.fmc <- glm(gici10~fmc.ent,family=poisson(link="log"),data=all[!is.na(all$fmc.pres),])
+> 
+> all.VC10.fmc <- cl(all[!is.na(all$fmc.pres)],fm=all.fit10.fmc,
++     cluster=all$hhid[!is.na(all$fmc.pres)])
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+> overall.fit10.fmc.int <- coeftest(all.fit10.fmc, all.VC10.fmc)
+> summary(all.fit10.fmc)
+
+Call:
+glm(formula = gici10 ~ fmc.ent, family = poisson(link = "log"), 
+    data = all[!is.na(all$fmc.pres), ])
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.4179  -0.3835  -0.3835  -0.3693   1.8727  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -2.68527    0.05842 -45.964   <2e-16 ***
+fmc.ent2     0.07528    0.07328   1.027    0.304    
+fmc.ent3     0.24728    0.23111   1.070    0.285    
+fmc.ent4     0.05554    0.10744   0.517    0.605    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 4987.2  on 13179  degrees of freedom
+Residual deviance: 4985.4  on 13176  degrees of freedom
+AIC: 6887.4
+
+Number of Fisher Scoring iterations: 6
+
+> overall.fit10.fmc.int
+
+z test of coefficients:
+
+             Estimate Std. Error  z value Pr(>|z|)    
+(Intercept) -2.685267   0.064393 -41.7013   <2e-16 ***
+fmc.ent2     0.075284   0.081698   0.9215   0.3568    
+fmc.ent3     0.247277   0.258144   0.9579   0.3381    
+fmc.ent4     0.055545   0.115487   0.4810   0.6305    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fmc.int=AIC(all.fit10.fmc)
+> 
+> 
+> # -------------------------------------
+> # f+ coliphage
+> # -------------------------------------
+> all.fit10.fpc <- glm(gici10~fpc.ent,family=poisson(link="log"),data=all[!is.na(all$fpc.pres),])
+> 
+> all.VC10.fpc <- cl(all[!is.na(all$fpc.pres),],fm=all.fit10.fpc,
++     cluster=all$hhid[!is.na(all$fpc.pres)])
+> overall.fit10.fpc.int <- coeftest(all.fit10.fpc, all.VC10.fpc)
+> summary(all.fit10.fpc)
+
+Call:
+glm(formula = gici10 ~ fpc.ent, family = poisson(link = "log"), 
+    data = all[!is.na(all$fpc.pres), ])
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.3976  -0.3976  -0.3665  -0.3665   1.9059  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -2.53773    0.05123 -49.535   <2e-16 ***
+fpc.ent2    -0.16313    0.06766  -2.411   0.0159 *  
+fpc.ent3    -0.21466    0.20646  -1.040   0.2985    
+fpc.ent4    -0.01313    0.10100  -0.130   0.8965    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 5517.4  on 14528  degrees of freedom
+Residual deviance: 5510.5  on 14525  degrees of freedom
+AIC: 7618.5
+
+Number of Fisher Scoring iterations: 6
+
+> overall.fit10.fpc.int
+
+z test of coefficients:
+
+             Estimate Std. Error  z value Pr(>|z|)    
+(Intercept) -2.537730   0.059478 -42.6665  < 2e-16 ***
+fpc.ent2    -0.163133   0.076912  -2.1210  0.03392 *  
+fpc.ent3    -0.214656   0.225754  -0.9508  0.34169    
+fpc.ent4    -0.013135   0.110098  -0.1193  0.90504    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fpc.int=AIC(all.fit10.fpc)
+> 
+> # --------------------------------------
+> # Estimates pooled across beach and stratified by conditions
+> 
+> # (can't use the mpreg fn because we 
+> # need the actual glm returned object 
+> # for the LR tests)
+> 
+> # 10-day GI illness
+> 
+> # all beaches ----------------
+> 
+> # -------------------------------------
+> # f- coliphage
+> # -------------------------------------
+> data=all[!is.na(all$fmc.pres),]
+> 
+> # high risk conditions ----------------
+> data.high=subset(data,data$risk=="High")
+> 
+> all.fit10.fmc.high <- glm(gici10~fmc.ent,family=poisson(link="log"),data=data.high)
+> all.VC10.fmc.high <- cl(data.high,fm=all.fit10.fmc.high, cluster=data.high$hhid)
+> overall.fit10.fmc.high.int <- coeftest(all.fit10.fmc.high, all.VC10.fmc.high)
+> summary(all.fit10.fmc.high)
+
+Call:
+glm(formula = gici10 ~ fmc.ent, family = poisson(link = "log"), 
+    data = data.high)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.4472  -0.3569  -0.3569  -0.3238   2.0004  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -2.9483     0.1562 -18.878  < 2e-16 ***
+fmc.ent2      0.1948     0.1938   1.005  0.31478    
+fmc.ent3      0.6457     0.5238   1.233  0.21770    
+fmc.ent4      0.5353     0.2071   2.584  0.00975 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 946.88  on 2617  degrees of freedom
+Residual deviance: 939.31  on 2614  degrees of freedom
+AIC: 1297.3
+
+Number of Fisher Scoring iterations: 6
+
+> overall.fit10.fmc.high.int
+
+z test of coefficients:
+
+            Estimate Std. Error  z value Pr(>|z|)    
+(Intercept) -2.94828    0.16488 -17.8809  < 2e-16 ***
+fmc.ent2     0.19479    0.21406   0.9100  0.36284    
+fmc.ent3     0.64570    0.50867   1.2694  0.20431    
+fmc.ent4     0.53535    0.21776   2.4584  0.01396 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fmc.high.int=AIC(all.fit10.fmc.high)
+> 
+> 
+> # low risk conditions ----------------
+> data.low=subset(data,data$risk=="Low")
+> 
+> all.fit10.fmc.low <- glm(gici10~fmc.ent,family=poisson(link="log"),data=data.low)
+> all.VC10.fmc.low <- cl(data.low,fm=all.fit10.fmc.low, cluster=data.low$hhid)
+> overall.fit10.fmc.low.int <- coeftest(all.fit10.fmc.low, all.VC10.fmc.low)
+> summary(all.fit10.fmc.low)
+
+Call:
+glm(formula = gici10 ~ fmc.ent, family = poisson(link = "log"), 
+    data = data.low)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.4115  -0.3888  -0.3888  -0.3787   1.9153  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -2.63508    0.06299 -41.831   <2e-16 ***
+fmc.ent2     0.05243    0.07917   0.662    0.508    
+fmc.ent3     0.16592    0.25781   0.644    0.520    
+fmc.ent4    -0.13660    0.13587  -1.005    0.315    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 4039.2  on 10561  degrees of freedom
+Residual deviance: 4036.5  on 10558  degrees of freedom
+AIC: 5588.5
+
+Number of Fisher Scoring iterations: 6
+
+> overall.fit10.fmc.low.int
+
+z test of coefficients:
+
+             Estimate Std. Error  z value Pr(>|z|)    
+(Intercept) -2.635081   0.069864 -37.7172   <2e-16 ***
+fmc.ent2     0.052429   0.088322   0.5936   0.5528    
+fmc.ent3     0.165923   0.296735   0.5592   0.5761    
+fmc.ent4    -0.136601   0.146832  -0.9303   0.3522    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fmc.low.int=AIC(all.fit10.fmc.low)
+> 
+> 
+> # -------------------------------------
+> # f+ coliphage
+> # -------------------------------------
+> data=all[!is.na(all$fpc.pres),]
+> 
+> # high risk conditions ----------------
+> data.high=subset(data,data$risk=="High")
+> 
+> all.fit10.fpc.high <- glm(gici10~fpc.ent,family=poisson(link="log"),data=data.high)
+> all.VC10.fpc.high <- cl(data.high,fm=all.fit10.fpc.high, cluster=data.high$hhid)
+> overall.fit10.fpc.high.int <- coeftest(all.fit10.fpc.high, all.VC10.fpc.high)
+> summary(all.fit10.fpc.high)
+
+Call:
+glm(formula = gici10 ~ fpc.ent, family = poisson(link = "log"), 
+    data = data.high)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.4264  -0.3648  -0.3648  -0.3648   1.9638  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -2.8717     0.1826 -15.729   <2e-16 ***
+fpc.ent2      0.1617     0.1975   0.819   0.4129    
+fpc.ent4      0.4738     0.2173   2.180   0.0292 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 1477.9  on 3966  degrees of freedom
+Residual deviance: 1471.5  on 3964  degrees of freedom
+AIC: 2033.5
+
+Number of Fisher Scoring iterations: 6
+
+> overall.fit10.fpc.high.int
+
+z test of coefficients:
+
+            Estimate Std. Error  z value Pr(>|z|)    
+(Intercept) -2.87168    0.19704 -14.5742  < 2e-16 ***
+fpc.ent2     0.16174    0.21577   0.7496  0.45350    
+fpc.ent4     0.47378    0.23238   2.0388  0.04147 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fpc.high.int=AIC(all.fit10.fpc.high)
+> 
+> ##### HERE
+> 
+> # low risk conditions ----------------
+> data.low=subset(data,data$risk=="Low")
+> 
+> all.fit10.fpc.low <- glm(gici10~fpc.ent,family=poisson(link="log"),data=data.low)
+> all.VC10.fpc.low <- cl(data.low,fm=all.fit10.fpc.low, 
++   cluster=data.low$hhid)
+> overall.fit10.fpc.low.int <- coeftest(all.fit10.fpc.low, all.VC10.fpc.low)
+> summary(all.fit10.fpc.low)
+
+Call:
+glm(formula = gici10 ~ fpc.ent, family = poisson(link = "log"), 
+    data = data.low)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.4045  -0.4045  -0.3673  -0.3673   1.9059  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -2.50326    0.05338 -46.898   <2e-16 ***
+fpc.ent2    -0.19282    0.07632  -2.526   0.0115 *  
+fpc.ent3    -0.24913    0.20700  -1.204   0.2288    
+fpc.ent4    -0.20479    0.13970  -1.466   0.1427    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 4039.2  on 10561  degrees of freedom
+Residual deviance: 4031.6  on 10558  degrees of freedom
+AIC: 5583.6
+
+Number of Fisher Scoring iterations: 6
+
+> overall.fit10.fpc.low.int
+
+z test of coefficients:
+
+             Estimate Std. Error  z value Pr(>|z|)    
+(Intercept) -2.503256   0.062261 -40.2061  < 2e-16 ***
+fpc.ent2    -0.192818   0.085313  -2.2601  0.02381 *  
+fpc.ent3    -0.249130   0.226519  -1.0998  0.27141    
+fpc.ent4    -0.204794   0.153478  -1.3344  0.18209    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> aic.fpc.low.int=AIC(all.fit10.fpc.low)
+> 
+> 
+> 
+> # --------------------------------------
+> # save the results
+> # exclude glm objects and data frames
+> # (they are really large)
+> # --------------------------------------
+> save(
++ 
++   all.n10.fmc.joint,all.n10.fpc.joint,
++ 
++   all.n10.fmc.low.joint, all.n10.fmc.high.joint,
++   all.n10.fpc.low.joint, all.n10.fpc.high.joint, 
++   
++   overall.fit10.fmc.int, overall.fit10.fpc.int,
++ 
++   overall.fit10.fmc.low.int,overall.fit10.fmc.high.int,
++   overall.fit10.fpc.low.int,overall.fit10.fpc.high.int,
++ 
++   aic.fmc.int, aic.fpc.int,
++   aic.fmc.low.int, aic.fmc.high.int,
++   aic.fpc.low.int, aic.fpc.high.int, 
++ 
++   file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-joint-pool-unadj.Rdata"
++ )
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 81.317   3.580  90.386 

@@ -48,24 +48,23 @@ regN <- function(outcome,exposurecat) {
 }
 
 # n's pooled across assay and beach ---------------------------------------
-all.n10.fmc = regN(all$gici10[!is.na(all$fmc.pres)],
+all.n10.fmc.head = regN(all$gici10[!is.na(all$fmc.pres)],
                        all$fmc.pres[!is.na(all$fmc.pres)])
-all.n10.fpc = regN(all$gici10[!is.na(all$fmc.pres)],
+all.n10.fpc.head = regN(all$gici10[!is.na(all$fmc.pres)],
                        all$fmc.pres[!is.na(all$fmc.pres)])
 
 # pooled n's by risk level---------------------------------------
 data=all[!is.na(all$fmc.pres),]
 data.high=subset(data,data$risk=="High")
-all.n10.fmc.high = regN(data.high$gici10,data.high$fmc.pres)
+all.n10.fmc.high.head = regN(data.high$gici10,data.high$fmc.pres)
 data.low=subset(data,data$risk=="Low")
-all.n10.fmc.low = regN(data.low$gici10,data.low$fmc.pres)
+all.n10.fmc.low.head = regN(data.low$gici10,data.low$fmc.pres)
 
 data=all[!is.na(all$fpc.pres),]
 data.high=subset(data,data$risk=="High")
-all.n10.fpc.high = regN(data.high$gici10,data.high$fpc.pres)
+all.n10.fpc.high.head = regN(data.high$gici10,data.high$fpc.pres)
 data.low=subset(data,data$risk=="Low")
-all.n10.fpc.low = regN(data.low$gici10,data.low$fpc.pres)
-
+all.n10.fpc.low.head = regN(data.low$gici10,data.low$fpc.pres)
 
 
 # --------------------------------------
@@ -77,26 +76,26 @@ all.n10.fpc.low = regN(data.low$gici10,data.low$fpc.pres)
 # 10-day GI illness
 
 # f- coliphage ----------------
-all.fit10.fmc <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+all.fit10.fmc.head <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
                            rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$fmc.pres),])
 
-all.VC10.fmc <- cl(all[!is.na(all$fmc.pres)],fm=all.fit10.fmc,
+all.VC10.fmc.head <- cl(all[!is.na(all$fmc.pres)],fm=all.fit10.fmc.head,
                        cluster=all$hhid[!is.na(all$fmc.pres)])
-overall.fit10.fmc <- coeftest(all.fit10.fmc, all.VC10.fmc)
-summary(all.fit10.fmc)
-overall.fit10.fmc
-aic.fmc=AIC(all.fit10.fmc)
+overall.fit10.fmc.head <- coeftest(all.fit10.fmc.head, all.VC10.fmc.head)
+summary(all.fit10.fmc.head)
+overall.fit10.fmc.head
+aic.fmc.head=AIC(all.fit10.fmc.head)
 
 # f+ coliphage ----------------
-all.fit10.fpc <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+all.fit10.fpc.head <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
                        rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$fpc.pres),])
 
-all.VC10.fpc <- cl(all[!is.na(all$fpc.pres)],fm=all.fit10.fpc,
+all.VC10.fpc.head <- cl(all[!is.na(all$fpc.pres)],fm=all.fit10.fpc.head,
                    cluster=all$hhid[!is.na(all$fpc.pres)])
-overall.fit10.fpc <- coeftest(all.fit10.fpc, all.VC10.fpc)
-summary(all.fit10.fpc)
-overall.fit10.fpc
-aic.fpc=AIC(all.fit10.fpc)
+overall.fit10.fpc.head <- coeftest(all.fit10.fpc.head, all.VC10.fpc.head)
+summary(all.fit10.fpc.head)
+overall.fit10.fpc.head
+aic.fpc.head=AIC(all.fit10.fpc.head)
 
 
 # --------------------------------------
@@ -112,49 +111,49 @@ aic.fpc=AIC(all.fit10.fpc)
 # high risk conditions
 data=all[!is.na(all$fmc.pres),]
 data.high=subset(data,data$risk=="High")
-all.fit10.fmc.high <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+all.fit10.fmc.high.head <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
     rawfood+beach,family=poisson(link="log"),data=data.high)
 
-all.VC10.fmc.high <- cl(data.high,fm=all.fit10.fmc.high, cluster=data.high$hhid)
-overall.fit10.fmc.high <- coeftest(all.fit10.fmc.high, all.VC10.fmc.high)
-summary(all.fit10.fmc.high)
-overall.fit10.fmc.high
-aic.fmc.high=AIC(all.fit10.fmc.high)
+all.VC10.fmc.high.head <- cl(data.high,fm=all.fit10.fmc.high.head, cluster=data.high$hhid)
+overall.fit10.fmc.high.head <- coeftest(all.fit10.fmc.high.head, all.VC10.fmc.high.head)
+summary(all.fit10.fmc.high.head)
+overall.fit10.fmc.high.head
+aic.fmc.high.head=AIC(all.fit10.fmc.high.head)
 
 # low risk conditions
 data.low=subset(data,data$risk=="Low")
-all.fit10.fmc.low <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+all.fit10.fmc.low.head <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
     rawfood+beach,family=poisson(link="log"),data=data.low)
 
-all.VC10.fmc.low <- cl(data.low,fm=all.fit10.fmc.low, cluster=data.low$hhid)
-overall.fit10.fmc.low <- coeftest(all.fit10.fmc.low, all.VC10.fmc.low)
-summary(all.fit10.fmc.low)
-overall.fit10.fmc.low
-aic.fmc.low=AIC(all.fit10.fmc.low)
+all.VC10.fmc.low.head <- cl(data.low,fm=all.fit10.fmc.low.head, cluster=data.low$hhid)
+overall.fit10.fmc.low.head <- coeftest(all.fit10.fmc.low.head, all.VC10.fmc.low.head)
+summary(all.fit10.fmc.low.head)
+overall.fit10.fmc.low.head
+aic.fmc.low.head=AIC(all.fit10.fmc.low.head)
 
 # f+ coliphage  --------
 # high risk conditions
 data=all[!is.na(all$fpc.pres),]
 data.high=subset(data,data$risk=="High")
-all.fit10.fpc.high <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+all.fit10.fpc.high.head <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
     rawfood+beach,family=poisson(link="log"),data=data.high)
 
-all.VC10.fpc.high <- cl(data.high,fm=all.fit10.fpc.high, cluster=data.high$hhid)
-overall.fit10.fpc.high <- coeftest(all.fit10.fpc.high, all.VC10.fpc.high)
-summary(all.fit10.fpc.high)
-overall.fit10.fpc.high
-aic.fpc.high=AIC(all.fit10.fpc.high)
+all.VC10.fpc.high.head <- cl(data.high,fm=all.fit10.fpc.high.head, cluster=data.high$hhid)
+overall.fit10.fpc.high.head <- coeftest(all.fit10.fpc.high.head, all.VC10.fpc.high.head)
+summary(all.fit10.fpc.high.head)
+overall.fit10.fpc.high.head
+aic.fpc.high.head=AIC(all.fit10.fpc.high.head)
 
 # low risk conditions
 data.low=subset(data,data$risk=="Low")
-all.fit10.fpc.low <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+all.fit10.fpc.low.head <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
     rawfood+beach,family=poisson(link="log"),data=data.low)
 
-all.VC10.fpc.low <- cl(data.low,fm=all.fit10.fpc.low, cluster=data.low$hhid)
-overall.fit10.fpc.low <- coeftest(all.fit10.fpc.low, all.VC10.fpc.low)
-summary(all.fit10.fpc.low)
-overall.fit10.fpc.low
-aic.fpc.low=AIC(all.fit10.fpc.low)
+all.VC10.fpc.low.head <- cl(data.low,fm=all.fit10.fpc.low.head, cluster=data.low$hhid)
+overall.fit10.fpc.low.head <- coeftest(all.fit10.fpc.low.head, all.VC10.fpc.low.head)
+summary(all.fit10.fpc.low.head)
+overall.fit10.fpc.low.head
+aic.fpc.low.head=AIC(all.fit10.fpc.low.head)
 
 
 
@@ -166,19 +165,19 @@ aic.fpc.low=AIC(all.fit10.fpc.low)
 # --------------------------------------
 save(
 
-  all.n10.fmc,all.n10.fpc,
-  all.n10.fmc.high,all.n10.fmc.low,all.n10.fpc.high,all.n10.fpc.low,
+  all.n10.fmc.head, all.n10.fpc.head,
+  all.n10.fmc.high.head, all.n10.fmc.low.head, all.n10.fpc.high.head, all.n10.fpc.low.head,
 
-  all.VC10.fmc, all.VC10.fpc,overall.fit10.fmc,overall.fit10.fpc,
+  all.VC10.fmc.head, all.VC10.fpc.head, overall.fit10.fmc.head, overall.fit10.fpc.head,
 
-  all.VC10.fmc.high,all.VC10.fpc.high,
-  overall.fit10.fmc.high,overall.fit10.fpc.high,
+  all.VC10.fmc.high.head, all.VC10.fpc.high.head,
+  overall.fit10.fmc.high.head, overall.fit10.fpc.high.head,
   
-  all.VC10.fmc.low,all.VC10.fpc.low,
-  overall.fit10.fmc.low,overall.fit10.fpc.low,
+  all.VC10.fmc.low.head, all.VC10.fpc.low.head,
+  overall.fit10.fmc.low.head, overall.fit10.fpc.low.head,
   
-  aic.fmc, aic.fpc,
-  aic.fmc.high, aic.fpc.high,aic.fmc.low, aic.fpc.low,
+  aic.fmc.head, aic.fpc.head,
+  aic.fmc.high.head, aic.fpc.high.head, aic.fmc.low.head, aic.fpc.low.head,
   
   file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-head-pool.Rdata"
 )

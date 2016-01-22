@@ -41,20 +41,130 @@ all=subset(all,all$bodycontact=="Yes")
 # --------------------------------------
 # assess effect modification by point source
 # --------------------------------------
-# fpc 1601
-all.fit10.fpc1601 <- glm(gici10~fpc1601.pres+pointsource+agecat+female+racewhite+gichron+anim_any+gicontactbase+
-    rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$fpc1601.pres) ,])
 
-all.VC10.fpc1601 <- cl(all[!is.na(all$fpc1601.pres) ,],fm=all.fit10.fpc1601,
-    cluster=all$hhid[!is.na(all$fpc1601.pres) ])
-overall.fit10.fpc1601 <- coeftest(all.fit10.fpc1601, all.VC10.fpc1601)
-summary(all.fit10.fpc1601)
-overall.fit10.fpc1601
+# f- coliphage ----------------
+all.fit10.fmc <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+                       rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$fmc.pres),])
+
+all.VC10.fmc <- cl(all[!is.na(all$fmc.pres)],fm=all.fit10.fmc,
+                   cluster=all$hhid[!is.na(all$fmc.pres)])
+overall.fit10.fmc <- coeftest(all.fit10.fmc, all.VC10.fmc)
 
 # Interaction model with point v. non-point source beaches
-ps.fit10.fpc1601 <- glm(gici10~fpc1601.pres*pointsource+agecat+female+racewhite+gichron+anim_any+
-    gicontactbase+rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$fpc1601.pres) ,])
+ps.fit10.fmc <- glm(gici10~fmc.pres*pointsource+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$fmc.pres) ,])
+
+summary(ps.fit10.fmc)
+lr.fmc=lrtest(all.fit10.fmc,ps.fit10.fmc)
+lr.fmc
+
+# f+ coliphage ----------------
+all.fit10.fpc <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+                       rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$fpc.pres),])
+
+all.VC10.fpc <- cl(all[!is.na(all$fpc.pres)],fm=all.fit10.fpc,
+                   cluster=all$hhid[!is.na(all$fpc.pres)])
+overall.fit10.fpc <- coeftest(all.fit10.fpc, all.VC10.fpc)
+summary(all.fit10.fpc)
+overall.fit10.fpc
+aic.fpc=AIC(all.fit10.fpc)
+
+# Interaction model with point v. non-point source beaches
+ps.fit10.fpc <- glm(gici10~fpc.pres*pointsource+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+rawfood+beach,family=poisson(link="log"),data=all[!is.na(all$fpc.pres) ,])
 
 summary(ps.fit10.fpc1601)
-lrtest(all.fit10.fpc1601,ps.fit10.fpc1601)
+lr.fpc=lrtest(all.fit10.fpc,ps.fit10.fpc)
+lr.fpc
+
+#################################################
+# stratify by conditions
+#################################################
+
+# f- coliphage --------
+# high risk conditions
+data=all[!is.na(all$fmc.pres),]
+data.high=subset(data,data$risk=="High")
+all.fit10.fmc.high <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+    rawfood+beach,family=poisson(link="log"),data=data.high)
+
+all.VC10.fmc.high <- cl(data.high,fm=all.fit10.fmc.high, cluster=data.high$hhid)
+overall.fit10.fmc.high <- coeftest(all.fit10.fmc.high, all.VC10.fmc.high)
+summary(all.fit10.fmc.high)
+
+# Interaction model with point v. non-point source beaches
+ps.fit10.fmc.high <- glm(gici10~fmc.pres*pointsource+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+rawfood+beach,family=poisson(link="log"),data=data.high)
+
+summary(ps.fit10.fmc.high)
+lr.fmc.high=lrtest(all.fit10.fmc.high,ps.fit10.fmc.high)
+lr.fmc.high
+
+# low risk conditions
+data.low=subset(data,data$risk=="Low")
+all.fit10.fmc.low <- glm(gici10~fmc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+    rawfood+beach,family=poisson(link="log"),data=data.low)
+
+all.VC10.fmc.low <- cl(data.low,fm=all.fit10.fmc.low, cluster=data.low$hhid)
+overall.fit10.fmc.low <- coeftest(all.fit10.fmc.low, all.VC10.fmc.low)
+summary(all.fit10.fmc.low)
+
+# Interaction model with point v. non-point source beaches
+ps.fit10.fmc.low <- glm(gici10~fmc.pres*pointsource+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+rawfood+beach,family=poisson(link="log"),data=data.low)
+
+summary(ps.fit10.fmc.low)
+lr.fmc.low=lrtest(all.fit10.fmc.low,ps.fit10.fmc.low)
+lr.fmc.low
+
+# f+ coliphage  --------
+# high risk conditions
+data=all[!is.na(all$fpc.pres),]
+data.high=subset(data,data$risk=="High")
+all.fit10.fpc.high <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+    rawfood+beach,family=poisson(link="log"),data=data.high)
+
+all.VC10.fpc.high <- cl(data.high,fm=all.fit10.fpc.high, cluster=data.high$hhid)
+overall.fit10.fpc.high <- coeftest(all.fit10.fpc.high, all.VC10.fpc.high)
+summary(all.fit10.fpc.high)
+
+# Interaction model with point v. non-point source beaches
+ps.fit10.fpc.high <- glm(gici10~fpc.pres*pointsource+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+rawfood+beach,family=poisson(link="log"),data=data.high)
+
+summary(ps.fit10.fpc.high)
+lr.fpc.high=lrtest(all.fit10.fpc.high,ps.fit10.fpc.high)
+lr.fpc.high
+
+# low risk conditions
+data.low=subset(data,data$risk=="Low")
+all.fit10.fpc.low <- glm(gici10~fpc.pres+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+    rawfood+beach,family=poisson(link="log"),data=data.low)
+
+all.VC10.fpc.low <- cl(data.low,fm=all.fit10.fpc.low, cluster=data.low$hhid)
+overall.fit10.fpc.low <- coeftest(all.fit10.fpc.low, all.VC10.fpc.low)
+summary(all.fit10.fpc.low)
+
+# Interaction model with point v. non-point source beaches
+ps.fit10.fpc.low <- glm(gici10~fpc.pres*pointsource+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+rawfood+beach,family=poisson(link="log"),data=data.low)
+
+summary(ps.fit10.fpc.low)
+lr.fpc.low=lrtest(all.fit10.fpc.low,ps.fit10.fpc.low)
+lr.fpc.low
+
+
+
+# --------------------------------------
+# save the results
+# exclude glm objects and data frames
+# (they are really large)
+# --------------------------------------
+save(
+  
+  lr.fmc, lr.fpc, lr.fmc.low,lr.fmc.high,
+  lr.fpc.low,lr.fpc.high,
+  
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-ps-em.Rdata"
+)
 

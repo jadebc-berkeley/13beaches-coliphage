@@ -206,6 +206,6 @@ save(
   aic.nc.fmc1602.high,aic.nc.fmc1602.low,
   aic.nc.fpc1601.high,aic.nc.fpc1601.low,aic.nc.fpc1602.high,aic.nc.fpc1602.low,
 
-  file="~/dropbox/coliphage/results/rawoutput/regress-10day-body-negcontrol.Rdata"
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-negcontrol.Rdata"
 )
 

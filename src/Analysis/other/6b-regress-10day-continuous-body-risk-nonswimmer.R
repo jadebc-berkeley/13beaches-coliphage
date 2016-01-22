@@ -38,7 +38,7 @@ all=subset(all,all$bodycontact=="Yes" | all$anycontact=="No")
 # estimating probability of illness over
 # observed range of exposure
 #-------------------------------------------
-iter=2
+iter=1000
 
 set.seed(92203789)
 
@@ -90,7 +90,7 @@ save(
   all.fpc1601.pY,all.fpc1601.pY.high,all.fpc1601.pY.low,all.fpc1602.pY,
   all.fpc1602.pY.high,all.fpc1602.pY.low,
   
-  file="~/Documents/CRG/coliphage/13beaches-coliphage/results/rawoutput/regress-10day-continuous-body-risk-nonswimmer.Rdata"
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-risk-nonswimmer.Rdata"
   
 )
 

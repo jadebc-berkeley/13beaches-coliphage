@@ -1,8 +1,11 @@
 #! /bin/sh
 ##########################################
-R CMD BATCH 1a-regress-10day-body-unadj.R
-R CMD BATCH 1b-regress-10day-body-entero-unadj.R
-R CMD BATCH 1c-regress-10day-body-joint-unadj.R
+R CMD BATCH 1a-regress-10day-body-pool-unadj.R
+R CMD BATCH 1b-regress-10day-body-entero-pool-unadj.R
+R CMD BATCH 1c-regress-10day-body-joint-pool-unadj.R
+R CMD BATCH 1d-regress-10day-body-unadj.R
+R CMD BATCH 1e-regress-10day-body-entero-unadj.R
+R CMD BATCH 1d-regress-10day-body-joint-unadj.R
 R CMD BATCH 2-regress-10day-head-pool.R
 R CMD BATCH 3-regress-10day-swall-pool.R
 R CMD BATCH 4a-regress-10day-body-beach.R

@@ -36,6 +36,7 @@ Type 'q()' to quit R.
 > 
 > rm(list=ls())
 > library(foreign)
+> library(msm)
 > 
 > # --------------------------------------
 > # load the and pre-preprocess the 
@@ -169,6 +170,11 @@ The following objects are masked from ‘package:base’:
 +   overall.fit10.fpc1601.low,overall.fit10.fpc1602,overall.fit10.fpc1602.high,
 +   overall.fit10.fpc1602.low,
 +   
++   all.fit10.fmc1601, all.fit10.fmc1602, all.fit10.fmc1602.high,
++   all.fit10.fmc1602.low,all.fit10.fpc1601,all.fit10.fpc1601.high,
++   all.fit10.fpc1601.low,all.fit10.fpc1602,all.fit10.fpc1602.high,
++   all.fit10.fpc1602.low,
++   
 +   file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-joint.Rdata"
 +   
 + )
@@ -187,4 +193,4 @@ The following objects are masked from ‘package:base’:
 > 
 > proc.time()
    user  system elapsed 
- 56.816   2.780  59.613 
+ 71.748   3.732  76.300 
