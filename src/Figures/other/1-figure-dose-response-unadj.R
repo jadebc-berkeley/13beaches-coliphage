@@ -101,7 +101,7 @@ plotPy <- function(pYcurve,xtics=c(0.1,1,10,100,1000),xlab,ytics,ytics2,ytics2un
 # general plotting function for the
 # dose-response curves with effect modification
 # --------------------------------------
-plotPy.em <- function(pYcurve1,pYcurve0,xtics=c(0.1,1,10,100,1000),xlab,ytics,ytics2,ytics2units,breaks,main,CIRres1,CIRres0,Exp1,Exp0,lab1,lab0){
+plotPy.em <- function(pYcurve1,pYcurve0,xtics=c(0.1,1,10,100,1000),xlab,ytics,ytics2a,ytics2aunits,ytics2b,ytics2bunits,breaksa,breaksb,main,CIRres1,CIRres0,Exp1,Exp0,lab1,lab0){
   # Plotting function for an Enterococcus dose-response curve from a log-linear model
   #
   # arguments:
@@ -137,9 +137,9 @@ plotPy.em <- function(pYcurve1,pYcurve0,xtics=c(0.1,1,10,100,1000),xlab,ytics,yt
   axis(1,at=log10(xtics),labels=xtics,las=1)
   axis(2,at=ytics,las=1)
   segments(x0=log10(xtics),y0=rep(0,length(xtics)),y1=rep(max(ytics),length(xtics)),col="gray90")
-  lines(comb$pX[comb$em==1],comb$pY[comb$em==1],lwd=1.2,col="#993300")
-  lines(comb$pX[comb$em==1],comb$lb[comb$em==1],lwd=1.2,col="#993300",lty=5)
-  lines(comb$pX[comb$em==1],comb$ub[comb$em==1],lwd=1.2,col="#993300",lty=5)
+  lines(comb$pX[comb$em==1],comb$pY[comb$em==1],lwd=1.2,col="#0066CC")
+  lines(comb$pX[comb$em==1],comb$lb[comb$em==1],lwd=1.2,col="#0066CC",lty=5)
+  lines(comb$pX[comb$em==1],comb$ub[comb$em==1],lwd=1.2,col="#0066CC",lty=5)
   mtext(paste(lab1),side=3,line=2,font=2)  
   mtext(paste("CIR for a log10 increase:",CIRres1),side=3,line=0)
   
@@ -152,9 +152,9 @@ plotPy.em <- function(pYcurve1,pYcurve0,xtics=c(0.1,1,10,100,1000),xlab,ytics,yt
   axis(1,at=log10(xtics),labels=xtics,las=1)
   axis(2,at=ytics,las=1)
   segments(x0=log10(xtics),y0=rep(0,length(xtics)),y1=rep(max(ytics),length(xtics)),col="gray90")
-  lines(comb$pX[comb$em==0],comb$pY[comb$em==0],lwd=1.2,col="#0066CC")
-  lines(comb$pX[comb$em==0],comb$lb[comb$em==0],lwd=1.2,col="#0066CC",lty=5)
-  lines(comb$pX[comb$em==0],comb$ub[comb$em==0],lwd=1.2,col="#0066CC",lty=5)
+  lines(comb$pX[comb$em==0],comb$pY[comb$em==0],lwd=1.2,col="#993300")
+  lines(comb$pX[comb$em==0],comb$lb[comb$em==0],lwd=1.2,col="#993300",lty=5)
+  lines(comb$pX[comb$em==0],comb$ub[comb$em==0],lwd=1.2,col="#993300",lty=5)
   mtext(paste(lab0),side=3,line=2,font=2)  
   mtext(paste("CIR for a log10 increase:",CIRres0),side=3,line=0)
   
@@ -163,31 +163,32 @@ plotPy.em <- function(pYcurve1,pYcurve0,xtics=c(0.1,1,10,100,1000),xlab,ytics,yt
   
   op <- par(mar=c(5,4,1,2)+0.1)
   
-  hist(Exp1,breaks=breaks,
+  hist(Exp1,breaks=breaksa,
        main="",
        xlim=range(log10(xtics)),xaxt="n",xlab="",
-       ylim=range(ytics2),yaxt="n",ylab="",
+       ylim=range(ytics2a),yaxt="n",ylab="",
   )
   axis(1,at=log10(xtics),labels=xtics,las=1)
-  axis(2,at=ytics2,labels=ytics2/ytics2units,las=1,cex.axis=0.75)
+  axis(2,at=ytics2a,labels=ytics2a/ytics2aunits,las=1,cex.axis=0.75)
   
-  hist(Exp0,breaks=breaks,
+  hist(Exp0,breaks=breaksb,
        main="",
        xlim=range(log10(xtics)),xaxt="n",xlab="",
-       ylim=range(ytics2),yaxt="n",ylab="",
+       ylim=range(ytics2b),yaxt="n",ylab="",
   )
   axis(1,at=log10(xtics),labels=xtics,las=1)
-  axis(2,at=ytics2,labels=ytics2/ytics2units,las=1,cex.axis=0.75)
+  axis(2,at=ytics2b,labels=ytics2b/ytics2bunits,las=1,cex.axis=0.75)
   
   mtext(xlab,outer=TRUE,side=1,line=-2)
   
-  if(ytics2units>1){
-    mtext(paste("N Exposed\n(",ytics2units,"s)",sep=""),side=2,line=2)
+  if(ytics2aunits>1){
+    mtext(paste("N Exposed\n(",ytics2aunits,"s)",sep=""),side=2,line=2)
   }
   
   par(op)
   
 }
+
 
 
 # --------------------------------------
@@ -222,66 +223,115 @@ load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-
 # make figures
 # --------------------------------------
 
-pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fmc1601-unadj.pdf",height=7,width=5)
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fmc1601-unadj.pdf",height=7,width=5)
 plotPy(all.fmc1601.pY,
        xlab="Concentration PFU / 100ml",
        ytics=seq(0,15,by=1),
-       ytics2=c(0:4)*500,
+       ytics2=c(0:3)*250,
        ytics2units=1,
-       breaks=50,
-       main="F- Coliphage (EPA 1601)",
+       breaks=40,
+       main="Somatic Coliphage (EPA 1601)",
        CIRres=CIRformat(getCIR(overall.fit10.fmc1601)),
-       Exp=all$fmc1601
+       Exp=all$fmc1601[all$fmc1601>-1]
 )
 dev.off()
 
-pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fmc1602-unadj.pdf",height=6,width=7)
-plotPy.em(all.fmc1602.pY.high,all.fmc1602.pY.low,
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fmc1602-all-unadj.pdf",height=7,width=5)
+plotPy(all.fmc1602.pY,
+       xlab="Concentration PFU / 100ml",
+       ytics=seq(0,35,by=5),
+       ytics2=seq(0,1000,by=200),
+       ytics2units=1,
+       breaks=40,
+       main="Somatic Coliphage (EPA 1601)",
+       CIRres=CIRformat(getCIR(overall.fit10.fmc1602)),
+       Exp=all$fmc1602[all$fmc1602>-1]
+)
+dev.off()
+
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fmc1602-unadj.pdf",height=6,width=7)
+plotPy.em(all.fmc1602.pY.low,all.fmc1602.pY.high,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100,1000,10000),
           ytics=seq(0,50,by=10),
-          ytics2=c(0:6)*250,
-          ytics2units=1,
-          breaks=45,
-          main="F- Coliphage (EPA 1602)",
-          CIRres1=CIRformat(getCIR(overall.fit10.fmc1602.high)),
-          CIRres0=CIRformat(getCIR(overall.fit10.fmc1602.low)),
-          Exp1=all$fmc1602[(all$groundwater=="Above median flow" | all$berm=="Open") & all$beach!="Malibu"],
-          Exp0=all$fmc1602[(all$groundwater=="Below median flow" | all$berm=="Closed") & all$beach!="Malibu"],
-          lab1="High risk conditions",lab0="Low risk conditions"
+          ytics2a=c(0:4)*200,
+          ytics2aunits=1,
+          ytics2b=c(0:4)*200,
+          ytics2bunits=1,
+          breaksa=30,
+          breaksb=20,
+          main="Somatic Coliphage (EPA 1602)",
+          CIRres1=CIRformat(getCIR(overall.fit10.fmc1602.low)),
+          CIRres0=CIRformat(getCIR(overall.fit10.fmc1602.high)),
+          Exp1=all$fmc1602[all$risk=="Low" & all$fmc1602>-1],
+          Exp0=all$fmc1602[all$risk=="High" & all$fmc1602>-1],
+          lab1="Low risk conditions",lab0="High risk conditions"
 )
 dev.off()
 
-pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fpc1601-unadj.pdf",height=6,width=7)
-plotPy.em(all.fpc1601.pY.high,all.fpc1601.pY.low,
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fpc1601-all-unadj.pdf",height=7,width=5)
+plotPy(all.fpc1601.pY,
+       xlab="Concentration PFU / 100ml",
+       ytics=seq(0,35,by=5),
+       ytics2=seq(0,1000,by=200),
+       ytics2units=1,
+       breaks=40,
+       main="Male-Specific Coliphage (EPA 1601)",
+       CIRres=CIRformat(getCIR(overall.fit10.fpc1601)),
+       Exp=all$fpc1601[all$fpc1601>-1]
+)
+dev.off()
+
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fpc1601-unadj.pdf",height=6,width=7)
+plotPy.em(all.fpc1601.pY.low,all.fpc1601.pY.high,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100),
           ytics=seq(0,35,by=5),
-          ytics2=c(0:5)*100,
-          ytics2units=1,
-          breaks=45,
-          main="F+ Coliphage (EPA 1601)",
-          CIRres1=CIRformat(getCIR(overall.fit10.fpc1601.high)),
-          CIRres0=CIRformat(getCIR(overall.fit10.fpc1601.low)),
-          Exp1=all$fmc1601[(all$groundwater=="Above median flow" | all$berm=="Open") & all$beach!="Malibu"],
-          Exp0=all$fmc1601[(all$groundwater=="Below median flow" | all$berm=="Closed") & all$beach!="Malibu"],
-          lab1="High risk conditions",lab0="Low risk conditions"
+          ytics2a=c(0:4)*100,
+          ytics2aunits=1,
+          ytics2b=c(0:4)*100,
+          ytics2bunits=1,
+          breaksa=35,
+          breaksb=10,
+          main="Male-Specific Coliphage (EPA 1601)",
+          CIRres1=CIRformat(getCIR(overall.fit10.fpc1601.low)),
+          CIRres0=CIRformat(getCIR(overall.fit10.fpc1601.high)),
+          Exp1=all$fmc1601[all$risk=="Low" & all$fpc1601>-1],
+          Exp0=all$fmc1601[all$risk=="High" & all$fpc1601>-1],
+          lab1="Low risk conditions",lab0="High risk conditions"
 )
 dev.off()
 
-pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fpc1602-unadj.pdf",height=6,width=7)
-plotPy.em(all.fpc1602.pY.high,all.fpc1602.pY.low,
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fpc1602-all-unadj.pdf",height=7,width=5)
+plotPy(all.fpc1602.pY,
+       xlab="Concentration PFU / 100ml",
+       ytics=seq(0,110,by=20),
+       ytics2=c(0:5)*50,
+       ytics2units=1,
+       breaks=40,
+       main="Male-Specific Coliphage (EPA 1602)",
+       CIRres=CIRformat(getCIR(overall.fit10.fpc1602)),
+       Exp=all$fpc1602[all$fpc1602>-1]
+)
+dev.off()
+
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fpc1602-unadj.pdf",height=6,width=7)
+plotPy.em(all.fpc1602.pY.low,all.fpc1602.pY.high,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100),
           ytics=seq(0,110,by=20),
-          ytics2=c(0:5)*1000,
-          ytics2units=1,
-          breaks=40,
-          main="F+ Coliphage (EPA 1602)",
-          CIRres1=CIRformat(getCIR(overall.fit10.fpc1602.high)),
-          CIRres0=CIRformat(getCIR(overall.fit10.fpc1602.low)),
-          Exp1=all$fpc1602[(all$groundwater=="Above median flow" | all$berm=="Open") & all$beach!="Malibu"],
-          Exp0=all$fpc1602[(all$groundwater=="Below median flow" | all$berm=="Closed") & all$beach!="Malibu"],
-          lab1="High risk conditions",lab0="Low risk conditions"
+          ytics2a=c(0:5)*50,
+          ytics2aunits=1,
+          ytics2b=c(0:5)*50,
+          ytics2bunits=1,
+          breaksa=30,
+          breaksb=30,
+          main="Male-Specific Coliphage (EPA 1602)",
+          CIRres1=CIRformat(getCIR(overall.fit10.fpc1602.low)),
+          CIRres0=CIRformat(getCIR(overall.fit10.fpc1602.high)),
+          Exp1=all$fpc1602[all$risk=="Low" & all$fpc1602>-1],
+          Exp0=all$fpc1602[all$risk=="High" & all$fpc1602>-1],
+          lab1="Low risk conditions",lab0="High risk conditions"
 )
 dev.off()
+
