@@ -224,12 +224,12 @@ load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-
 pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fmc1601.pdf",height=7,width=5)
 plotPy(all.fmc1601.pY,
        xlab="Concentration PFU / 100ml",
-       ytics=seq(0,15,by=1),
+       ytics=seq(0,20,by=5),
        ytics2=c(0:3)*250,
        ytics2units=1,
        breaks=40,
        main="Somatic Coliphage (EPA 1601)",
-       CIRres=CIRformat(getCIR(overall.fit10.fmc1601)),
+       CIRres=CIRformat(getCIR(overall.fit10.entero.fmc1601)),
        Exp=all$fmc1601[all$fmc1601>-1]
 )
 dev.off()
@@ -237,12 +237,12 @@ dev.off()
 pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fmc1602-all.pdf",height=7,width=5)
 plotPy(all.fmc1602.pY,
        xlab="Concentration PFU / 100ml",
-       ytics=seq(0,35,by=5),
+       ytics=seq(0,20,by=5),
        ytics2=seq(0,1000,by=200),
        ytics2units=1,
        breaks=40,
        main="Somatic Coliphage (EPA 1601)",
-       CIRres=CIRformat(getCIR(overall.fit10.fmc1602)),
+       CIRres=CIRformat(getCIR(overall.fit10.entero.fmc1602)),
        Exp=all$fmc1602[all$fmc1602>-1]
 )
 dev.off()
@@ -251,7 +251,7 @@ pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fmc1602
 plotPy.em(all.fmc1602.pY.low,all.fmc1602.pY.high,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100,1000,10000),
-          ytics=seq(0,50,by=10),
+          ytics=seq(0,20,by=5),
           ytics2a=c(0:4)*200,
           ytics2aunits=1,
           ytics2b=c(0:4)*200,
@@ -259,8 +259,8 @@ plotPy.em(all.fmc1602.pY.low,all.fmc1602.pY.high,
           breaksa=30,
           breaksb=20,
           main="Somatic Coliphage (EPA 1602)",
-          CIRres1=CIRformat(getCIR(overall.fit10.fmc1602.low)),
-          CIRres0=CIRformat(getCIR(overall.fit10.fmc1602.high)),
+          CIRres1=CIRformat(getCIR(overall.fit10.entero.low.fmc1602)),
+          CIRres0=CIRformat(getCIR(overall.fit10.entero.high.fmc1602)),
           Exp1=all$fmc1602[all$risk=="Low" & all$fmc1602>-1],
           Exp0=all$fmc1602[all$risk=="High" & all$fmc1602>-1],
           lab1="Low risk conditions",lab0="High risk conditions"
@@ -270,12 +270,12 @@ dev.off()
 pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fpc1601-all.pdf",height=7,width=5)
 plotPy(all.fpc1601.pY,
        xlab="Concentration PFU / 100ml",
-       ytics=seq(0,35,by=5),
+       ytics=seq(0,20,by=5),
        ytics2=seq(0,1000,by=200),
        ytics2units=1,
        breaks=40,
        main="Male-Specific Coliphage (EPA 1601)",
-       CIRres=CIRformat(getCIR(overall.fit10.fpc1601)),
+       CIRres=CIRformat(getCIR(overall.fit10.entero.fpc1601)),
        Exp=all$fpc1601[all$fpc1601>-1]
 )
 dev.off()
@@ -284,7 +284,7 @@ pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fpc1601
 plotPy.em(all.fpc1601.pY.low,all.fpc1601.pY.high,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100),
-          ytics=seq(0,35,by=5),
+          ytics=seq(0,20,by=5),
           ytics2a=c(0:4)*100,
           ytics2aunits=1,
           ytics2b=c(0:4)*100,
@@ -292,8 +292,8 @@ plotPy.em(all.fpc1601.pY.low,all.fpc1601.pY.high,
           breaksa=35,
           breaksb=10,
           main="Male-Specific Coliphage (EPA 1601)",
-          CIRres1=CIRformat(getCIR(overall.fit10.fpc1601.low)),
-          CIRres0=CIRformat(getCIR(overall.fit10.fpc1601.high)),
+          CIRres1=CIRformat(getCIR(overall.fit10.entero.low.fpc1601)),
+          CIRres0=CIRformat(getCIR(overall.fit10.entero.high.fpc1601)),
           Exp1=all$fmc1601[all$risk=="Low" & all$fpc1601>-1],
           Exp0=all$fmc1601[all$risk=="High" & all$fpc1601>-1],
           lab1="Low risk conditions",lab0="High risk conditions"
@@ -303,12 +303,12 @@ dev.off()
 pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fpc1602-all.pdf",height=7,width=5)
 plotPy(all.fpc1602.pY,
        xlab="Concentration PFU / 100ml",
-       ytics=seq(0,110,by=20),
+       ytics=seq(0,20,by=5),
        ytics2=c(0:5)*50,
        ytics2units=1,
        breaks=40,
        main="Male-Specific Coliphage (EPA 1602)",
-       CIRres=CIRformat(getCIR(overall.fit10.fpc1602)),
+       CIRres=CIRformat(getCIR(overall.fit10.entero.fpc1602)),
        Exp=all$fpc1602[all$fpc1602>-1]
 )
 dev.off()
@@ -317,7 +317,7 @@ pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fpc1602
 plotPy.em(all.fpc1602.pY.low,all.fpc1602.pY.high,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100),
-          ytics=seq(0,110,by=20),
+          ytics=seq(0,20,by=5),
           ytics2a=c(0:5)*50,
           ytics2aunits=1,
           ytics2b=c(0:5)*50,
@@ -325,8 +325,8 @@ plotPy.em(all.fpc1602.pY.low,all.fpc1602.pY.high,
           breaksa=30,
           breaksb=30,
           main="Male-Specific Coliphage (EPA 1602)",
-          CIRres1=CIRformat(getCIR(overall.fit10.fpc1602.low)),
-          CIRres0=CIRformat(getCIR(overall.fit10.fpc1602.high)),
+          CIRres1=CIRformat(getCIR(overall.fit10.entero.low.fpc1602)),
+          CIRres0=CIRformat(getCIR(overall.fit10.entero.high.fpc1602)),
           Exp1=all$fpc1602[all$risk=="Low" & all$fpc1602>-1],
           Exp0=all$fpc1602[all$risk=="High" & all$fpc1602>-1],
           lab1="Low risk conditions",lab0="High risk conditions"

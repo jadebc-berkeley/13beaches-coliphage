@@ -240,9 +240,87 @@ Subsetting the data to relevant variables and completing final variable pre-proc
 > all=subset(all,all$bodycontact=="Yes")
 > 
 > load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-risk.Rdata")
-Error in readChar(con, 5L, useBytes = TRUE) : cannot open the connection
-Calls: load -> readChar
-In addition: Warning message:
-In readChar(con, 5L, useBytes = TRUE) :
-  cannot open compressed file '/Users/jadederong/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-risk.Rdata', probable reason 'No such file or directory'
-Execution halted
+> 
+> 
+> 
+> # --------------------------------------
+> # make figures
+> # --------------------------------------
+> 
+> pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-risk-fmc1601.pdf",height=7,width=5)
+> plotPy(all.fmc1601.pY,
++        xlab="Concentration PFU / 100ml",
++        ytics=seq(-10,10,2),
++        ytics2=c(0:3)*250,
++        ytics2units=1,
++        breaks=40,
++        main="Somatic Coliphage (EPA 1601)",
++        Exp=all$fmc1601[all$fmc1601>-1]
++ )
+> dev.off()
+null device 
+          1 
+> 
+> pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-risk-fmc1602.pdf",height=6,width=7)
+> plotPy.em(all.fmc1602.pY.low,all.fmc1602.pY.high,
++           xlab="Concentration PFU / 100ml",
++           xtics=c(0.1,1,10,100,1000,10000),
++           ytics=seq(-10,10,2),
++           ytics2a=c(0:4)*200,
++           ytics2aunits=1,
++           ytics2b=c(0:4)*200,
++           ytics2bunits=1,
++           breaksa=30,
++           breaksb=20,
++           main="Somatic Coliphage (EPA 1602)",
++           Exp1=all$fmc1602[all$risk=="Low" & all$fmc1602>-1],
++           Exp0=all$fmc1602[all$risk=="High" & all$fmc1602>-1],
++           lab1="Low risk conditions",lab0="High risk conditions"
++ )
+> dev.off()
+null device 
+          1 
+> 
+> pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-risk-fpc1601.pdf",height=6,width=7)
+> plotPy.em(all.fpc1601.pY.low,all.fpc1601.pY.high,
++           xlab="Concentration PFU / 100ml",
++           xtics=c(0.1,1,10,100),
++           ytics=seq(-10,10,2),
++           ytics2a=c(0:4)*100,
++           ytics2aunits=1,
++           ytics2b=c(0:4)*100,
++           ytics2bunits=1,
++           breaksa=35,
++           breaksb=10,
++           main="Male-Specific Coliphage (EPA 1601)",
++           Exp1=all$fmc1601[all$risk=="Low" & all$fpc1601>-1],
++           Exp0=all$fmc1601[all$risk=="High" & all$fpc1601>-1],
++           lab1="Low risk conditions",lab0="High risk conditions"
++ )
+> dev.off()
+null device 
+          1 
+> 
+> pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-risk-fpc1602.pdf",height=6,width=7)
+> plotPy.em(all.fpc1602.pY.low,all.fpc1602.pY.high,
++           xlab="Concentration PFU / 100ml",
++           xtics=c(0.1,1,10,100),
++           ytics=seq(-10,40,5),
++           ytics2a=c(0:5)*50,
++           ytics2aunits=1,
++           ytics2b=c(0:5)*50,
++           ytics2bunits=1,
++           breaksa=30,
++           breaksb=30,
++           main="Male-Specific Coliphage (EPA 1602)",
++           Exp1=all$fpc1602[all$risk=="Low" & all$fpc1602>-1],
++           Exp0=all$fpc1602[all$risk=="High" & all$fpc1602>-1],
++           lab1="Low risk conditions",lab0="High risk conditions"
++ )
+> dev.off()
+null device 
+          1 
+> 
+> proc.time()
+   user  system elapsed 
+ 63.106   3.371  67.925 

@@ -222,7 +222,7 @@ load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-
 # make figures
 # --------------------------------------
 
-#pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fmc1601.pdf",height=7,width=5)
+pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fmc1601-unadj.pdf",height=7,width=5)
 plotPy(all.fmc1601.pY,
        xlab="Concentration PFU / 100ml",
        ytics=seq(0,15,by=1),
@@ -233,9 +233,9 @@ plotPy(all.fmc1601.pY,
        CIRres=CIRformat(getCIR(overall.fit10.fmc1601)),
        Exp=all$fmc1601
 )
-#dev.off()
+dev.off()
 
-#pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fmc1602.pdf",height=6,width=7)
+pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fmc1602-unadj.pdf",height=6,width=7)
 plotPy.em(all.fmc1602.pY.high,all.fmc1602.pY.low,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100,1000,10000),
@@ -250,9 +250,9 @@ plotPy.em(all.fmc1602.pY.high,all.fmc1602.pY.low,
           Exp0=all$fmc1602[(all$groundwater=="Below median flow" | all$berm=="Closed") & all$beach!="Malibu"],
           lab1="High risk conditions",lab0="Low risk conditions"
 )
-#dev.off()
+dev.off()
 
-#pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fpc1601.pdf",height=6,width=7)
+pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fpc1601-unadj.pdf",height=6,width=7)
 plotPy.em(all.fpc1601.pY.high,all.fpc1601.pY.low,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100),
@@ -267,9 +267,9 @@ plotPy.em(all.fpc1601.pY.high,all.fpc1601.pY.low,
           Exp0=all$fmc1601[(all$groundwater=="Below median flow" | all$berm=="Closed") & all$beach!="Malibu"],
           lab1="High risk conditions",lab0="Low risk conditions"
 )
-#dev.off()
+dev.off()
 
-#pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fpc1602.pdf",height=6,width=7)
+pdf("~/dropbox/coliphage/results/figures/dose-response-pool-fpc1602-unadj.pdf",height=6,width=7)
 plotPy.em(all.fpc1602.pY.high,all.fpc1602.pY.low,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100),
@@ -284,4 +284,4 @@ plotPy.em(all.fpc1602.pY.high,all.fpc1602.pY.low,
           Exp0=all$fpc1602[(all$groundwater=="Below median flow" | all$berm=="Closed") & all$beach!="Malibu"],
           lab1="High risk conditions",lab0="Low risk conditions"
 )
-#dev.off()
+dev.off()

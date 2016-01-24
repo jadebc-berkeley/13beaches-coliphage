@@ -170,6 +170,56 @@ summary(all.fit10.entero.low.fpc1602)
 overall.fit10.entero.low.fpc1602
 aic.entero.low.fpc1602=AIC(all.fit10.entero.low.fpc1602)
 
+#-------------------------------------------
+# estimating probability of illness over
+# observed range of exposure
+#-------------------------------------------
+
+iter=1000
+
+set.seed(92203789)
+
+# fmc 1601 ---------------------------------
+all.fmc1601.pY = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+rawfood+beach,dat=all[!is.na(all$fmc1601),],nameX="entero",
+    ID=all[!is.na(all$fmc1601),"hhid"],iter)
+
+# fmc 1602 ---------------------------------
+all.fmc1602.pY = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+rawfood+beach,dat=all[!is.na(all$fmc1602),],nameX="entero",
+    ID=all[!is.na(all$fmc1602),"hhid"],iter)
+data=all[!is.na(all$fmc1602),]
+data.high=subset(data,data$risk=="High")
+all.fmc1602.pY.high = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+ rawfood+beach,dat=data.high,nameX="entero",ID=data.high$hhid,iter)
+data.low=subset(data,data$risk=="Low")
+all.fmc1602.pY.low = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+ rawfood+beach,dat=data.low,nameX="entero",ID=data.low$hhid,iter)
+
+# fpc 1601 ---------------------------------
+all.fpc1601.pY = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+rawfood+beach,dat=all[!is.na(all$fpc1601),],nameX="entero",
+    ID=all[!is.na(all$fpc1601),"hhid"],iter)
+data=all[!is.na(all$fpc1601),]
+data.high=subset(data,data$risk=="High")
+all.fpc1601.pY.high = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+ rawfood+beach,dat=data.high,nameX="entero",ID=data.high$hhid,iter)
+data.low=subset(data,data$risk=="Low")
+all.fpc1601.pY.low = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+ rawfood+beach,dat=data.low,nameX="entero",ID=data.low$hhid,iter)
+
+# fpc 1602 ---------------------------------
+all.fpc1602.pY = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+rawfood+beach,dat=all[!is.na(all$fpc1602),],nameX="entero",
+    ID=all[!is.na(all$fpc1602),"hhid"],iter)
+data=all[!is.na(all$fpc1602),]
+data.high=subset(data,data$risk=="High")
+all.fpc1602.pY.high = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+ rawfood+beach,dat=data.high,nameX="entero",ID=data.high$hhid,iter)
+data.low=subset(data,data$risk=="Low")
+all.fpc1602.pY.low = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+ rawfood+beach,dat=data.low,nameX="entero",ID=data.low$hhid,iter)
+
 
 # --------------------------------------
 # save the results
@@ -193,6 +243,10 @@ save(
   all.VC10.entero.high.fpc1601,all.VC10.entero.high.fpc1602,
   all.VC10.entero.low.fmc1602,all.VC10.entero.low.fpc1601,
   all.VC10.entero.low.fpc1602,
+
+  all.fmc1601.pY,all.fmc1602.pY,all.fmc1602.pY.high,all.fmc1602.pY.low,
+  all.fpc1601.pY,all.fpc1601.pY.high,all.fpc1601.pY.low,all.fpc1602.pY,
+  all.fpc1602.pY.high,all.fpc1602.pY.low,
 
   file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-entero.Rdata"
 )
