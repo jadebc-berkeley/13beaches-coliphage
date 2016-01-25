@@ -46,7 +46,9 @@ bargraph$pt.est=bargraph$pt.est*100
 bargraph$lb=bargraph$lb*100
 bargraph$ub=bargraph$ub*100
 
-bargraph$pt.est.lab=paste(as.numeric(sprintf("%0.1f",bargraph$pt.est)),"%",sep="")
+#bargraph$pt.est.lab=paste(as.numeric(sprintf("%0.1f",bargraph$pt.est)),"%",sep="")
+bargraph$pt.est.lab=paste(round(bargraph$pt.est,digits=1),"%",sep="")
+
 
 somatic=bargraph[c(1:3,5),]
 male=bargraph[c(1:2,4,6),]
@@ -55,13 +57,13 @@ male=bargraph[c(1:2,4,6),]
 somatic.plot=ggplot(somatic,aes(x=lab.f,y=pt.est))+geom_bar(fill="grey",stat="identity",width=.6)+
   ylab("Probability of Gastrointestinal Illness (%)")+theme_complete_bw()+
   geom_errorbar(aes(ymin=lb,ymax=ub),width=0.25)+
-  geom_text(data=somatic, mapping=aes(x=lab,y=pt.est,label=pt.est.lab),vjust=3.8)+
+  geom_text(data=somatic, mapping=aes(x=lab,y=pt.est,label=pt.est.lab),vjust=4)+
   ylim(c(0,9))+xlab("")+ggtitle("Somatic Coliphage")
 
 male.plot=ggplot(male,aes(x=lab.f,y=pt.est))+geom_bar(fill="grey",stat="identity",width=.6)+
   ylab("Probability of Gastrointestinal Illness (%)")+theme_complete_bw()+
   geom_errorbar(aes(ymin=lb,ymax=ub),width=0.25)+
-  geom_text(data=male, mapping=aes(x=lab,y=pt.est,label=pt.est.lab),vjust=3.8)+
+  geom_text(data=male, mapping=aes(x=lab,y=pt.est,label=pt.est.lab),vjust=4)+
   ylim(c(0,9))+xlab("")+ggtitle("Male-Specific Coliphage")
 
 pdf("~/Documents/CRG/coliphage/results/figures/bargraph.pdf",height=9,width=8)

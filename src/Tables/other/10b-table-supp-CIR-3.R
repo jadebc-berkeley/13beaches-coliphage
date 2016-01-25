@@ -194,11 +194,18 @@ gici3.tab.out=rbind(gici3.tab[1,],entero.tab[1,],joint.tab[1,],
                      gici3.tab[3,],entero.tab[3,],joint.tab[3,],
                      gici3.tab[4,],entero.tab[4,],joint.tab[4,])
 
-lab=c(rep(c("Coliphage detected","Enterococcus > 35 CFU/100 ml",
-          "Coliphage detected $\\&$ Enterococcus > 35 CFU/100 ml"),4))
+lab=c(rep(c("Coliphage detected","Entero > 35 CFU/100 ml",
+          "Coliphage detected $\\&$ Entero > 35 CFU/100 ml"),4))
 gici3.tab.out=cbind(lab,gici3.tab.out)
 
 rownames(gici3.tab.out)=NULL
+
+coli=c(rep("Somatic coliphage (EPA 1601)",3),
+       rep("Somatic coliphage (EPA 1602)",3),
+       rep("Male-specific coliphage (EPA 1601)",3),
+       rep("Male-specific coliphage (EPA 1602)",3))
+
+gici3.tab.out=cbind(coli,gici3.tab.out)
 
 save(gici3.tab.out,file="~/Documents/CRG/coliphage/Results/Tables/CIR-3.RData")
 

@@ -153,11 +153,16 @@ colnames(joint.tab)=c("npool","pool","nlow","low","nhigh","high")
 gici3.tab.pool=rbind(gici3.tab[1,],entero.tab[1,],joint.tab[1,],
                      gici3.tab[2,],entero.tab[2,],joint.tab[2,])
 
-lab=c(rep(c("Coliphage detected","Enterococcus > 35 CFU/100 ml",
-          "Coliphage detected $\\&$ Enterococcus > 35 CFU/100 ml"),2))
+lab=c(rep(c("Coliphage detected","Entero > 35 CFU/100 ml",
+          "Coliphage detected $\\&$ Entero > 35 CFU/100 ml"),2))
 gici3.tab.pool=cbind(lab,gici3.tab.pool)
 
 rownames(gici3.tab.pool)=NULL
+
+coli=c(rep("Somatic coliphage (EPA 1601)",3),
+       rep("Male-specific coliphage (EPA 1602)",3))
+
+gici3.tab.pool=cbind(coli,gici3.tab.pool)
 
 save(gici3.tab.pool,file="~/Documents/CRG/coliphage/Results/Tables/CIR-3-pool.RData")
 

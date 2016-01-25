@@ -43,10 +43,9 @@ prop.table(table(all$gici10[all$bodycontact=="Yes"]))
 prop.table(table(all$gici10[all$bodycontact=="Yes"],all$beach[all$bodycontact=="Yes"]),2)
 
 # illness rates among non-swimmers
-table(all$gici10[all$bodycontact=="No"])
-prop.table(table(all$gici10[all$bodycontact=="No"]))
-prop.table(table(all$gici10[all$bodycontact=="No"],all$beach[all$bodycontact=="No"]),2)
-
+table(all$gici10[all$anycontact=="No"])
+prop.table(table(all$gici10[all$anycontact=="No"]))
+prop.table(table(all$gici10[all$anycontact=="No"],all$beach[all$anycontact=="No"]),2)
 
 # --------------------------------------
 # regression for swimming only

@@ -39,18 +39,22 @@ wq=wq[,c("beach","logentero","logfmc1601","logfmc1602",
 fmc1601=subset(wq,!is.na(wq$logfmc1601))
 fmc1601=fmc1601[!is.na(fmc1601$logentero),]
 cor(fmc1601$logentero,fmc1601$logfmc1601,method="spearman")
+cor.test(fmc1601$logentero,fmc1601$logfmc1601,method="spearman")
 
 fmc1602=subset(wq,!is.na(wq$logfmc1602))
 fmc1602=fmc1602[!is.na(fmc1602$logentero),]
 cor(fmc1602$logentero,fmc1602$logfmc1602,method="spearman")
+cor.test(fmc1602$logentero,fmc1602$logfmc1602,method="spearman")
 
 fpc1601=subset(wq,!is.na(wq$logfpc1601))
 fpc1601=fpc1601[!is.na(fpc1601$logentero),]
 cor(fpc1601$logentero,fpc1601$logfpc1601,method="spearman")
+cor.test(fpc1601$logentero,fpc1601$logfpc1601,method="spearman")
 
 fpc1602=subset(wq,!is.na(wq$logfpc1602))
 fpc1602=fpc1602[!is.na(fpc1602$logentero),]
 cor(fpc1602$logentero,fpc1602$logfpc1602,method="spearman")
+cor.test(fpc1602$logentero,fpc1602$logfpc1602,method="spearman")
 
 # --------------------------------------
 # compare presence absence of entero and coli
@@ -77,6 +81,25 @@ prop.table(table(wq$fmc1601.pres[wq$ent35==1]))
 prop.table(table(wq$fmc1602.pres[wq$ent35==1]))
 prop.table(table(wq$fpc1601.pres[wq$ent35==1]))
 prop.table(table(wq$fpc1602.pres[wq$ent35==1]))
+
+prop.table(table(wq$fmc1601.pres[wq$ent35==0]))
+prop.table(table(wq$fmc1602.pres[wq$ent35==0]))
+prop.table(table(wq$fpc1601.pres[wq$ent35==0]))
+prop.table(table(wq$fpc1602.pres[wq$ent35==0]))
+
+wq$fmc.pres=NA
+wq$fmc.pres[wq$fmc1601.pres==1 | wq$fmc1602.pres==1]=1 
+wq$fmc.pres[wq$fmc1601.pres==0 & wq$fmc1602.pres==0]=0
+
+wq$fpc.pres=NA
+wq$fpc.pres[wq$fpc1601.pres==1 | wq$fpc1602.pres==1]=1 
+wq$fpc.pres[wq$fpc1601.pres==0 & wq$fpc1602.pres==0]=0
+
+prop.table(table(wq$fmc.pres[wq$ent35==1]))
+prop.table(table(wq$fpc.pres[wq$ent35==1]))
+prop.table(table(wq$fmc.pres[wq$ent35==0]))
+prop.table(table(wq$fpc.pres[wq$ent35==0]))
+
 
 # --------------------------------------
 # wq by risk level
