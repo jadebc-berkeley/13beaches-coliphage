@@ -176,4 +176,4 @@ In data.row.names(row.names, rowsi, i) :
 > 
 > proc.time()
    user  system elapsed 
- 57.291   2.751  60.531 
+ 59.845   2.602  63.503 

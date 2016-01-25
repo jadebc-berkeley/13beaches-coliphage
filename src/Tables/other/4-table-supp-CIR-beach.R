@@ -102,9 +102,14 @@ gici10.comb.print$cond=c(rep("All conditions",3),"Groundwater below median flow"
       "Berm closed","Berm open","All conditions","All conditions","Groundwater below median flow",
       "Groundwater above median flow","All conditions","Berm closed","Berm open")
 
-gici10.comb.print=gici10.comb.print[,c(1,4,2:3)]
+gici10.comb.print$coli=c(rep("Somatic coliphage (EPA 1601)",2),
+                         rep("Somatic coliphage (EPA 1602)",6),
+                         rep("Male-specific coliphage (EPA 1601)",11),
+                         rep("Male-specific coliphage (EPA 1602)",6))
 
-colnames(gici10.comb.print)=c("label","cond","N","CIR")
+gici10.comb.print=gici10.comb.print[,c(5,1,4,2:3)]
+
+colnames(gici10.comb.print)=c("type","beach","cond","N","CIR")
 
 save(gici10.comb.print,
      file="~/Documents/CRG/coliphage/Results/Tables/reg-combined.RData")

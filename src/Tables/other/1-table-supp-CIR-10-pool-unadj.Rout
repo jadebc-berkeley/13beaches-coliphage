@@ -33,9 +33,9 @@ Type 'q()' to quit R.
 > 
 > rm(list=ls())
 > 
-> load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-pool.Rdata")
-> load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-entero-pool.Rdata")
-> load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-joint-pool.Rdata")
+> load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-pool-unadj.Rdata")
+> load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-entero-pool-unadj.Rdata")
+> load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-joint-pool-unadj.Rdata")
 > 
 > # ------------------------------------------------
 > # combine output
@@ -108,8 +108,8 @@ Type 'q()' to quit R.
 > mkrow.joint=function(out){
 +   row=grep("ent4",rownames(out))
 +   pt.est=out[row,1]
-+   lb=pt.est-qnorm(.975)*out[4,2]
-+   ub=pt.est+qnorm(.975)*out[4,2]
++   lb=pt.est-qnorm(.975)*out[row,2]
++   ub=pt.est+qnorm(.975)*out[row,2]
 +   paste(sprintf("%0.2f",exp(pt.est))," (",
 +         sprintf("%0.2f",exp(lb)),",",
 +         sprintf("%0.2f",exp(ub)), ")",sep="")
@@ -180,7 +180,7 @@ Type 'q()' to quit R.
 > 
 > rownames(gici10.tab.pool)=NULL
 > 
-> save(gici10.tab.pool,file="~/Documents/CRG/coliphage/Results/Tables/CIR-10-pool.RData")
+> save(gici10.tab.pool,file="~/Documents/CRG/coliphage/Results/Tables/CIR-10-pool-unadj.RData")
 > 
 > 
 > 
@@ -197,4 +197,4 @@ Type 'q()' to quit R.
 > 
 > proc.time()
    user  system elapsed 
-  2.786   0.205   2.993 
+  0.523   0.034   0.549 

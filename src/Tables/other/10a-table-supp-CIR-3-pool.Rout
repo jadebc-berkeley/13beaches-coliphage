@@ -33,33 +33,33 @@ Type 'q()' to quit R.
 > 
 > rm(list=ls())
 > 
-> load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-pool.Rdata")
-> load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-entero-pool.Rdata")
-> load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-body-joint-pool.Rdata")
+> load("~/Documents/CRG/coliphage/results/rawoutput/regress-3day-body-pool.Rdata")
+> load("~/Documents/CRG/coliphage/results/rawoutput/regress-3day-body-entero-pool.Rdata")
+> load("~/Documents/CRG/coliphage/results/rawoutput/regress-3day-body-joint-pool.Rdata")
 > 
 > # ------------------------------------------------
 > # combine output
 > # ------------------------------------------------
 > 
 > # n's --------------------------------------------
-> gici10.n.body.pool=c(all.n10.fmc,all.n10.fpc)
+> gici3.n.body.pool=c(all.n3.fmc,all.n3.fpc)
 > 
-> gici10.n.body.high=c(all.n10.fmc.high,all.n10.fpc.high)
+> gici3.n.body.high=c(all.n3.fmc.high,all.n3.fpc.high)
 > 
-> gici10.n.body.low=c(all.n10.fmc.low,all.n10.fpc.low)
+> gici3.n.body.low=c(all.n3.fmc.low,all.n3.fpc.low)
 > 
 > # add comma
-> gici10.n.body.pool=format(gici10.n.body.pool,scientific=FALSE,big.mark=",")
-> gici10.n.body.high=format(gici10.n.body.high,scientific=FALSE,big.mark=",")
-> gici10.n.body.low=format(gici10.n.body.low,scientific=FALSE,big.mark=",")
+> gici3.n.body.pool=format(gici3.n.body.pool,scientific=FALSE,big.mark=",")
+> gici3.n.body.high=format(gici3.n.body.high,scientific=FALSE,big.mark=",")
+> gici3.n.body.low=format(gici3.n.body.low,scientific=FALSE,big.mark=",")
 > 
 > # entero n's  --------------------------------------------
 > 
-> entero.n.body.pool=c(n10.entero35.fmc, n10.entero35.fpc)
+> entero.n.body.pool=c(n3.entero35.fmc, n3.entero35.fpc)
 > 
-> entero.n.body.high=c(n10.entero35.fmc.high, n10.entero35.fpc.high)
+> entero.n.body.high=c(n3.entero35.fmc.high, n3.entero35.fpc.high)
 > 
-> entero.n.body.low=c(n10.entero35.fmc.low, n10.entero35.fpc.low)
+> entero.n.body.low=c(n3.entero35.fmc.low, n3.entero35.fpc.low)
 > 
 > # add comma
 > entero.n.body.pool=format(entero.n.body.pool,scientific=FALSE,big.mark=",")
@@ -67,29 +67,29 @@ Type 'q()' to quit R.
 > entero.n.body.low=format(entero.n.body.low,scientific=FALSE,big.mark=",")
 > 
 > # joint n's --------------------------------------------
-> gici10.n.joint=c(all.n10.fmc.joint, all.n10.fpc.joint)
-> gici10.n.joint.high=c(all.n10.fmc.high.joint, all.n10.fpc.high.joint)
-> gici10.n.joint.low=c(all.n10.fmc.low.joint,all.n10.fpc.low.joint)
+> gici3.n.joint=c(all.n3.fmc.joint, all.n3.fpc.joint)
+> gici3.n.joint.high=c(all.n3.fmc.high.joint, all.n3.fpc.high.joint)
+> gici3.n.joint.low=c(all.n3.fmc.low.joint,all.n3.fpc.low.joint)
 > 
 > # add comma
-> gici10.n.joint=format(gici10.n.joint,scientific=FALSE,big.mark=",")
-> gici10.n.joint.high=format(gici10.n.joint.high,scientific=FALSE,big.mark=",")
-> gici10.n.joint.low=format(gici10.n.joint.low,scientific=FALSE,big.mark=",")
+> gici3.n.joint=format(gici3.n.joint,scientific=FALSE,big.mark=",")
+> gici3.n.joint.high=format(gici3.n.joint.high,scientific=FALSE,big.mark=",")
+> gici3.n.joint.low=format(gici3.n.joint.low,scientific=FALSE,big.mark=",")
 > 
 > # single indicator estimates --------------------------------------------
-> gici10.body.pool=list(overall.fit10.fmc, overall.fit10.fpc)
-> gici10.body.high=list(overall.fit10.fmc.high, overall.fit10.fpc.high)
-> gici10.body.low=list(overall.fit10.fmc.low, overall.fit10.fpc.low)
+> gici3.body.pool=list(overall.fit3.fmc, overall.fit3.fpc)
+> gici3.body.high=list(overall.fit3.fmc.high, overall.fit3.fpc.high)
+> gici3.body.low=list(overall.fit3.fmc.low, overall.fit3.fpc.low)
 > 
 > # entero estimates  --------------------------------------------
-> gici10.entero.pool=list(overall.fit10.entero.fmc,overall.fit10.entero.fpc)
-> gici10.entero.high=list(overall.fit10.entero.high.fmc,overall.fit10.entero.high.fpc)
-> gici10.entero.low=list(overall.fit10.entero.low.fmc,overall.fit10.entero.low.fpc)
+> gici3.entero.pool=list(overall.fit3.entero.fmc,overall.fit3.entero.fpc)
+> gici3.entero.high=list(overall.fit3.entero.high.fmc,overall.fit3.entero.high.fpc)
+> gici3.entero.low=list(overall.fit3.entero.low.fmc,overall.fit3.entero.low.fpc)
 > 
 > # joint indicator estimates  --------------------------------------------
-> gici10.joint.int=list(overall.fit10.fmc.int, overall.fit10.fpc.int)
-> gici10.joint.high.int=list(overall.fit10.fmc.high.int, overall.fit10.fpc.high.int)
-> gici10.joint.low.int=list(overall.fit10.fmc.low.int, overall.fit10.fpc.low.int)
+> gici3.joint.int=list(overall.fit3.fmc.int, overall.fit3.fpc.int)
+> gici3.joint.high.int=list(overall.fit3.fmc.high.int, overall.fit3.fpc.high.int)
+> gici3.joint.low.int=list(overall.fit3.fmc.low.int, overall.fit3.fpc.low.int)
 > 
 > 
 > # ------------------------------------------------
@@ -120,25 +120,25 @@ Type 'q()' to quit R.
 > # pooled results
 > # ------------------------------------------------
 > # single indicator results
-> gici10.tab.body.pool=data.frame(combined=unlist(lapply(gici10.body.pool,mkrow.pool)))
-> gici10.tab.body.pool.high=data.frame(combined=unlist(lapply(gici10.body.high,mkrow.pool)))
-> gici10.tab.body.pool.low=data.frame(combined=unlist(lapply(gici10.body.low,mkrow.pool)))
+> gici3.tab.body.pool=data.frame(combined=unlist(lapply(gici3.body.pool,mkrow.pool)))
+> gici3.tab.body.pool.high=data.frame(combined=unlist(lapply(gici3.body.high,mkrow.pool)))
+> gici3.tab.body.pool.low=data.frame(combined=unlist(lapply(gici3.body.low,mkrow.pool)))
 > 
-> gici10.tab=data.frame(cbind(gici10.n.body.pool,gici10.tab.body.pool,
-+                             gici10.n.body.low,gici10.tab.body.pool.low,
-+                             gici10.n.body.high,gici10.tab.body.pool.high))
-> colnames(gici10.tab)=NULL
-> gici10.tab[,1]=as.character(gici10.tab[,1])
-> gici10.tab[,2]=as.character(gici10.tab[,2])
-> gici10.tab[,3]=as.character(gici10.tab[,3])
-> gici10.tab[,4]=as.character(gici10.tab[,4])
-> gici10.tab[,5]=as.character(gici10.tab[,5])
-> gici10.tab[,6]=as.character(gici10.tab[,6])
+> gici3.tab=data.frame(cbind(gici3.n.body.pool,gici3.tab.body.pool,
++                             gici3.n.body.low,gici3.tab.body.pool.low,
++                             gici3.n.body.high,gici3.tab.body.pool.high))
+> colnames(gici3.tab)=NULL
+> gici3.tab[,1]=as.character(gici3.tab[,1])
+> gici3.tab[,2]=as.character(gici3.tab[,2])
+> gici3.tab[,3]=as.character(gici3.tab[,3])
+> gici3.tab[,4]=as.character(gici3.tab[,4])
+> gici3.tab[,5]=as.character(gici3.tab[,5])
+> gici3.tab[,6]=as.character(gici3.tab[,6])
 > 
 > # entero results
-> entero.tab.pool=data.frame(combined=unlist(lapply(gici10.entero.pool,mkrow.pool)))
-> entero.tab.high=data.frame(combined=unlist(lapply(gici10.entero.high,mkrow.pool)))
-> entero.tab.low=data.frame(combined=unlist(lapply(gici10.entero.low,mkrow.pool)))
+> entero.tab.pool=data.frame(combined=unlist(lapply(gici3.entero.pool,mkrow.pool)))
+> entero.tab.high=data.frame(combined=unlist(lapply(gici3.entero.high,mkrow.pool)))
+> entero.tab.low=data.frame(combined=unlist(lapply(gici3.entero.low,mkrow.pool)))
 > 
 > entero.tab=data.frame(cbind(entero.n.body.pool,entero.tab.pool,
 +                             entero.n.body.low,entero.tab.low,
@@ -152,13 +152,13 @@ Type 'q()' to quit R.
 > entero.tab[,6]=as.character(entero.tab[,6])
 > 
 > # joint results
-> joint.tab.pool=data.frame(combined=unlist(lapply(gici10.joint.int,mkrow.joint)))
-> joint.tab.high=data.frame(combined=unlist(lapply(gici10.joint.high.int,mkrow.joint)))
-> joint.tab.low=data.frame(combined=unlist(lapply(gici10.joint.low.int,mkrow.joint)))
+> joint.tab.pool=data.frame(combined=unlist(lapply(gici3.joint.int,mkrow.joint)))
+> joint.tab.high=data.frame(combined=unlist(lapply(gici3.joint.high.int,mkrow.joint)))
+> joint.tab.low=data.frame(combined=unlist(lapply(gici3.joint.low.int,mkrow.joint)))
 > 
-> joint.tab=data.frame(cbind(gici10.n.joint,joint.tab.pool,
-+                            gici10.n.joint.low,joint.tab.low,
-+                            gici10.n.joint.high,joint.tab.high))
+> joint.tab=data.frame(cbind(gici3.n.joint,joint.tab.pool,
++                            gici3.n.joint.low,joint.tab.low,
++                            gici3.n.joint.high,joint.tab.high))
 > colnames(joint.tab)=NULL
 > joint.tab[,1]=as.character(joint.tab[,1])
 > joint.tab[,2]=as.character(joint.tab[,2])
@@ -167,28 +167,20 @@ Type 'q()' to quit R.
 > joint.tab[,5]=as.character(joint.tab[,5])
 > joint.tab[,6]=as.character(joint.tab[,6])
 > 
-> colnames(gici10.tab)=c("npool","pool","nlow","low","nhigh","high")
+> colnames(gici3.tab)=c("npool","pool","nlow","low","nhigh","high")
 > colnames(entero.tab)=c("npool","pool","nlow","low","nhigh","high")
 > colnames(joint.tab)=c("npool","pool","nlow","low","nhigh","high")
 > 
-> gici10.tab.pool=rbind(gici10.tab[1,],entero.tab[1,],joint.tab[1,],
-+                      gici10.tab[2,],entero.tab[2,],joint.tab[2,])
+> gici3.tab.pool=rbind(gici3.tab[1,],entero.tab[1,],joint.tab[1,],
++                      gici3.tab[2,],entero.tab[2,],joint.tab[2,])
 > 
 > lab=c(rep(c("Coliphage detected","Enterococcus > 35 CFU/100 ml",
 +           "Coliphage detected $\\&$ Enterococcus > 35 CFU/100 ml"),2))
-> gici10.tab.pool=cbind(lab,gici10.tab.pool)
+> gici3.tab.pool=cbind(lab,gici3.tab.pool)
 > 
-> rownames(gici10.tab.pool)=NULL
+> rownames(gici3.tab.pool)=NULL
 > 
-> save(gici10.tab.pool,file="~/Documents/CRG/coliphage/Results/Tables/CIR-10-pool.RData")
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> 
+> save(gici3.tab.pool,file="~/Documents/CRG/coliphage/Results/Tables/CIR-3-pool.RData")
 > 
 > 
 > 
@@ -197,4 +189,4 @@ Type 'q()' to quit R.
 > 
 > proc.time()
    user  system elapsed 
-  2.786   0.205   2.993 
+  0.250   0.025   0.270 
