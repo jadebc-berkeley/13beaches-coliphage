@@ -91,7 +91,7 @@ lab1=c("EPA Method 1601","EPA Method 1602","EPA Method 1602",
 lab2=c("All conditions","Low-risk conditions","High-risk conditions",
        "Low-risk conditions","High-risk conditions",
        "Low-risk conditions","High-risk conditions")
-nbeach=c(3,2,3,4,4,2,2)
+nbeach=c(3,3,2,4,4,2,2)
 table=cbind(lab1,lab2,nbeach,coli.n,table)
 
 save(table,file="~/Documents/CRG/coliphage/Results/Tables/CIR-10-continuous.RData")
