@@ -39,7 +39,43 @@ all=subset(all,nowq==0)
 # to make the robust CI calcs work
 all=subset(all,all$bodycontact=="Yes")
 
+# --------------------------------------
+# Calculate the actual Ns for each cell
+# and store them for plotting and tables
+# --------------------------------------
+regN <- function(outcome,exposurecat) {
+  sum(table(outcome,exposurecat))
+}
 
+
+# n's pooled across beach ---------------------------------------
+all.n10.ent.fmc1601 = regN(all$gici10[!is.na(all$entero) & !is.na(all$fmc1601.pres)],
+                       all$fmc1601.pres[!is.na(all$entero) & !is.na(all$fmc1601.pres)])
+all.n10.ent.fmc1602 = regN(all$gici10[!is.na(all$entero) & !is.na(all$fmc1602.pres)],
+                       all$fmc1602.pres[!is.na(all$entero) & !is.na(all$fmc1602.pres)])
+all.n10.ent.fpc1601 = regN(all$gici10[!is.na(all$entero) & !is.na(all$fpc1601.pres)],
+                       all$fpc1601.pres[!is.na(all$entero) & !is.na(all$fpc1601.pres)])
+all.n10.ent.fpc1602 = regN(all$gici10[!is.na(all$entero) & !is.na(all$fpc1602.pres)],
+                       all$fpc1602.pres[!is.na(all$entero) & !is.na(all$fpc1602.pres)])
+
+# pooled n's by risk level---------------------------------------
+data=all[!is.na(all$entero) & !is.na(all$fmc1602.pres),]
+data.high=subset(data,data$risk=="High")
+all.n10.ent.fmc1602.high = regN(data.high$gici10,data.high$fmc1602.pres)
+data.low=subset(data,data$risk=="Low")
+all.n10.ent.fmc1602.low = regN(data.low$gici10,data.low$fmc1602.pres)
+
+data=all[!is.na(all$entero) & !is.na(all$fpc1601.pres),]
+data.high=subset(data,data$risk=="High")
+all.n10.ent.fpc1601.high = regN(data.high$gici10,data.high$fpc1601.pres)
+data.low=subset(data,data$risk=="Low")
+all.n10.ent.fpc1601.low = regN(data.low$gici10,data.low$fpc1601.pres)
+
+data=all[!is.na(all$entero) & !is.na(all$fpc1602.pres),]
+data.high=subset(data,data$risk=="High")
+all.n10.ent.fpc1602.high = regN(data.high$gici10,data.high$fpc1602.pres)
+data.low=subset(data,data$risk=="Low")
+all.n10.ent.fpc1602.low = regN(data.low$gici10,data.low$fpc1602.pres)
 
 # --------------------------------------
 # Estimates pooled across beach
@@ -226,6 +262,15 @@ all.fpc1602.pY.low = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+
 # exclude glm objects and data frames
 # (they are really large)
 # --------------------------------------
+
+save(
+all.n10.ent.fmc1601,all.n10.ent.fmc1601,all.n10.ent.fmc1601,all.n10.ent.fmc1601,
+all.n10.ent.fmc1602.high, all.n10.ent.fmc1602.low,
+all.n10.ent.fpc1601.high, all.n10.ent.fpc1601.low,
+all.n10.ent.fpc1602.high, all.n10.ent.fpc1602.low,
+
+file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-entero-n.Rdata")
+
 save(
 
   overall.fit10.entero.fmc1601,overall.fit10.entero.fmc1602,

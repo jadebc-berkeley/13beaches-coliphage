@@ -132,6 +132,13 @@ preprocess.6beaches <- function(dataset) {
   ad$fpc1601.med <- as.factor(ifelse(ad$fpc1601==-1,0,1))
   ad$fpc1602.med <- as.factor(ifelse(ad$fpc1602==-1,0,1))
   
+  # dropping malibu 1602 results
+  ad$fmc1602.pres[ad$beach=="Malibu"]=NA
+  ad$fpc1602.pres[ad$beach=="Malibu"]=NA
+  
+  ad$fmc1602[ad$beach=="Malibu"]=NA
+  ad$fpc1602[ad$beach=="Malibu"]=NA
+  
   # generate pooled indicator for presence/absence of coliphage
   ad$fmc.pres <- 0
   ad$fmc.pres[ad$fmc1601.pres==1 | ad$fmc1602.pres==1] <- 1
@@ -310,14 +317,7 @@ preprocess.6beaches <- function(dataset) {
               (ad$beach=="Avalon" & ad$groundwater=="Below median flow")]=0
   ad$risk=factor(ad$risk)
   levels(ad$risk)=c("Low","High")
-  
-  # dropping malibu 1602 results
-  ad$fmc1602.pres[ad$beach=="Malibu"]=NA
-  ad$fpc1602.pres[ad$beach=="Malibu"]=NA
-  
-  ad$fmc1602[ad$beach=="Malibu"]=NA
-  ad$fpc1602[ad$beach=="Malibu"]=NA
-  
+
   # create a 3-level categorical variable of non-swimmers, swimmers when no coliphage, and swimmers when coliphage detected
   ad$swim.fmc <- ad$fmc.pres+1
   ad$swim.fmc[ad$anycontact=="No"] <- 0
