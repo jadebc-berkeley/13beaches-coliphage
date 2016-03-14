@@ -72,15 +72,15 @@ wq.table=rbind(fmc1601tab.low,fmc1601tab.high,
                fmc1602tab.low,fmc1602tab.high,
                fpc1601tab.low,fpc1602tab.high,
                fpc1602tab.low,fpc1602tab.high)
-wq.table$lab=c(rep(c("Low","High"),4))
+wq.table$lab=c(rep(c("~~~~Low risk","~~~~High risk"),4))
 wq.table=rbind(rep(NA,ncol(wq.table)),wq.table[1:2,],
                rep(NA,ncol(wq.table)),wq.table[3:4,], 
                rep(NA,ncol(wq.table)),wq.table[5:6,],
                rep(NA,ncol(wq.table)),wq.table[7:8,])
-wq.table$lab[1]="Somatic coliphage (EPA 1601)"
-wq.table$lab[4]="Somatic coliphage (EPA 1602)"
-wq.table$lab[7]="Male-specific coliphage (EPA 1601)"
-wq.table$lab[10]="Male-specific coliphage (EPA 1602)"
+wq.table$lab[1]="\\textbf{Somatic coliphage (EPA 1601)}"
+wq.table$lab[4]="\\textbf{Somatic coliphage (EPA 1602)}"
+wq.table$lab[7]="\\textbf{Male-specific coliphage (EPA 1601)}"
+wq.table$lab[10]="\\textbf{Male-specific coliphage (EPA 1602)}"
 wq.table=wq.table[,c(6,1:5)]
 
 rownames(wq.table)=NULL
