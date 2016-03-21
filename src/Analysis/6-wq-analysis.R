@@ -19,7 +19,12 @@ source("~/Documents/CRG/coliphage/13beaches-coliphage/src/figures/theme_complete
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-load("~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.RData")
+wq=read.csv("~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.csv",stringsAsFactors=TRUE)
+
+wq$fmc1601[wq$fmc1601_nd=="Below detection"]=0.1
+wq$fmc1602[wq$fmc1602_nd=="Below detection"]=0.1
+wq$fpc1601[wq$fpc1601_nd=="Below detection"]=0.1
+wq$fpc1602[wq$fpc1602_nd=="Below detection"]=0.1
 
 wq$logfmc1601=log(wq$fmc1601,base=10)
 wq$logfmc1602=log(wq$fmc1602,base=10)
@@ -99,47 +104,5 @@ prop.table(table(wq$fmc.pres[wq$ent35==1]))
 prop.table(table(wq$fpc.pres[wq$ent35==1]))
 prop.table(table(wq$fmc.pres[wq$ent35==0]))
 prop.table(table(wq$fpc.pres[wq$ent35==0]))
-
-
-# --------------------------------------
-# wq by risk level
-# --------------------------------------
-gm_mean = function(a){
-  a=a[!is.na(a)]
-  if(length(a)==0){
-    NA
-  }else{
-    prod(a)^(1/length(a))
-  }
-}
-
-gm_mean(wq$fmc1601[wq$risk=="Low"])
-gm_mean(wq$fmc1601[wq$risk=="High"])
-min(wq$fmc1601[wq$risk=="Low"],na.rm=TRUE)
-max(wq$fmc1601[wq$risk=="Low"],na.rm=TRUE)
-min(wq$fmc1601[wq$risk=="High"],na.rm=TRUE)
-max(wq$fmc1601[wq$risk=="High"],na.rm=TRUE)
-
-gm_mean(wq$fmc1602[wq$risk=="Low"])
-gm_mean(wq$fmc1602[wq$risk=="High"])
-min(wq$fmc1602[wq$risk=="Low"],na.rm=TRUE)
-max(wq$fmc1602[wq$risk=="Low"],na.rm=TRUE)
-min(wq$fmc1602[wq$risk=="High"],na.rm=TRUE)
-max(wq$fmc1602[wq$risk=="High"],na.rm=TRUE)
-
-gm_mean(wq$fpc1601[wq$risk=="Low"])
-gm_mean(wq$fpc1601[wq$risk=="High"])
-min(wq$fpc1601[wq$risk=="Low"],na.rm=TRUE)
-max(wq$fpc1601[wq$risk=="Low"],na.rm=TRUE)
-min(wq$fpc1601[wq$risk=="High"],na.rm=TRUE)
-max(wq$fpc1601[wq$risk=="High"],na.rm=TRUE)
-
-gm_mean(wq$fpc1602[wq$risk=="Low"])
-gm_mean(wq$fpc1602[wq$risk=="High"])
-min(wq$fpc1602[wq$risk=="Low"],na.rm=TRUE)
-max(wq$fpc1602[wq$risk=="Low"],na.rm=TRUE)
-min(wq$fpc1602[wq$risk=="High"],na.rm=TRUE)
-max(wq$fpc1602[wq$risk=="High"],na.rm=TRUE)
-
 
 

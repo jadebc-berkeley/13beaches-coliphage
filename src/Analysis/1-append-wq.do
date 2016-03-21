@@ -52,11 +52,21 @@ ren fmc1602mpn_nd fmc1602_nd
 ren fpc1601mpn_nd fpc1601_nd
 ren fpc1602mpn_nd fpc1602_nd
 
+gen entero=entero1600cfu 
+replace entero=enteroELTmpn if beach=="Mission Bay"
+
+gen entero_nd = entero1600cfu_nd
+replace entero_nd = enteroELTmpn_nd if beach=="Mission Bay"
+
+drop entero1600cfu entero1600cfu_nd enteroELTmpn enteroELTmpn_nd enteroQPCRcce enteroQPCRcce_nd enteroQPCRcce_qc
 
 * drop 1602 values for Malibu
 replace fmc1602 = . if beach=="Malibu"
 replace fpc1602 = . if beach=="Malibu"
 replace fmc1602_nd = . if beach=="Malibu"
 replace fpc1602_nd = . if beach=="Malibu"
+
+* number of samples analyzed for coliphage
+count if fpc1601!=. | fpc1602!=. | fmc1601!=. | fmc1602!=. 
 
 outsheet using "~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.csv", comma replace 
