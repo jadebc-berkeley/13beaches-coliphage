@@ -25,7 +25,7 @@ n.p.paren=function(n,p){
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-load("~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.RData")
+wq=read.csv("~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.csv")
 
 
 #-------------------------------------------------------
@@ -79,7 +79,6 @@ d.1602fpc.tab=wq.table(data=wq, beach="Doheny", ind="fpc1602")
 
 # malibu
 m.1601fpc.tab=wq.table(data=wq, beach="Malibu", ind="fpc1601")
-m.1602fpc.tab=wq.table(data=wq, beach="Malibu", ind="fpc1602")
 
 # mission bay
 mb.1601fmc.tab=wq.table(data=wq, beach="Mission Bay", ind="fmc1601")
