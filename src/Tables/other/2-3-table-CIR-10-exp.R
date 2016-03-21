@@ -85,8 +85,8 @@ body=data.frame(cbind(gici10.n.body.pool,gici10.tab.body.pool,
            gici10.n.body.pool.low,gici10.tab.body.pool.low,
            gici10.n.body.pool.high,gici10.tab.body.pool.high))
 head=data.frame(cbind(gici10.n.head.pool,gici10.tab.head.pool,
-           gici10.n.head.pool,gici10.tab.head.pool.low,
-           gici10.n.head.pool,gici10.tab.head.pool.high))
+           gici10.n.head.pool.low,gici10.tab.head.pool.low,
+           gici10.n.head.pool.high,gici10.tab.head.pool.high))
 swall=data.frame(cbind(gici10.n.swall.pool,gici10.tab.swall.pool,
             gici10.n.swall.pool.low,gici10.tab.swall.pool.low,
             gici10.n.swall.pool.high,gici10.tab.swall.pool.high))
