@@ -89,7 +89,7 @@ fpc1602.row.low=c(fpc1602.low,ent.fpc1602.low)
 fpc1602.row.high=c(fpc1602.high,ent.fpc1602.high)
 
 # make table
-table=data.frame(rbind(fmc1601.row.low,fmc1602.row.high,
+table=data.frame(rbind(fmc1601.row.low,fmc1601.row.high,
                        fmc1602.row.low,fmc1602.row.high,
                        fpc1601.row.low,fpc1601.row.high,
                        fpc1602.row.low,fpc1602.row.high))
@@ -100,7 +100,7 @@ lab2=c("Low-risk conditions","High-risk conditions",
        "Low-risk conditions","High-risk conditions",
        "Low-risk conditions","High-risk conditions",
        "Low-risk conditions","High-risk conditions")
-nbeach=c(0,0,3,2,4,4,2,2)
+nbeach=c(3,1,3,2,4,4,2,2)
 table=cbind(lab1,lab2,nbeach,coli.n,table)
 
 save(table,file="~/Documents/CRG/coliphage/Results/Tables/CIR-10-continuous.RData")
