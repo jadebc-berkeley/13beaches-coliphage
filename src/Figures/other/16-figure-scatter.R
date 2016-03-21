@@ -57,8 +57,8 @@ wq.long$variable.f=factor(wq.long$variable, levels=c("Somatic Coliphage (EPA 160
 pdf("~/Documents/CRG/coliphage/results/figures/scatter.pdf",height=5,width=7)
 ggplot(wq.long,aes(x=logentero,y=value))+geom_point(alpha=0.3)+
   facet_wrap(~variable.f)+theme_complete_bw()+
-  scale_x_continuous(limits=c(-1.1,5),breaks=c(-1,0,1,2,3,4))+
-  scale_y_continuous(limits=c(-1.3,4),breaks=c(-1,0,1,2,3))+
+  scale_x_continuous(limits=c(-1.1,4.1),breaks=c(-1,0,1,2,3,4))+
+  scale_y_continuous(limits=c(-1.3,3.3),breaks=c(-1,0,1,2,3))+
   xlab("Log10 Enterococcus Concentration")+
   ylab("Log10 Coliphage Concentration")
 dev.off()
