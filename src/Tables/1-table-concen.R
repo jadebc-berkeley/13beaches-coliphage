@@ -31,12 +31,8 @@ wq=read.csv("~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.c
 #-------------------------------------------------------
 # Summary of log10 concentration
 #-------------------------------------------------------
-gm_mean = function(a){
-  if(length(a)==0){
-    NA
-  }else{
-    prod(a)^(1/length(a))
-  }
+gm_mean = function(x, na.rm=TRUE){
+  exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
 }
 
 wq.table=function(data,ind,beach){
