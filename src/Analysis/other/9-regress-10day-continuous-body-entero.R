@@ -59,6 +59,12 @@ all.n10.ent.fpc1602 = regN(all$gici10[!is.na(all$entero) & !is.na(all$fpc1602.pr
                        all$fpc1602.pres[!is.na(all$entero) & !is.na(all$fpc1602.pres)])
 
 # pooled n's by risk level---------------------------------------
+data=all[!is.na(all$entero) & !is.na(all$fmc1601.pres),]
+data.high=subset(data,data$risk=="High")
+all.n10.ent.fmc1601.high = regN(data.high$gici10,data.high$fmc1601.pres)
+data.low=subset(data,data$risk=="Low")
+all.n10.ent.fmc1601.low = regN(data.low$gici10,data.low$fmc1601.pres)
+
 data=all[!is.na(all$entero) & !is.na(all$fmc1602.pres),]
 data.high=subset(data,data$risk=="High")
 all.n10.ent.fmc1602.high = regN(data.high$gici10,data.high$fmc1602.pres)
@@ -133,6 +139,31 @@ overall.fit10.entero.fpc1602 <- coeftest(all.fit10.entero.fpc1602, all.VC10.ente
 summary(all.fit10.entero.fpc1602)
 overall.fit10.entero.fpc1602
 aic.entero.fpc1602=AIC(all.fit10.entero.fpc1602)
+
+# FMC 1601 #####################
+# high risk conditions --------------------------------
+data=all[!is.na(all$entero) & !is.na(all$fmc1601) ,]
+data.high=subset(data,data$risk=="High")
+all.fit10.entero.high.fmc1601 <- glm(gici10~entero+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+                                       rawfood,family=poisson(link="log"),data=data.high)
+
+all.VC10.entero.high.fmc1601 <- cl(data.high,fm=all.fit10.entero.high.fmc1601, cluster=data.high$hhid)
+overall.fit10.entero.high.fmc1601 <- coeftest(all.fit10.entero.high.fmc1601, all.VC10.entero.high.fmc1601)
+summary(all.fit10.entero.high.fmc1601)
+overall.fit10.entero.high.fmc1601
+aic.entero.high.fmc1601=AIC(all.fit10.entero.high.fmc1601)
+
+# low risk conditions --------------------------------
+data.low=subset(data,data$risk=="Low")
+all.fit10.entero.low.fmc1601 <- glm(gici10~entero+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+                                      rawfood+beach,family=poisson(link="log"),data=data.low)
+
+all.VC10.entero.low.fmc1601 <- cl(data.low,fm=all.fit10.entero.low.fmc1601, cluster=data.low$hhid)
+overall.fit10.entero.low.fmc1601 <- coeftest(all.fit10.entero.low.fmc1601, all.VC10.entero.low.fmc1601)
+summary(all.fit10.entero.low.fmc1601)
+overall.fit10.entero.low.fmc1601
+aic.entero.low.fmc1601=AIC(all.fit10.entero.low.fmc1601)
+
 
 # FMC 1602 #####################
 # high risk conditions --------------------------------
@@ -264,7 +295,8 @@ all.fpc1602.pY.low = boot.pY(fmla=gici10~entero+agecat+female+racewhite+gichron+
 # --------------------------------------
 
 save(
-all.n10.ent.fmc1601,all.n10.ent.fmc1601,all.n10.ent.fmc1601,all.n10.ent.fmc1601,
+all.n10.ent.fmc1601,all.n10.ent.fmc1602,all.n10.ent.fpc1601,all.n10.ent.fpc1602,
+all.n10.ent.fmc1601.high, all.n10.ent.fmc1601.low,
 all.n10.ent.fmc1602.high, all.n10.ent.fmc1602.low,
 all.n10.ent.fpc1601.high, all.n10.ent.fpc1601.low,
 all.n10.ent.fpc1602.high, all.n10.ent.fpc1602.low,
@@ -276,11 +308,11 @@ save(
   overall.fit10.entero.fmc1601,overall.fit10.entero.fmc1602,
   overall.fit10.entero.fpc1601,overall.fit10.entero.fpc1602,
   
-  overall.fit10.entero.high.fmc1602,overall.fit10.entero.high.fpc1601,
-  overall.fit10.entero.high.fpc1602,
+  overall.fit10.entero.high.fmc1601,overall.fit10.entero.high.fmc1602,
+  overall.fit10.entero.high.fpc1601,overall.fit10.entero.high.fpc1602,
   
-  overall.fit10.entero.low.fmc1602,overall.fit10.entero.low.fpc1601,
-  overall.fit10.entero.low.fpc1602,
+  overall.fit10.entero.low.fmc1601,overall.fit10.entero.low.fmc1602,
+  overall.fit10.entero.low.fpc1601,overall.fit10.entero.low.fpc1602,
   
   all.VC10.entero.fmc1601,all.VC10.entero.fmc1602,all.VC10.entero.fpc1601,
   all.VC10.entero.fpc1602,
@@ -289,6 +321,10 @@ save(
   all.VC10.entero.low.fmc1602,all.VC10.entero.low.fpc1601,
   all.VC10.entero.low.fpc1602,
 
+    file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-CIR-body-entero.Rdata"
+)
+
+save(
   all.fmc1601.pY,all.fmc1602.pY,all.fmc1602.pY.high,all.fmc1602.pY.low,
   all.fpc1601.pY,all.fpc1601.pY.high,all.fpc1601.pY.low,all.fpc1602.pY,
   all.fpc1602.pY.high,all.fpc1602.pY.low,

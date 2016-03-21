@@ -161,6 +161,8 @@ wq$groundwater=NULL
 # ------------------------------------
 wq$fmc1601[wq$beach=="Malibu"]=NA
 wq$fmc1602[wq$beach=="Malibu"]=NA
+wq$fmc1601_nd[wq$beach=="Malibu"]=NA
+wq$fmc1602_nd[wq$beach=="Malibu"]=NA
 
 save(wq,file="~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.RData")
 

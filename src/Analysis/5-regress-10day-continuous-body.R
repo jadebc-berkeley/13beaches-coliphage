@@ -55,6 +55,12 @@ all.n10.fpc1602 = regN(all$gici10[!is.na(all$fpc1602.pres)],
                        all$fpc1602.pres[!is.na(all$fpc1602.pres)])
 
 # pooled n's by risk level---------------------------------------
+data=all[!is.na(all$fmc1601.pres),]
+data.high=subset(data,data$risk=="High")
+all.n10.fmc1601.high = regN(data.high$gici10,data.high$fmc1601.pres)
+data.low=subset(data,data$risk=="Low")
+all.n10.fmc1601.low = regN(data.low$gici10,data.low$fmc1601.pres)
+
 data=all[!is.na(all$fmc1602.pres),]
 data.high=subset(data,data$risk=="High")
 all.n10.fmc1602.high = regN(data.high$gici10,data.high$fmc1602.pres)
@@ -86,6 +92,25 @@ all.fit10.fmc1601 <- glm(gici10~fmc1601+agecat+female+racewhite+gichron+anim_any
 all.VC10.fmc1601 <- cl(all[!is.na(all$fmc1601),],fm=all.fit10.fmc1601,
     cluster=all$hhid[!is.na(all$fmc1601)])
 overall.fit10.fmc1601 <- coeftest(all.fit10.fmc1601, all.VC10.fmc1601)
+
+# high risk conditions
+#    dropping beach because at doheny, there were no fmc1601 measurements 
+#    when the conditions when the berm was open
+data=all[!is.na(all$fmc1601),]
+data.high=subset(data,data$risk=="High")
+all.fit10.fmc1601.high <- glm(gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+    rawfood,family=poisson(link="log"),data=data.high)
+
+all.VC10.fmc1601.high <- cl(data.high,fm=all.fit10.fmc1601.high, cluster=data.high$hhid)
+overall.fit10.fmc1601.high <- coeftest(all.fit10.fmc1601.high, all.VC10.fmc1601.high)
+
+# low risk conditions
+data.low=subset(data,data$risk=="Low")
+all.fit10.fmc1601.low <- glm(gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+gicontactbase+
+    rawfood+beach,family=poisson(link="log"),data=data.low)
+
+all.VC10.fmc1601.low <- cl(data.low,fm=all.fit10.fmc1601.low, cluster=data.low$hhid)
+overall.fit10.fmc1601.low <- coeftest(all.fit10.fmc1601.low, all.VC10.fmc1601.low)
 
 # fmc 1602 ---------------------------------
 all.fit10.fmc1602 <- glm(gici10~fmc1602+agecat+female+racewhite+gichron+anim_any+gicontactbase+
@@ -212,12 +237,34 @@ all.fpc1602.pY.low = boot.pY(fmla=gici10~fpc1602+agecat+female+racewhite+gichron
     gicontactbase+ rawfood+beach,dat=data.low,nameX="fpc1602",ID=data.low$hhid,iter)
 
 
-save(
-  overall.fit10.fmc1601, overall.fit10.fmc1602, overall.fit10.fmc1602.high,
-  overall.fit10.fmc1602.low,overall.fit10.fpc1601,overall.fit10.fpc1601.high,
-  overall.fit10.fpc1601.low,overall.fit10.fpc1602,overall.fit10.fpc1602.high,
-  overall.fit10.fpc1602.low,
+############################################
+# save n objects
 
+save(
+  all.n10.fmc1601,
+  all.n10.fmc1602,all.n10.fpc1601,all.n10.fpc1602,
+  
+  all.n10.fmc1601.high, all.n10.fmc1601.low,
+  all.n10.fmc1602.high, all.n10.fmc1602.low,
+  all.n10.fpc1601.high, all.n10.fpc1601.low,
+  all.n10.fpc1602.high, all.n10.fpc1602.low,
+  
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-n.Rdata")
+
+# save CIR objects
+save(
+  overall.fit10.fmc1601, overall.fit10.fmc1602, 
+  overall.fit10.fpc1601, overall.fit10.fpc1602,
+  
+  overall.fit10.fmc1601.high, overall.fit10.fmc1601.low,
+  overall.fit10.fmc1602.high, overall.fit10.fmc1602.low,
+  overall.fit10.fpc1601.high, overall.fit10.fpc1601.low,
+  overall.fit10.fpc1602.high, overall.fit10.fpc1602.low,
+  
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-CIR-body.Rdata")
+  
+  # save bootstrap objects
+save(
   all.fmc1601.pY,all.fmc1602.pY,all.fmc1602.pY.high,all.fmc1602.pY.low,
   all.fpc1601.pY,all.fpc1601.pY.high,all.fpc1601.pY.low,all.fpc1602.pY,
   all.fpc1602.pY.high,all.fpc1602.pY.low,
