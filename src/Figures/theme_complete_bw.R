@@ -2,14 +2,13 @@ theme_complete_bw <- function(base_size = 12, base_family = "") {
   theme_grey(base_size = base_size, base_family = base_family) %+replace% 
     theme(
       axis.line =         element_blank(),
-      axis.text.x =       element_text(size = base_size * 0.8 , lineheight = 0.9, colour = "black", vjust = 1),
-      axis.text.y =       element_text(size = base_size * 0.8, lineheight = 0.9, colour = "black", hjust = 1),
+      axis.text.x =       element_text(size = base_size * 0.8 , lineheight = 0.9, colour = "black", vjust = 1, margin = margin(0.1,0.1,0.1,0.1,"cm")),
+      axis.text.y =       element_text(size = base_size * 0.8, lineheight = 0.9, colour = "black", hjust = 1, margin = margin(0.1,0.1,0.1,0.1,"cm")),
       axis.ticks =        element_line(colour = "black"),
       axis.title.x =      element_text(size = base_size, vjust = 0.5),
       axis.title.y =      element_text(size = base_size, angle = 90, vjust = 0.5),
       axis.ticks.length = unit(0.15, "cm"),
-      axis.ticks.margin = unit(0.1, "cm"),
-      
+
       legend.background = element_rect(colour=NA), 
       legend.key =        element_rect(fill = NA, colour = "black", size = 0.25),
       legend.key.size =   unit(1.2, "lines"),
@@ -24,7 +23,7 @@ theme_complete_bw <- function(base_size = 12, base_family = "") {
       panel.margin =     unit(0.5, "lines"),
       
       strip.background = element_rect(fill = NA, colour = NA), 
-      strip.text.x =     element_text(colour = "black", size = base_size * 0.8, face="bold"),
+      strip.text.x =     element_text(colour = "black", size = base_size * 0.8, face="bold", margin = margin(0.1,0.1,0.1,0.1,"cm")),
       strip.text.y =     element_text(colour = "black", size = base_size * 0.8, angle = -90),
       
       plot.background =  element_rect(colour = NA, fill = "white"),
