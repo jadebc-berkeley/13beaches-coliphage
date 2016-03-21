@@ -23,10 +23,11 @@ theme_complete_bw <- function(base_size = 12, base_family = "") {
       panel.margin =     unit(0.5, "lines"),
       
       strip.background = element_rect(fill = NA, colour = NA), 
-      strip.text.x =     element_text(colour = "black", size = base_size * 0.8, face="bold", margin = margin(0.1,0.1,0.1,0.1,"cm")),
+      strip.text.x =     element_text(colour = "black", size = base_size * 0.8, face="bold", 
+                                      margin = margin(0.3,0.1,0.1,0.1,"cm")),
       strip.text.y =     element_text(colour = "black", size = base_size * 0.8, angle = -90),
       
       plot.background =  element_rect(colour = NA, fill = "white"),
-      plot.title =       element_text(size = base_size * 1.2),
+      #plot.title =       element_text(size = base_size * 1.2),
       plot.margin =      unit(c(1, 1, 0.5, 0.5), "lines"))
 }

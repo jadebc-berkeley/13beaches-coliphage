@@ -10,8 +10,7 @@
 rm(list=ls())
 library(foreign)
 
-setwd("~/Dropbox/Coliphage/")
-source("~/dropbox/coliphage/programs/figures/theme_complete_bw.R")
+source("~/Documents/CRG/coliphage/13beaches-coliphage/src/figures/theme_complete_bw.R")
 
 
 # --------------------------------------
@@ -29,18 +28,14 @@ n.p.paren=function(n,p){
 # (refer to the base functions script
 # for details on the pre-processing)
 # --------------------------------------
-load("~/dropbox/coliphage/data/temp/beaches-coli-ent-wq.RData")
+wq=read.csv("~/Documents/CRG/coliphage/13beaches-data/temp/beaches-coli-ent-wq.csv")
 
 
 #-------------------------------------------------------
 # Summary of log10 concentration
 #-------------------------------------------------------
-gm_mean = function(a){
-  if(length(a)==0){
-    NA
-  }else{
-    prod(a)^(1/length(a))
-  }
+gm_mean = function(x, na.rm=TRUE){
+  exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
 }
 
 wq.table=function(data,ind,beach){
@@ -94,6 +89,7 @@ f.1601fpc.tab=wq.table(data=wq, beach="Fairhope", ind="fpc1601")
 # goddard
 g.1601fpc.tab=wq.table(data=wq, beach="Goddard", ind="fpc1601")
 
+
 wq.table=rbind(a.1601fmc.tab,d.1601fmc.tab,mb.1601fmc.tab,
                a.1602fmc.tab,d.1602fmc.tab,
                a.1601fpc.tab,d.1601fpc.tab,m.1601fpc.tab,mb.1601fpc.tab,f.1601fpc.tab,g.1601fpc.tab,
@@ -102,12 +98,13 @@ wq.table$lab=c("Avalon","Doheny","Mission Bay",
                "Avalon","Doheny",
                "Avalon","Doheny","Malibu","Mission Bay","Fairhope","Goddard",
                "Avalon","Doheny")
-wq.table$ind=c(rep("F- Coliphage (EPA 1601)",3),
-               rep("F- Coliphage (EPA 1602)",2),
-               rep("F+ Coliphage (EPA 1601)",6),
-               rep("F+ Coliphage (EPA 1602)",2))
+wq.table=wq.table[,c(6,1:5)]
 
 rownames(wq.table)=NULL
+
+
+# drop min column since it's not informative
+wq.table=wq.table[,-which(colnames(wq.table)=="min")]
 
 wq.table$n=as.numeric(as.character(wq.table$n))
 wq.table$nd=as.numeric(as.character(wq.table$nd))
@@ -117,10 +114,10 @@ wq.table$lab=as.factor(wq.table$lab)
 wq.table$pdetect.char=paste(as.numeric(sprintf("%3.0f",wq.table$pdetect*100)),"%",sep="")
 
 # rename coliphage
-wq.table$ind[wq.table$ind=="F- Coliphage (EPA 1601)"]="Somatic Coliphage (EPA 1601)"
-wq.table$ind[wq.table$ind=="F- Coliphage (EPA 1602)"]="Somatic Coliphage (EPA 1602)"
-wq.table$ind[wq.table$ind=="F+ Coliphage (EPA 1601)"]="Male-Specific Coliphage (EPA 1601)"
-wq.table$ind[wq.table$ind=="F+ Coliphage (EPA 1602)"]="Male-Specific Coliphage (EPA 1602)"
+wq.table$ind=c(rep("Somatic Coliphage (EPA 1601)",3),
+               rep("Somatic Coliphage (EPA 1602)",2),
+               rep("Male-Specific Coliphage (EPA 1601)",6),
+               rep("Male-Specific Coliphage (EPA 1602)",2))
 
 # order ind
 wq.table$ind.f=factor(wq.table$ind, levels=c("Male-Specific Coliphage (EPA 1602)",
@@ -136,7 +133,7 @@ mycolors=c(green,blue,yellow,grey)
 mycolors=c(grey,yellow,blue,green)
 
 
-pdf("~/dropbox/coliphage/results/figures/coliphage_detected.pdf",height=5,width=9)
+pdf("~/Documents/CRG/coliphage/results/figures/coliphage_detected.pdf",height=5,width=9)
 ggplot(wq.table,aes(x=ind.f,y=pdetect))+geom_bar(aes(fill=ind.f),color="black",stat="identity")+
   geom_text(aes(label=pdetect.char),hjust=-0.15,size=4)+
   facet_wrap(~lab)+coord_flip()+theme_complete_bw()+xlab("")+
