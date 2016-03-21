@@ -85,6 +85,9 @@ wq.table=wq.table[,c(6,1:5)]
 
 rownames(wq.table)=NULL
 
+# drop min column since it's not informative
+wq.table=wq.table[,-which(colnames(wq.table)=="min")]
+
 save(wq.table,file="~/Documents/CRG/coliphage/13beaches-data/Temp/wqtable_risk.RData")
 
 write.csv(wq.table,file="~/Documents/CRG/coliphage/Results/Tables/Table2.csv",na="",row.names=FALSE)
