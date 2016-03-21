@@ -57,6 +57,8 @@ replace entero=enteroELTmpn if beach=="Mission Bay"
 
 gen entero_nd = entero1600cfu_nd
 replace entero_nd = enteroELTmpn_nd if beach=="Mission Bay"
+label define entero_ndl 1 "Below detection" 0 "Detected" 
+label values entero_nd entero_ndl
 
 drop entero1600cfu entero1600cfu_nd enteroELTmpn enteroELTmpn_nd enteroQPCRcce enteroQPCRcce_nd enteroQPCRcce_qc
 

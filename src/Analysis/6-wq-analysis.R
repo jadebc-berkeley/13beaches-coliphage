@@ -25,6 +25,7 @@ wq$fmc1601[wq$fmc1601_nd=="Below detection"]=0.1
 wq$fmc1602[wq$fmc1602_nd=="Below detection"]=0.1
 wq$fpc1601[wq$fpc1601_nd=="Below detection"]=0.1
 wq$fpc1602[wq$fpc1602_nd=="Below detection"]=0.1
+wq$entero[wq$entero_nd=="Below detection"]=0.1
 
 wq$logfmc1601=log(wq$fmc1601,base=10)
 wq$logfmc1602=log(wq$fmc1602,base=10)
