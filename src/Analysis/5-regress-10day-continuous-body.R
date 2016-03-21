@@ -199,6 +199,13 @@ set.seed(92203789)
 all.fmc1601.pY = boot.pY(fmla=gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+
     gicontactbase+rawfood+beach,dat=all[!is.na(all$fmc1601),],nameX="fmc1601",
     ID=all[!is.na(all$fmc1601),"hhid"],iter)
+data=all[!is.na(all$fmc1601),]
+data.high=subset(data,data$risk=="High")
+all.fmc1601.pY.high = boot.pY(fmla=gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+ rawfood+beach,dat=data.high,nameX="fmc1601",ID=data.high$hhid,iter)
+data.low=subset(data,data$risk=="Low")
+all.fmc1601.pY.low = boot.pY(fmla=gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+
+    gicontactbase+ rawfood+beach,dat=data.low,nameX="fmc1601",ID=data.low$hhid,iter)
 
 # fmc 1602 ---------------------------------
 all.fmc1602.pY = boot.pY(fmla=gici10~fmc1602+agecat+female+racewhite+gichron+anim_any+
@@ -265,7 +272,8 @@ save(
   
   # save bootstrap objects
 save(
-  all.fmc1601.pY,all.fmc1602.pY,all.fmc1602.pY.high,all.fmc1602.pY.low,
+  all.fmc1601.pY,all.fmc1601.pY.high,all.fmc1601.pY.low,
+  all.fmc1602.pY,all.fmc1602.pY.high,all.fmc1602.pY.low,
   all.fpc1601.pY,all.fpc1601.pY.high,all.fpc1601.pY.low,all.fpc1602.pY,
   all.fpc1602.pY.high,all.fpc1602.pY.low,
   
