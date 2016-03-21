@@ -111,3 +111,18 @@ ggplot(gici10.plot,aes(x=lab.f,y=pt.est))+
   scale_y_log10(breaks=c(0.2,0.5,1,2),limits=c(0.3,3))+theme_complete_bw()+
   ylab("Cumulative incidence ratio  (95% CI)")+xlab("")
 dev.off()
+
+
+
+pdf("~/Documents/CRG/coliphage/results/figures/forestplots_pool_present.pdf",height=3,width=8)
+ggplot(gici10.plot,aes(x=lab.f,y=pt.est))+
+  geom_errorbar(aes(ymin=lb,ymax=ub,color=type.f),width=0.3,
+                position=position_dodge(width=0.4))+
+  facet_wrap(~ind.f,ncol=4)+
+  geom_point(aes(color=type.f,shape=type.f),position=position_dodge(width=0.4))+
+  coord_flip()+ geom_hline(yintercept=1,linetype="dotted")+
+  scale_color_manual("",breaks=rev(levels(gici10.plot$type.f)),values=c("#048F2E","#0066FF","black"))+
+  scale_shape_manual("",breaks=rev(levels(gici10.plot$type.f)),values=c(15,17,19))+  
+  scale_y_log10(breaks=c(0.2,0.5,1,2),limits=c(0.3,3))+theme_complete_bw()+
+  ylab("Cumulative incidence ratio  (95% CI)")+xlab("")
+dev.off()
