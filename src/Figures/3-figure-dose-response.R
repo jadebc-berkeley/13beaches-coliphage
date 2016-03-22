@@ -214,6 +214,7 @@ all=subset(all,nowq==0)
 all=subset(all,all$bodycontact=="Yes")
 
 load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-CIR-body.Rdata")
 
 
 
@@ -221,7 +222,7 @@ load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body.
 # make figures
 # --------------------------------------
 
-pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fmc1601.pdf",height=7,width=5)
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fmc1601-all.pdf",height=7,width=5)
 plotPy(all.fmc1601.pY,
        xlab="Concentration PFU / 100ml",
        ytics=seq(0,15,by=1),
@@ -231,6 +232,27 @@ plotPy(all.fmc1601.pY,
        main="Somatic Coliphage (EPA 1601)",
        CIRres=CIRformat(getCIR(overall.fit10.fmc1601)),
        Exp=all$fmc1601[all$fmc1601>-1]
+)
+dev.off()
+
+
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fmc1601.pdf",height=6,width=7)
+plotPy.em(all.fmc1601.pY.low,all.fmc1601.pY.high,
+          xlab="Concentration PFU / 100ml",
+          xtics=c(0.1,1,10,100,1000),
+          ytics=seq(0,50,by=10),
+          ytics2a=c(0:3)*250,
+          ytics2aunits=1,
+          ytics2b=c(0:3)*250,
+          ytics2bunits=1,
+          breaksa=30,
+          breaksb=10,
+          main="Somatic Coliphage (EPA 1601)",
+          CIRres1=CIRformat(getCIR(overall.fit10.fmc1601.low)),
+          CIRres0=CIRformat(getCIR(overall.fit10.fmc1601.high)),
+          Exp1=all$fmc1601[all$risk=="Low" & all$fmc1601>-1],
+          Exp0=all$fmc1601[all$risk=="High" & all$fmc1601>-1],
+          lab1="Low risk conditions",lab0="High risk conditions"
 )
 dev.off()
 

@@ -214,6 +214,7 @@ all=subset(all,nowq==0)
 all=subset(all,all$bodycontact=="Yes")
 
 load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-entero.Rdata")
+load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-CIR-body-entero.Rdata")
 
 
 
@@ -221,7 +222,7 @@ load("~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-
 # make figures
 # --------------------------------------
 
-pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fmc1601.pdf",height=7,width=5)
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fmc1601-all.pdf",height=7,width=5)
 plotPy(all.fmc1601.pY,
        xlab="Concentration PFU / 100ml",
        ytics=seq(0,15,by=1),
@@ -233,6 +234,28 @@ plotPy(all.fmc1601.pY,
        Exp=all$entero[all$entero>-1 & !is.na(all$fmc1601)]
 )
 dev.off()
+
+
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fmc1601.pdf",height=6,width=7)
+plotPy.em(all.fmc1601.pY.low,all.fmc1601.pY.high,
+          xlab="Concentration PFU / 100ml",
+          xtics=c(0.1,1,10,100,1000,10000),
+          ytics=seq(0,50,by=10),
+          ytics2a=c(0:3)*250,
+          ytics2aunits=1,
+          ytics2b=c(0:3)*250,
+          ytics2bunits=1,
+          breaksa=40,
+          breaksb=10,
+          main="Enterococcus (at Somatic Coliphage (EPA 1601) beaches)",
+          CIRres1=CIRformat(getCIR(overall.fit10.entero.low.fmc1601)),
+          CIRres0=CIRformat(getCIR(overall.fit10.entero.high.fmc1601)),
+          Exp1=all$entero[all$risk=="Low" & all$entero>-1 & !is.na(all$fmc1601)],
+          Exp0=all$entero[all$risk=="High" & all$entero>-1 & !is.na(all$fmc1601)],
+          lab1="Low risk conditions",lab0="High risk conditions"
+)
+dev.off()
+
 
 pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-entero-fmc1602-all.pdf",height=7,width=5)
 plotPy(all.fmc1602.pY,

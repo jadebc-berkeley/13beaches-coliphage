@@ -1,5 +1,5 @@
 
-R version 3.2.2 (2015-08-14) -- "Fire Safety"
+R version 3.2.3 (2015-12-10) -- "Wooden Christmas-Tree"
 Copyright (C) 2015 The R Foundation for Statistical Computing
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
 
@@ -65,6 +65,53 @@ Subsetting the data to relevant variables and completing final variable pre-proc
 > all=subset(all,all$bodycontact=="Yes")
 > 
 > 
+> # --------------------------------------
+> # Calculate the actual Ns for each cell
+> # and store them for plotting and tables
+> # --------------------------------------
+> regN <- function(outcome,exposurecat) {
++   sum(table(outcome,exposurecat))
++ }
+> 
+> 
+> # n's pooled across beach ---------------------------------------
+> all.n10.fmc1601 = regN(all$gici10[!is.na(all$fmc1601.pres)],
++                        all$fmc1601.pres[!is.na(all$fmc1601.pres)])
+> all.n10.fmc1602 = regN(all$gici10[!is.na(all$fmc1602.pres)],
++                        all$fmc1602.pres[!is.na(all$fmc1602.pres)])
+> all.n10.fpc1601 = regN(all$gici10[!is.na(all$fpc1601.pres)],
++                        all$fpc1601.pres[!is.na(all$fpc1601.pres)])
+> all.n10.fpc1602 = regN(all$gici10[!is.na(all$fpc1602.pres)],
++                        all$fpc1602.pres[!is.na(all$fpc1602.pres)])
+> 
+> # pooled n's by risk level---------------------------------------
+> data=all[!is.na(all$fmc1601.pres),]
+> data.high=subset(data,data$risk=="High")
+> all.n10.fmc1601.high = regN(data.high$gici10,data.high$fmc1601.pres)
+> data.low=subset(data,data$risk=="Low")
+> all.n10.fmc1601.low = regN(data.low$gici10,data.low$fmc1601.pres)
+> 
+> data=all[!is.na(all$fmc1602.pres),]
+> data.high=subset(data,data$risk=="High")
+> all.n10.fmc1602.high = regN(data.high$gici10,data.high$fmc1602.pres)
+> data.low=subset(data,data$risk=="Low")
+> all.n10.fmc1602.low = regN(data.low$gici10,data.low$fmc1602.pres)
+> 
+> data=all[!is.na(all$fpc1601.pres),]
+> data.high=subset(data,data$risk=="High")
+> all.n10.fpc1601.high = regN(data.high$gici10,data.high$fpc1601.pres)
+> data.low=subset(data,data$risk=="Low")
+> all.n10.fpc1601.low = regN(data.low$gici10,data.low$fpc1601.pres)
+> 
+> data=all[!is.na(all$fpc1602.pres),]
+> data.high=subset(data,data$risk=="High")
+> all.n10.fpc1602.high = regN(data.high$gici10,data.high$fpc1602.pres)
+> data.low=subset(data,data$risk=="Low")
+> all.n10.fpc1602.low = regN(data.low$gici10,data.low$fpc1602.pres)
+> 
+> 
+> 
+> 
 > #-------------------------------------------
 > # estimating CIR for continuous exposure
 > #-------------------------------------------
@@ -82,6 +129,25 @@ The following objects are masked from ‘package:base’:
     as.Date, as.Date.numeric
 
 > overall.fit10.fmc1601 <- coeftest(all.fit10.fmc1601, all.VC10.fmc1601)
+> 
+> # high risk conditions
+> #    dropping beach because at doheny, there were no fmc1601 measurements 
+> #    when the conditions when the berm was open
+> data=all[!is.na(all$fmc1601),]
+> data.high=subset(data,data$risk=="High")
+> all.fit10.fmc1601.high <- glm(gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++     rawfood,family=poisson(link="log"),data=data.high)
+> 
+> all.VC10.fmc1601.high <- cl(data.high,fm=all.fit10.fmc1601.high, cluster=data.high$hhid)
+> overall.fit10.fmc1601.high <- coeftest(all.fit10.fmc1601.high, all.VC10.fmc1601.high)
+> 
+> # low risk conditions
+> data.low=subset(data,data$risk=="Low")
+> all.fit10.fmc1601.low <- glm(gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+gicontactbase+
++     rawfood+beach,family=poisson(link="log"),data=data.low)
+> 
+> all.VC10.fmc1601.low <- cl(data.low,fm=all.fit10.fmc1601.low, cluster=data.low$hhid)
+> overall.fit10.fmc1601.low <- coeftest(all.fit10.fmc1601.low, all.VC10.fmc1601.low)
 > 
 > # fmc 1602 ---------------------------------
 > all.fit10.fmc1602 <- glm(gici10~fmc1602+agecat+female+racewhite+gichron+anim_any+gicontactbase+
@@ -196,8 +262,79 @@ Bootstrap Iterations (1000)
 ..................................................950 
 ..................................................1000 
 
- Bootstrap Run Time: 9.191  Minutes 
+ Bootstrap Run Time: 8.957  Minutes 
 
+> data=all[!is.na(all$fmc1601),]
+> data.high=subset(data,data$risk=="High")
+> all.fmc1601.pY.high = boot.pY(fmla=gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+ rawfood+beach,dat=data.high,nameX="fmc1601",ID=data.high$hhid,iter)
+
+
+
+Bootstrap Iterations (1000) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..................................................50 
+..................................................100 
+..................................................150 
+..................................................200 
+..................................................250 
+..................................................300 
+..................................................350 
+..................................................400 
+..................................................450 
+..................................................500 
+..................................................550 
+..................................................600 
+..................................................650 
+..................................................700 
+..................................................750 
+..................................................800 
+..................................................850 
+..................................................900 
+..................................................950 
+..................................................1000 
+
+ Bootstrap Run Time: 0.18  Minutes 
+
+
+   Warning:  1000  bootstrap replicates failed to converge to sensible estimates 
+
+   Bootstrap estimates are based on the remaining  0  replicates
+
+> data.low=subset(data,data$risk=="Low")
+> all.fmc1601.pY.low = boot.pY(fmla=gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+
++     gicontactbase+ rawfood+beach,dat=data.low,nameX="fmc1601",ID=data.low$hhid,iter)
+
+
+
+Bootstrap Iterations (1000) 
+----|--- 1 ---|--- 2 ---|--- 3 ---|--- 4 ---| --- 5 
+..................................................50 
+..................................................100 
+..................................................150 
+..................................................200 
+..................................................250 
+..................................................300 
+..................................................350 
+..................................................400 
+..................................................450 
+..................................................500 
+..................................................550 
+..................................................600 
+..................................................650 
+..................................................700 
+..................................................750 
+..................................................800 
+..................................................850 
+..................................................900 
+..................................................950 
+..................................................1000 
+
+ Bootstrap Run Time: 8.35  Minutes 
+
+Warning messages:
+1: glm.fit: fitted rates numerically 0 occurred 
+2: glm.fit: fitted rates numerically 0 occurred 
 > 
 > # fmc 1602 ---------------------------------
 > all.fmc1602.pY = boot.pY(fmla=gici10~fmc1602+agecat+female+racewhite+gichron+anim_any+
@@ -229,7 +366,7 @@ Bootstrap Iterations (1000)
 ..................................................950 
 ..................................................1000 
 
- Bootstrap Run Time: 28.465  Minutes 
+ Bootstrap Run Time: 15.097  Minutes 
 
 > data=all[!is.na(all$fmc1602),]
 > data.high=subset(data,data$risk=="High")
@@ -261,16 +398,9 @@ Bootstrap Iterations (1000)
 ..................................................950 
 ..................................................1000 
 
- Bootstrap Run Time: 11.483  Minutes 
+ Bootstrap Run Time: 6.252  Minutes 
 
-Warning messages:
-1: glm.fit: fitted rates numerically 0 occurred 
-2: glm.fit: fitted rates numerically 0 occurred 
-3: glm.fit: fitted rates numerically 0 occurred 
-4: glm.fit: fitted rates numerically 0 occurred 
-5: glm.fit: fitted rates numerically 0 occurred 
-6: glm.fit: fitted rates numerically 0 occurred 
-7: glm.fit: fitted rates numerically 0 occurred 
+There were 13 warnings (use warnings() to see them)
 > data.low=subset(data,data$risk=="Low")
 > all.fmc1602.pY.low = boot.pY(fmla=gici10~fmc1602+agecat+female+racewhite+gichron+anim_any+
 +     gicontactbase+ rawfood+beach,dat=data.low,nameX="fmc1602",ID=data.low$hhid,iter)
@@ -300,7 +430,7 @@ Bootstrap Iterations (1000)
 ..................................................950 
 ..................................................1000 
 
- Bootstrap Run Time: 13.928  Minutes 
+ Bootstrap Run Time: 11.13  Minutes 
 
 > 
 > # fpc 1601 ---------------------------------
@@ -333,7 +463,7 @@ Bootstrap Iterations (1000)
 ..................................................950 
 ..................................................1000 
 
- Bootstrap Run Time: 92.255  Minutes 
+ Bootstrap Run Time: 19.649  Minutes 
 
 > data=all[!is.na(all$fpc1601),]
 > data.high=subset(data,data$risk=="High")
@@ -365,16 +495,13 @@ Bootstrap Iterations (1000)
 ..................................................950 
 ..................................................1000 
 
- Bootstrap Run Time: 67.908  Minutes 
+ Bootstrap Run Time: 6.424  Minutes 
 
 Warning messages:
 1: glm.fit: fitted rates numerically 0 occurred 
 2: glm.fit: fitted rates numerically 0 occurred 
 3: glm.fit: fitted rates numerically 0 occurred 
 4: glm.fit: fitted rates numerically 0 occurred 
-5: glm.fit: fitted rates numerically 0 occurred 
-6: glm.fit: fitted rates numerically 0 occurred 
-7: glm.fit: fitted rates numerically 0 occurred 
 > data.low=subset(data,data$risk=="Low")
 > all.fpc1601.pY.low = boot.pY(fmla=gici10~fpc1601+agecat+female+racewhite+gichron+anim_any+
 +     gicontactbase+ rawfood+beach,dat=data.low,nameX="fpc1601",ID=data.low$hhid,iter)
@@ -404,7 +531,7 @@ Bootstrap Iterations (1000)
 ..................................................950 
 ..................................................1000 
 
- Bootstrap Run Time: 107.792  Minutes 
+ Bootstrap Run Time: 14.118  Minutes 
 
 > 
 > # fpc 1602 ---------------------------------
@@ -437,7 +564,7 @@ Bootstrap Iterations (1000)
 ..................................................950 
 ..................................................1000 
 
- Bootstrap Run Time: 113.899  Minutes 
+ Bootstrap Run Time: 9.99  Minutes 
 
 > data=all[!is.na(all$fpc1602),]
 > data.high=subset(data,data$risk=="High")
@@ -469,7 +596,7 @@ Bootstrap Iterations (1000)
 ..................................................950 
 ..................................................1000 
 
- Bootstrap Run Time: 65.964  Minutes 
+ Bootstrap Run Time: 4.406  Minutes 
 
 Warning messages:
 1: glm.fit: fitted rates numerically 0 occurred 
@@ -507,17 +634,40 @@ Bootstrap Iterations (1000)
 ..................................................950 
 ..................................................1000 
 
- Bootstrap Run Time: 252.652  Minutes 
+ Bootstrap Run Time: 7.031  Minutes 
 
 > 
 > 
+> ############################################
+> # save n objects
+> 
 > save(
-+   overall.fit10.fmc1601, overall.fit10.fmc1602, overall.fit10.fmc1602.high,
-+   overall.fit10.fmc1602.low,overall.fit10.fpc1601,overall.fit10.fpc1601.high,
-+   overall.fit10.fpc1601.low,overall.fit10.fpc1602,overall.fit10.fpc1602.high,
-+   overall.fit10.fpc1602.low,
-+ 
-+   all.fmc1601.pY,all.fmc1602.pY,all.fmc1602.pY.high,all.fmc1602.pY.low,
++   all.n10.fmc1601,
++   all.n10.fmc1602,all.n10.fpc1601,all.n10.fpc1602,
++   
++   all.n10.fmc1601.high, all.n10.fmc1601.low,
++   all.n10.fmc1602.high, all.n10.fmc1602.low,
++   all.n10.fpc1601.high, all.n10.fpc1601.low,
++   all.n10.fpc1602.high, all.n10.fpc1602.low,
++   
++   file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-n.Rdata")
+> 
+> # save CIR objects
+> save(
++   overall.fit10.fmc1601, overall.fit10.fmc1602, 
++   overall.fit10.fpc1601, overall.fit10.fpc1602,
++   
++   overall.fit10.fmc1601.high, overall.fit10.fmc1601.low,
++   overall.fit10.fmc1602.high, overall.fit10.fmc1602.low,
++   overall.fit10.fpc1601.high, overall.fit10.fpc1601.low,
++   overall.fit10.fpc1602.high, overall.fit10.fpc1602.low,
++   
++   file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-CIR-body.Rdata")
+>   
+>   # save bootstrap objects
+> save(
++   all.fmc1601.pY,all.fmc1601.pY.high,all.fmc1601.pY.low,
++   all.fmc1602.pY,all.fmc1602.pY.high,all.fmc1602.pY.low,
 +   all.fpc1601.pY,all.fpc1601.pY.high,all.fpc1601.pY.low,all.fpc1602.pY,
 +   all.fpc1602.pY.high,all.fpc1602.pY.low,
 +   
@@ -538,5 +688,5 @@ Bootstrap Iterations (1000)
 > 
 > 
 > proc.time()
-     user    system   elapsed 
- 6356.775   840.381 45879.388 
+    user   system  elapsed 
+5885.373  846.619 6750.318 

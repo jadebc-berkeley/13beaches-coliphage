@@ -202,7 +202,7 @@ all.fmc1601.pY = boot.pY(fmla=gici10~fmc1601+agecat+female+racewhite+gichron+ani
 data=all[!is.na(all$fmc1601),]
 data.high=subset(data,data$risk=="High")
 all.fmc1601.pY.high = boot.pY(fmla=gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+
-    gicontactbase+ rawfood+beach,dat=data.high,nameX="fmc1601",ID=data.high$hhid,iter)
+    gicontactbase+ rawfood,dat=data.high,nameX="fmc1601",ID=data.high$hhid,iter)
 data.low=subset(data,data$risk=="Low")
 all.fmc1601.pY.low = boot.pY(fmla=gici10~fmc1601+agecat+female+racewhite+gichron+anim_any+
     gicontactbase+ rawfood+beach,dat=data.low,nameX="fmc1601",ID=data.low$hhid,iter)
