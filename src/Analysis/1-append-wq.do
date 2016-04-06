@@ -24,9 +24,8 @@ drop if _m==2
 
 drop _m
 
-* drop sites with unusual data per 13 beaches protocol
-drop if beachcode=="Avalon-D"
-drop if beachcode=="Doheny-E"
+* drop sites with lagoon data because the concentrations are high
+* but few swimmers were exposed
 drop if beachcode=="Doheny-C"
 drop if beachcode=="Malibu-C"
 
