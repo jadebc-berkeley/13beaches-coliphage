@@ -37,7 +37,7 @@ all=data[data$beach %in% beach.list,]
 all=subset(all,nowq==0)
 # subset to non-missing exposure categories
 # to make the robust CI calcs work
-all=subset(all,all$bodycontact=="No")
+all=subset(all,all$anycontact=="No")
 
 # --------------------------------------
 # Estimates pooled across beach

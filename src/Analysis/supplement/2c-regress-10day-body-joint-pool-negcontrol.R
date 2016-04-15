@@ -31,7 +31,7 @@ beach.list=c("Avalon","Doheny","Malibu","Mission Bay",
 
 all=data[data$beach %in% beach.list,]
 all=subset(all,nowq==0)
-all=subset(all,all$bodycontact=="No")
+all=subset(all,all$anycontact=="No")
 
 # subset to observations with no missing enterococcus information
 all=subset(all,!is.na(all$entero35))
