@@ -192,7 +192,7 @@ overall.fit10.fpc1602.low <- coeftest(all.fit10.fpc1602.low, all.VC10.fpc1602.lo
 # estimating probability of illness over
 # observed range of exposure
 #-------------------------------------------
-iter=1
+iter=1000
 
 set.seed(92203789)
 
