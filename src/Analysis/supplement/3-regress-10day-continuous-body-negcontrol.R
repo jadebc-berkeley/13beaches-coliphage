@@ -5,6 +5,7 @@
 # Estimate the RR across the range of concentration
 
 # Results pooled across beaches
+# Negative control analysis among non-swimmers
 
 # 10 day gi illness
 ##########################################
@@ -32,7 +33,7 @@ beach.list=c("Avalon","Doheny","Malibu","Mission Bay",
 
 all=data[data$beach %in% beach.list,]
 all=subset(all,nowq==0)
-all=subset(all,all$bodycontact=="Yes")
+all=subset(all,all$anycontact=="No")
 
 
 # --------------------------------------
@@ -191,7 +192,7 @@ overall.fit10.fpc1602.low <- coeftest(all.fit10.fpc1602.low, all.VC10.fpc1602.lo
 # estimating probability of illness over
 # observed range of exposure
 #-------------------------------------------
-iter=1000
+iter=1
 
 set.seed(92203789)
 
@@ -256,7 +257,7 @@ save(
   all.n10.fpc1601.high, all.n10.fpc1601.low,
   all.n10.fpc1602.high, all.n10.fpc1602.low,
   
-  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-n.Rdata")
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-n-negcontrol.Rdata")
 
 # save CIR objects
 save(
@@ -268,7 +269,7 @@ save(
   overall.fit10.fpc1601.high, overall.fit10.fpc1601.low,
   overall.fit10.fpc1602.high, overall.fit10.fpc1602.low,
   
-  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-CIR-body.Rdata")
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-CIR-body-negcontrol.Rdata")
   
   # save bootstrap objects
 save(
@@ -277,7 +278,7 @@ save(
   all.fpc1601.pY,all.fpc1601.pY.high,all.fpc1601.pY.low,all.fpc1602.pY,
   all.fpc1602.pY.high,all.fpc1602.pY.low,
   
-  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body.Rdata"
+  file="~/Documents/CRG/coliphage/results/rawoutput/regress-10day-continuous-body-negcontrol.Rdata"
   
 )
 
