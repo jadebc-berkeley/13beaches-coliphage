@@ -302,7 +302,7 @@ plotPy(all.fpc1601.pY,
 )
 dev.off()
 
-pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fpc1601.pdf",height=6,width=7)
+pdf("~/Documents/CRG/coliphage/results/figures/dose-response-pool-fpc1601-negcontrol.pdf",height=6,width=7)
 plotPy.em(all.fpc1601.pY.low,all.fpc1601.pY.high,
           xlab="Concentration PFU / 100ml",
           xtics=c(0.1,1,10,100,1000),
