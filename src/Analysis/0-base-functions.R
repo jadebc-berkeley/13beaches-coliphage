@@ -58,7 +58,7 @@ preprocess.6beaches <- function(dataset) {
   # included: agecat, female, racewhite, gichron, anim_any, gicontactbase, rawfood
   # excluded: allergies (not relevant), frequency of beach visits (not measured at all beaches), digging in the sand (not measured at all beaches)
   cat("\nSubsetting the data to relevant variables and completing final variable pre-processing")
-  ad <- subset(d,select=c("beach","pointsource","marine","hhid","indid",
+  ad <- subset(d,select=c("beach","beachcode","pointsource","marine","hhid","indid",
     "groundwater","berm","anycontact","bodycontact","headunder","swallwater","watertime",
     "diarrheaci1","diarrheaci2","diarrheaci3","diarrheaci4","diarrheaci5",
     "diarrheaci6","diarrheaci7","diarrheaci8","diarrheaci9","diarrheaci10",
