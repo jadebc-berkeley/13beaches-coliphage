@@ -81,8 +81,8 @@ gici10.plot$lab=as.factor(rep(c(rep("All conditions",2),rep("High risk condition
 
 gici10.plot$ind=as.factor(rep(c("Somatic Coliphage","Male-Specific Coliphage"),9))
 
-gici10.plot$type=as.factor(c(rep("Coliphage detected",6),rep("Enterococcus > 35 CFU/100 ml",6),
-                             rep("Coliphage detected &\nEnterococcus > 35 CFU/100 ml",6)))
+gici10.plot$type=as.factor(c(rep("Coliphage detected",6),rep("Enterococci > 35 CFU/100 ml",6),
+                             rep("Coliphage detected &\nEnterococci > 35 CFU/100 ml",6)))
 
 # order beach factor
 gici10.plot$ind.f=factor(gici10.plot$ind,
@@ -94,8 +94,8 @@ gici10.plot$lab.f=factor(gici10.plot$lab,levels=c("High risk conditions",
 
 # order indicators
 gici10.plot$type.f=factor(gici10.plot$type,
-                          levels=c("Coliphage detected &\nEnterococcus > 35 CFU/100 ml",
-                                                    "Enterococcus > 35 CFU/100 ml",
+                          levels=c("Coliphage detected &\nEnterococci > 35 CFU/100 ml",
+                                                    "Enterococci > 35 CFU/100 ml",
                                                     "Coliphage detected"))
 
 
