@@ -99,9 +99,8 @@ gici10.plot$ind=as.factor(rep(c("F- Coliphage (EPA 1601)","F- Coliphage (EPA 160
                                 "F- Coliphage (EPA 1602)",
                                 "F+ Coliphage (EPA 1601)","F+ Coliphage (EPA 1602)"),3))
 
-gici10.plot$type=as.factor(c(rep("Coliphage detected",10),rep("Enterococcus > 35 CFU/100 ml",10),
-                             rep("Coliphage detected &\nEnterococcus > 35 CFU/100 ml",10)))
-#gici10.plot$type.f <- factor(gici10.plot$type, levels=rev(levels(gici10.plot$type)) )
+gici10.plot$type=as.factor(c(rep("Coliphage detected",10),rep("Enterococci > 35 CFU/100 ml",10),
+                             rep("Coliphage detected &\nEnterococci > 35 CFU/100 ml",10)))
 
 # order beach factor
 gici10.plot$ind.f=factor(gici10.plot$ind,
@@ -113,8 +112,8 @@ gici10.plot$lab.f=factor(gici10.plot$lab,levels=c("High risk conditions",
                                                   "Low risk conditions","All conditions"))
 
 # order indicators
-gici10.plot$type.f=factor(gici10.plot$type,levels=c("Coliphage detected &\nEnterococcus > 35 CFU/100 ml",
-                                                    "Enterococcus > 35 CFU/100 ml",
+gici10.plot$type.f=factor(gici10.plot$type,levels=c("Coliphage detected &\nEnterococci > 35 CFU/100 ml",
+                                                    "Enterococci > 35 CFU/100 ml",
                                                     "Coliphage detected"))
 
 pdf("~/Documents/CRG/coliphage/results/figures/forestplots.pdf",height=5,width=14)
