@@ -194,8 +194,8 @@ gici10.tab.out=rbind(gici10.tab[1,],entero.tab[1,],joint.tab[1,],
                      gici10.tab[3,],entero.tab[3,],joint.tab[3,],
                      gici10.tab[4,],entero.tab[4,],joint.tab[4,])
 
-lab=c(rep(c("Coliphage detected","Enterococcus > 35 CFU/100 ml",
-          "Coliphage detected $\\&$ Enterococcus > 35 CFU/100 ml"),4))
+lab=c(rep(c("Coliphage detected","Enterococci > 35 CFU/100 ml",
+          "Coliphage detected $\\&$ Enterococi > 35 CFU/100 ml"),4))
 gici10.tab.out=cbind(lab,gici10.tab.out)
 
 rownames(gici10.tab.out)=NULL
