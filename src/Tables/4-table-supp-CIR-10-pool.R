@@ -153,8 +153,8 @@ colnames(joint.tab)=c("npool","pool","nlow","low","nhigh","high")
 gici10.tab.pool=rbind(gici10.tab[1,],entero.tab[1,],joint.tab[1,],
                      gici10.tab[2,],entero.tab[2,],joint.tab[2,])
 
-lab=c(rep(c("Coliphage detected","Enterococcus > 35 CFU/100 ml",
-          "Coliphage detected $\\&$ Enterococcus > 35 CFU/100 ml"),2))
+lab=c(rep(c("Coliphage detected","Enterococci > 35 CFU/100 ml",
+          "Coliphage detected $\\&$ Enterococci > 35 CFU/100 ml"),2))
 gici10.tab.pool=cbind(lab,gici10.tab.pool)
 
 rownames(gici10.tab.pool)=NULL
