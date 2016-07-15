@@ -1,6 +1,5 @@
 ##########################################
 # Coliphage analysis - 6 beaches
-# v1 by Jade 11/3/15
 
 # Analysis of water quality associations for main text
 ##########################################
@@ -37,7 +36,13 @@ wq=wq[,c("beach","logentero","logfmc1601","logfmc1602",
          "logfpc1601","logfpc1602","risk",
          "fmc1601","fmc1602","fpc1601","fpc1602")]
 
+# --------------------------------------
+# t-test comparing geometric means 
+# of F+ and F- coliphage
+# --------------------------------------
 
+t.test(wq$logfmc1601[wq$logfmc1601>-1],wq$logfpc1601[wq$logfpc1601>-1])
+t.test(wq$logfmc1602[wq$logfmc1602>-1],wq$logfpc1602[wq$logfpc1602>-1])
 
 # --------------------------------------
 # summary statistics for correlations
