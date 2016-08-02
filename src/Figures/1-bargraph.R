@@ -27,16 +27,16 @@ bargraph$ub=c(ub.ns, ub.swim, ub.som, ub.male, ub.som.ent, ub.male.ent)
 bargraph$lab=c("Non-swimmers","Swimmers not \nexposed to coliphage",
                "Swimmers exposed to \nsomatic coliphage",
                "Swimmers exposed to \nmale-specific coliphage",
-               "Swimmers exposed to \nsomatic coliphage and \nEnterococcus > 35 CFU/100 ml",
-               "Swimmers exposed to \nmale-specific coliphage \nand Enterococcus > \n35 CFU/100 ml")
+               "Swimmers exposed to \nsomatic coliphage and \nenterococci > 35 CFU/100 ml",
+               "Swimmers exposed to \nmale-specific coliphage \nand enterococci > \n35 CFU/100 ml")
 
 # order label
 bargraph$lab.f=factor(bargraph$lab,
         levels=c("Non-swimmers","Swimmers not \nexposed to coliphage",
                  "Swimmers exposed to \nsomatic coliphage",
                  "Swimmers exposed to \nmale-specific coliphage",
-                 "Swimmers exposed to \nsomatic coliphage and \nEnterococcus > 35 CFU/100 ml",
-                 "Swimmers exposed to \nmale-specific coliphage \nand Enterococcus > \n35 CFU/100 ml"))
+                 "Swimmers exposed to \nsomatic coliphage and \nenterococci > 35 CFU/100 ml",
+                 "Swimmers exposed to \nmale-specific coliphage \nand enterococci > \n35 CFU/100 ml"))
         
         
 
