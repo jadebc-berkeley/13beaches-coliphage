@@ -90,6 +90,25 @@ se.male.ent=sqrt(swim*(1-swim)/sum(table(all$fpc.pres[all$bodycontact=="Yes" & a
 lb.male.ent=s.male.ent-(qnorm(0.975)*se.male.ent)
 ub.male.ent=s.male.ent+(qnorm(0.975)*se.male.ent)
 
+#-----------------------------------------
+# Test of trend
+#-----------------------------------------
+all$exp.fmc=NA
+all$exp.fmc[all$bodycontact=="No"]=0
+all$exp.fmc[all$bodycontact=="Yes" & all$fmc.pres==0]=1
+all$exp.fmc[all$bodycontact=="Yes" & all$fmc.pres==1]=2
+all$exp.fmc[all$bodycontact=="Yes" & all$fmc.pres==1 & all$entero35==1]=3
+
+temp=glm(gici10~exp.fmc,family="binomial"(link="log"),data=all)
+
+all$exp.fpc=NA
+all$exp.fpc[all$bodycontact=="No"]=0
+all$exp.fpc[all$bodycontact=="Yes" & all$fpc.pres==0]=1
+all$exp.fpc[all$bodycontact=="Yes" & all$fpc.pres==1]=2
+all$exp.fpc[all$bodycontact=="Yes" & all$fpc.pres==1 & all$entero35==1]=3
+
+temp=glm(gici10~exp.fpc,family="binomial"(link="log"),data=all)
+
 save(ns, se.ns, lb.ns, ub.ns,
      swim, se.swim, lb.swim, ub.swim,
      s.som, se.som, lb.som, ub.som,
