@@ -118,6 +118,21 @@ wq.table[which(wq.table$lab=="~~~Mission Bay"),"lab"]="Mission Bay"
 wq.table[which(wq.table$lab=="~~~Fairhope"),"lab"]="Fairhope"
 wq.table[which(wq.table$lab=="~~~Goddard"),"lab"]="Goddard"
 
+# get geo means at beaches where there was comparable
+# data for male and somatic 
+ad=wq[wq$beach=="Avalon" | wq$beach=="Doheny",]
+gm_mean(ad$fmc1601)
+gm_mean(ad$fmc1602)
+gm_mean(ad$fpc1601)
+gm_mean(ad$fpc1602)
+
+# get sd of each indicator
+sd(ad$fmc1601,na.rm=TRUE)
+sd(ad$fmc1602,na.rm=TRUE)
+sd(ad$fpc1601,na.rm=TRUE)
+sd(ad$fpc1602,na.rm=TRUE)
+
+
 write.csv(wq.table,file="~/Documents/CRG/coliphage/Results/Tables/Table1.csv",na="",row.names=FALSE)
 
 
