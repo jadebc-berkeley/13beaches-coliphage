@@ -92,20 +92,20 @@ gici10.plot=rbind(gici10.plot.pool,gici10.plot.high,gici10.plot.low,
 gici10.plot$lab=as.factor(rep(c(rep("All conditions",4),rep("High risk conditions",3),
                                 rep("Low risk conditions",3)),3))
 
-gici10.plot$ind=as.factor(rep(c("F- Coliphage (EPA 1601)","F- Coliphage (EPA 1602)",
-                                "F+ Coliphage (EPA 1601)","F+ Coliphage (EPA 1602)", 
-                                "F- Coliphage (EPA 1602)",
-                                "F+ Coliphage (EPA 1601)","F+ Coliphage (EPA 1602)",
-                                "F- Coliphage (EPA 1602)",
-                                "F+ Coliphage (EPA 1601)","F+ Coliphage (EPA 1602)"),3))
+gici10.plot$ind=as.factor(rep(c("Somatic Coliphage (EPA 1601)","Somatic Coliphage (EPA 1602)",
+                                "Male-Specific Coliphage (EPA 1601)","Male-Specific Coliphage (EPA 1602)", 
+                                "Somatic Coliphage (EPA 1602)",
+                                "Male-Specific Coliphage (EPA 1601)","Male-Specific Coliphage (EPA 1602)",
+                                "Somatic Coliphage (EPA 1602)",
+                                "Male-Specific Coliphage (EPA 1601)","Male-Specific Coliphage (EPA 1602)"),3))
 
 gici10.plot$type=as.factor(c(rep("Coliphage detected",10),rep("Enterococci > 35 CFU/100 ml",10),
                              rep("Coliphage detected &\nEnterococci > 35 CFU/100 ml",10)))
 
 # order beach factor
 gici10.plot$ind.f=factor(gici10.plot$ind,
-                         levels=c("F- Coliphage (EPA 1601)","F- Coliphage (EPA 1602)",
-                                  "F+ Coliphage (EPA 1601)","F+ Coliphage (EPA 1602)"))
+                         levels=c("Somatic Coliphage (EPA 1601)","Somatic Coliphage (EPA 1602)",
+                                  "Male-Specific Coliphage (EPA 1601)","Male-Specific Coliphage (EPA 1602)"))
 
 # order panels
 gici10.plot$lab.f=factor(gici10.plot$lab,levels=c("High risk conditions",
