@@ -30,6 +30,8 @@ all=data[data$beach %in% beach.list,]
 # drop individuals with no water quality information
 all=subset(all,nowq==0)
 
+write.csv(all,file="~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis-processed.csv",row.names=FALSE)
+
 #-----------------------------------------
 # Non-swimmers
 #-----------------------------------------

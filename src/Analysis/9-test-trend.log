@@ -1,0 +1,150 @@
+---------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/analysis/9-test-trend.log
+  log type:  text
+ opened on:  27 Oct 2016, 10:04:32
+
+. 
+. ******************************************
+. * Coliphage analysis
+. 
+. * Test of trend
+. ******************************************
+. 
+. 
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis-processed.csv", clear
+(96 vars, 33,261 obs)
+
+. 
+. replace fmcpres="." if fmcpres=="NA"
+(11,085 real changes made)
+
+. replace fpcpres="." if fpcpres=="NA"
+(2,188 real changes made)
+
+. destring fmcpres fpcpres, replace
+fmcpres: all characters numeric; replaced as byte
+(11085 missing values generated)
+fpcpres: all characters numeric; replaced as byte
+(2188 missing values generated)
+
+. 
+. gen expfmc=.
+(33,261 missing values generated)
+
+. replace expfmc = 1 if bodycontact=="No"
+(17,985 real changes made)
+
+. replace expfmc = 2 if bodycontact=="Yes" & fmcpres==0
+(2,641 real changes made)
+
+. replace expfmc = 3 if bodycontact=="Yes" & fmcpres==1
+(8,037 real changes made)
+
+. replace expfmc = 4 if bodycontact=="Yes" & fmcpres==1 & entero35==1
+(1,698 real changes made)
+
+. 
+. gen expfpc=.
+(33,261 missing values generated)
+
+. replace expfpc = 1 if bodycontact=="No"
+(17,985 real changes made)
+
+. replace expfpc = 2 if bodycontact=="Yes" & fpcpres==0
+(5,105 real changes made)
+
+. replace expfpc = 3 if bodycontact=="Yes" & fpcpres==1
+(9,317 real changes made)
+
+. replace expfpc = 4 if bodycontact=="Yes" & fpcpres==1 & entero35==1
+(1,692 real changes made)
+
+. 
+. glm gici10 ibn.expfmc, noconstant family(binomial) link(log)
+
+Iteration 0:   log likelihood = -9740.7707  
+Iteration 1:   log likelihood = -6823.1101  
+Iteration 2:   log likelihood = -6790.6394  
+Iteration 3:   log likelihood = -6790.6296  
+Iteration 4:   log likelihood = -6790.6296  
+
+Generalized linear models                         No. of obs      =     28,663
+Optimization     : ML                             Residual df     =     28,659
+                                                  Scale parameter =          1
+Deviance         =  13581.25928                   (1/df) Deviance =   .4738916
+Pearson          =        28663                   (1/df) Pearson  =    1.00014
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u)                   [Log]
+
+                                                  AIC             =   .4741046
+Log likelihood   =  -6790.62964                   BIC             =  -280556.4
+
+------------------------------------------------------------------------------
+             |                 OIM
+      gici10 |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      expfmc |
+          1  |  -2.826563   .0297215   -95.10   0.000    -2.884816    -2.76831
+          2  |  -2.719858   .0732699   -37.12   0.000    -2.863464   -2.576251
+          3  |  -2.608147   .0445373   -58.56   0.000    -2.695439   -2.520855
+          4  |  -2.633185   .0872227   -30.19   0.000    -2.804139   -2.462232
+------------------------------------------------------------------------------
+
+. test -3*1.expfmc - 2.expfmc + 3.expfmc + 3*4.expfmc = 0
+
+ ( 1)  - 3*[gici10]1bn.expfmc - [gici10]2.expfmc + [gici10]3.expfmc + 3*[gici10]4.expfmc = 0
+
+           chi2(  1) =    5.71
+         Prob > chi2 =    0.0168
+
+. 
+. glm gici10 ibn.expfpc, noconstant family(binomial) link(log)
+
+Iteration 0:   log likelihood = -11138.989  
+Iteration 1:   log likelihood = -7815.7696  
+Iteration 2:   log likelihood = -7778.9077  
+Iteration 3:   log likelihood =  -7778.896  
+Iteration 4:   log likelihood =  -7778.896  
+
+Generalized linear models                         No. of obs      =     32,407
+Optimization     : ML                             Residual df     =     32,403
+                                                  Scale parameter =          1
+Deviance         =  15557.79194                   (1/df) Deviance =   .4801343
+Pearson          =        32407                   (1/df) Pearson  =   1.000123
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u)                   [Log]
+
+                                                  AIC             =   .4803219
+Log likelihood   = -7778.895972                   BIC             =    -320984
+
+------------------------------------------------------------------------------
+             |                 OIM
+      gici10 |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      expfpc |
+          1  |  -2.826563   .0297215   -95.10   0.000    -2.884816    -2.76831
+          2  |  -2.554039   .0481976   -52.99   0.000    -2.648505   -2.459574
+          3  |  -2.700863   .0426846   -63.27   0.000    -2.784523   -2.617203
+          4  |  -2.550865   .0835748   -30.52   0.000    -2.714668   -2.387061
+------------------------------------------------------------------------------
+
+. test -3*1.expfpc - 2.expfpc + 3.expfpc + 3*4.expfpc = 0
+
+ ( 1)  - 3*[gici10]1bn.expfpc - [gici10]2.expfpc + [gici10]3.expfpc + 3*[gici10]4.expfpc = 0
+
+           chi2(  1) =    6.17
+         Prob > chi2 =    0.0130
+
+. 
+. 
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/analysis/9-test-trend.log
+  log type:  text
+ closed on:  27 Oct 2016, 10:04:36
+---------------------------------------------------------------------------------------------------------
