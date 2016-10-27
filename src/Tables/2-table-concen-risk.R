@@ -35,8 +35,7 @@ gm_mean = function(x, na.rm=TRUE){
   exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
 }
 
-wq.table=function(ind,cond){
-  data=wq
+wq.table=function(ind,cond,data){
   data=subset(data,data$risk==cond)
   x=data[[ind]]
   #min max
@@ -59,14 +58,23 @@ wq.table=function(ind,cond){
   return(out)
 }
 
-fmc1601tab.low=wq.table(ind="fmc1601",cond="Low")
-fmc1601tab.high=wq.table(ind="fmc1601",cond="High")
-fmc1602tab.low=wq.table(ind="fmc1602",cond="Low")
-fmc1602tab.high=wq.table(ind="fmc1602",cond="High")
-fpc1601tab.low=wq.table(ind="fpc1601",cond="Low")
-fpc1601tab.high=wq.table(ind="fpc1601",cond="High")
-fpc1602tab.low=wq.table(ind="fpc1602",cond="Low")
-fpc1602tab.high=wq.table(ind="fpc1602",cond="High")
+fmc1601tab.low=wq.table(ind="fmc1601",cond="Low",data=wq)
+fmc1601tab.high=wq.table(ind="fmc1601",cond="High",data=wq)
+fmc1602tab.low=wq.table(ind="fmc1602",cond="Low",data=wq)
+fmc1602tab.high=wq.table(ind="fmc1602",cond="High",data=wq)
+fpc1601tab.low=wq.table(ind="fpc1601",cond="Low",data=wq)
+fpc1601tab.high=wq.table(ind="fpc1601",cond="High",data=wq)
+fpc1602tab.low=wq.table(ind="fpc1602",cond="Low",data=wq)
+fpc1602tab.high=wq.table(ind="fpc1602",cond="High",data=wq)
+
+doh=wq[wq$beach=="Doheny",]
+av=wq[wq$beach=="Avalon",]
+
+wq.table(ind="entero",cond="Low",data=doh)
+wq.table(ind="entero",cond="High",data=doh)
+
+wq.table(ind="entero",cond="Low",data=av)
+wq.table(ind="entero",cond="High",data=av)
 
 wq.table=rbind(fmc1601tab.low,fmc1601tab.high,
                fmc1602tab.low,fmc1602tab.high,
