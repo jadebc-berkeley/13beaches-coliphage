@@ -89,8 +89,8 @@ gici10.plot=rbind(gici10.plot.pool,gici10.plot.high,gici10.plot.low,
                   gici10.plot.entero.pool,gici10.plot.entero.high,gici10.plot.entero.low,
                   gici10.plot.int,gici10.plot.int.high,gici10.plot.int.low)
 
-gici10.plot$lab=as.factor(rep(c(rep("All conditions",4),rep("High risk conditions",3),
-                                rep("Low risk conditions",3)),3))
+gici10.plot$lab=as.factor(rep(c(rep("All conditions",4),rep("Human fecal pollution\n likely present",3),
+                                rep("Human fecal pollution\n likely not present",3)),3))
 
 gici10.plot$ind=as.factor(rep(c("Somatic Coliphage (EPA 1601)","Somatic Coliphage (EPA 1602)",
                                 "Male-Specific Coliphage (EPA 1601)","Male-Specific Coliphage (EPA 1602)", 
@@ -108,8 +108,8 @@ gici10.plot$ind.f=factor(gici10.plot$ind,
                                   "Male-Specific Coliphage (EPA 1601)","Male-Specific Coliphage (EPA 1602)"))
 
 # order panels
-gici10.plot$lab.f=factor(gici10.plot$lab,levels=c("High risk conditions",
-                                                  "Low risk conditions","All conditions"))
+gici10.plot$lab.f=factor(gici10.plot$lab,levels=c("Human fecal pollution\n likely present",
+                                                  "Human fecal pollution\n likely not present","All conditions"))
 
 # order indicators
 gici10.plot$type.f=factor(gici10.plot$type,levels=c("Coliphage detected &\nEnterococci > 35 CFU/100 ml",
