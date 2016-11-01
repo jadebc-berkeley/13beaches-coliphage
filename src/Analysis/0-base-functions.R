@@ -253,30 +253,30 @@ preprocess.6beaches <- function(dataset) {
   ad$fpc1602_75[is.na(ad$fpc1602perdet)] <- NA
 
   # pooled by assay 
-
-  ad$fmc_25 <- 0
-  ad$fmc_25[ad$fmcperdet>0.25] <- 1
-  ad$fmc_25[is.na(ad$fmcperdet)] <- NA
-  
-  ad$fmc_50 <- 0
-  ad$fmc_50[ad$fmcperdet>0.50] <- 1
-  ad$fmc_50[is.na(ad$fmcperdet)] <- NA
-  
-  ad$fmc_75 <- 0
-  ad$fmc_75[ad$fmcperdet>0.75] <- 1
-  ad$fmc_75[is.na(ad$fmcperdet)] <- NA
-  
-  ad$fpc_25 <- 0
-  ad$fpc_25[ad$fpcperdet>0.25] <- 1
-  ad$fpc_25[is.na(ad$fpcperdet)] <- NA
-  
-  ad$fpc_50 <- 0
-  ad$fpc_50[ad$fpcperdet>0.50] <- 1
-  ad$fpc_50[is.na(ad$fpcperdet)] <- NA
-  
-  ad$fpc_75 <- 0
-  ad$fpc_75[ad$fpcperdet>0.75] <- 1
-  ad$fpc_75[is.na(ad$fpcperdet)] <- NA
+# 
+#   ad$fmc_25 <- 0
+#   ad$fmc_25[ad$fmcperdet>0.25] <- 1
+#   ad$fmc_25[is.na(ad$fmcperdet)] <- NA
+#   
+#   ad$fmc_50 <- 0
+#   ad$fmc_50[ad$fmcperdet>0.50] <- 1
+#   ad$fmc_50[is.na(ad$fmcperdet)] <- NA
+#   
+#   ad$fmc_75 <- 0
+#   ad$fmc_75[ad$fmcperdet>0.75] <- 1
+#   ad$fmc_75[is.na(ad$fmcperdet)] <- NA
+#   
+#   ad$fpc_25 <- 0
+#   ad$fpc_25[ad$fpcperdet>0.25] <- 1
+#   ad$fpc_25[is.na(ad$fpcperdet)] <- NA
+#   
+#   ad$fpc_50 <- 0
+#   ad$fpc_50[ad$fpcperdet>0.50] <- 1
+#   ad$fpc_50[is.na(ad$fpcperdet)] <- NA
+#   
+#   ad$fpc_75 <- 0
+#   ad$fpc_75[ad$fpcperdet>0.75] <- 1
+#   ad$fpc_75[is.na(ad$fpcperdet)] <- NA
   
   ad$fmc_25 <- 0
   ad$fmc_25[ad$fmcperdet>0.25] <- 1
@@ -305,6 +305,40 @@ preprocess.6beaches <- function(dataset) {
   ad$fpc_75[ad$fpcperdet>0.75] <- 1
   ad$fpc_75[ad$fpcperdet<0.25] <- 0
   ad$fpc_75[is.na(ad$fpcperdet)] <- NA
+  
+  # new indicator where reference is no detectable 
+  # coliphage to increase comparability with primary analysis 
+  
+  ad$fmc_25ref0 <- NA
+  ad$fmc_25ref0[ad$fmcperdet>0.25] <- 1
+  ad$fmc_25ref0[ad$fmcperdet==0] <- 0
+  ad$fmc_25ref0[is.na(ad$fmcperdet)] <- NA
+  
+  ad$fmc_50ref0 <- NA
+  ad$fmc_50ref0[ad$fmcperdet>0.50] <- 1
+  ad$fmc_50ref0[ad$fmcperdet==0] <- 0
+  ad$fmc_50ref0[is.na(ad$fmcperdet)] <- NA
+  
+  ad$fmc_75ref0 <- NA
+  ad$fmc_75ref0[ad$fmcperdet>0.75] <- 1
+  ad$fmc_75ref0[ad$fmcperdet==0] <- 0
+  ad$fmc_75ref0[is.na(ad$fmcperdet)] <- NA
+  
+  ad$fpc_25ref0 <- NA
+  ad$fpc_25ref0[ad$fpcperdet>0.25] <- 1
+  ad$fpc_25ref0[ad$fpcperdet==0] <- 0
+  ad$fpc_25ref0[is.na(ad$fpcperdet)] <- NA
+  
+  ad$fpc_50ref0 <- NA
+  ad$fpc_50ref0[ad$fpcperdet>0.50] <- 1
+  ad$fpc_50ref0[ad$fpcperdet==0] <- 0
+  ad$fpc_50ref0[is.na(ad$fpcperdet)] <- NA
+  
+  ad$fpc_75ref0 <- NA
+  ad$fpc_75ref0[ad$fpcperdet>0.75] <- 1
+  ad$fpc_75ref0[ad$fpcperdet==0] <- 0
+  ad$fpc_75ref0[is.na(ad$fpcperdet)] <- NA
+  
 
 
   # risk variable
