@@ -28,19 +28,19 @@ bargraph=data.frame(pt.est=c(ns[1,1], swim[1,1], s.som[1,1], s.male[1,1], s.som.
 bargraph$lb=c(ns[1,2], swim[1,2], s.som[1,2], s.male[1,2], s.som.ent[1,2], s.male.ent[1,2])
 bargraph$ub=c(ns[1,3], swim[1,3], s.som[1,3], s.male[1,3], s.som.ent[1,3], s.male.ent[1,3])
 
-bargraph$lab=c("Non-swimmers","Swimmers not \nexposed to coliphage",
-               "Swimmers exposed to \nsomatic coliphage",
-               "Swimmers exposed to \nmale-specific coliphage",
-               "Swimmers exposed to \nsomatic coliphage and \nenterococci > 35 CFU/100 ml",
-               "Swimmers exposed to \nmale-specific coliphage \nand enterococci > \n35 CFU/100 ml")
+bargraph$lab=c("Non-swimmers","Swimmers not \nexposed to\ncoliphage",
+               "Swimmers\nexposed to \nsomatic coliphage",
+               "Swimmers\nexposed to \nmale-specific\ncoliphage",
+               "Swimmers\nexposed to \nsomatic\ncoliphage and \nenterococci >\n35 CFU/100 ml",
+               "Swimmers\nexposed to \nmale-specific\ncoliphage \nand enterococci > \n35 CFU/100 ml")
 
 # order label
 bargraph$lab.f=factor(bargraph$lab,
-        levels=c("Non-swimmers","Swimmers not \nexposed to coliphage",
-                 "Swimmers exposed to \nsomatic coliphage",
-                 "Swimmers exposed to \nmale-specific coliphage",
-                 "Swimmers exposed to \nsomatic coliphage and \nenterococci > 35 CFU/100 ml",
-                 "Swimmers exposed to \nmale-specific coliphage \nand enterococci > \n35 CFU/100 ml"))
+        levels=c("Non-swimmers","Swimmers not \nexposed to\ncoliphage",
+                 "Swimmers\nexposed to \nsomatic coliphage",
+                 "Swimmers\nexposed to \nmale-specific\ncoliphage",
+                 "Swimmers\nexposed to \nsomatic\ncoliphage and \nenterococci >\n35 CFU/100 ml",
+                 "Swimmers\nexposed to \nmale-specific\ncoliphage \nand enterococci > \n35 CFU/100 ml"))
         
         
 
@@ -58,18 +58,17 @@ male=bargraph[c(1:2,4,6),]
 
 
 somatic.plot=ggplot(somatic,aes(x=lab.f,y=pt.est))+geom_bar(fill="grey",stat="identity",width=.6)+
-  ylab("Probability of Gastrointestinal Illness (%)")+theme_complete_bw()+
-  geom_errorbar(aes(ymin=lb,ymax=ub),width=0.25)+
-  geom_text(data=somatic, mapping=aes(x=lab,y=pt.est,label=pt.est.lab),vjust=c(3,5.4,3.5,5.5))+
+  ylab("Probability of\nGastrointestinal Illness (%)")+theme_complete_bw()+
+  geom_errorbar(aes(ymin=lb,ymax=ub),width=0.2)+
+  geom_text(data=somatic, mapping=aes(x=lab,y=pt.est,label=pt.est.lab),vjust=c(3,4.4,3.3,4.5))+
   ylim(c(0,10))+xlab("")+ggtitle("Somatic Coliphage")
 
 male.plot=ggplot(male,aes(x=lab.f,y=pt.est))+geom_bar(fill="grey",stat="identity",width=.6)+
-  ylab("Probability of Gastrointestinal Illness (%)")+theme_complete_bw()+
-  geom_errorbar(aes(ymin=lb,ymax=ub),width=0.25)+
-  geom_text(data=male, mapping=aes(x=lab,y=pt.est,label=pt.est.lab),vjust=c(3,5.4,3.5,5.5))+
+  ylab("Probability of\nGastrointestinal Illness (%)")+theme_complete_bw()+
+  geom_errorbar(aes(ymin=lb,ymax=ub),width=0.2)+
+  geom_text(data=male, mapping=aes(x=lab,y=pt.est,label=pt.est.lab),vjust=c(3,4.4,3.3,4.5))+
   ylim(c(0,10))+xlab("")+ggtitle("Male-Specific Coliphage")
 
-pdf("~/Documents/CRG/coliphage/results/figures/bargraph.pdf",height=9,width=8)
+pdf("~/Documents/CRG/coliphage/results/figures/bargraph.pdf",height=7,width=6)
 grid.arrange(somatic.plot, male.plot)
 dev.off()
-
