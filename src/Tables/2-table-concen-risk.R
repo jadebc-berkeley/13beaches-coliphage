@@ -80,7 +80,7 @@ wq.table=rbind(fmc1601tab.low,fmc1601tab.high,
                fmc1602tab.low,fmc1602tab.high,
                fpc1601tab.low,fpc1601tab.high,
                fpc1602tab.low,fpc1602tab.high)
-wq.table$lab=c(rep(c("~~~~Low risk","~~~~High risk"),4))
+wq.table$lab=c(rep(c("~~~~Human fecal pollution not likely","~~~~Human fecal pollution likely"),4))
 wq.table=rbind(rep(NA,ncol(wq.table)),wq.table[1:2,],
                rep(NA,ncol(wq.table)),wq.table[3:4,], 
                rep(NA,ncol(wq.table)),wq.table[5:6,],
