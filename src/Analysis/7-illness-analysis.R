@@ -30,6 +30,15 @@ all=data[data$beach %in% beach.list,]
 all=subset(all,nowq==0)
 
 # --------------------------------------
+# % swimmers in waters with coliphage
+# --------------------------------------
+sum(table(all$fmc.pres[all$bodycontact=="Yes"]))
+sum(table(all$fpc.pres[all$bodycontact=="Yes"]))
+
+prop.table(table(all$fmc.pres[all$bodycontact=="Yes"]))
+prop.table(table(all$fpc.pres[all$bodycontact=="Yes"]))
+
+# --------------------------------------
 # illness rates
 # --------------------------------------
 # illness rates among all enrollees
