@@ -1,8 +1,9 @@
----------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/analysis/9-test-trend.log
+       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/a
+> nalysis/9-test-trend.log
   log type:  text
- opened on:  27 Oct 2016, 10:04:32
+ opened on:  26 Apr 2017, 14:12:36
 
 . 
 . ******************************************
@@ -12,7 +13,8 @@
 . ******************************************
 . 
 . 
-. insheet using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analysis-processed.csv", clear
+. insheet using "~/Documents/CRG/coliphage/13beaches-data/final/13beaches-analys
+> is-processed.csv", clear
 (96 vars, 33,261 obs)
 
 . 
@@ -94,7 +96,8 @@ Log likelihood   =  -6790.62964                   BIC             =  -280556.4
 
 . test -3*1.expfmc - 2.expfmc + 3.expfmc + 3*4.expfmc = 0
 
- ( 1)  - 3*[gici10]1bn.expfmc - [gici10]2.expfmc + [gici10]3.expfmc + 3*[gici10]4.expfmc = 0
+ ( 1)  - 3*[gici10]1bn.expfmc - [gici10]2.expfmc + [gici10]3.expfmc +
+       3*[gici10]4.expfmc = 0
 
            chi2(  1) =    5.71
          Prob > chi2 =    0.0168
@@ -133,18 +136,313 @@ Log likelihood   = -7778.895972                   BIC             =    -320984
 
 . test -3*1.expfpc - 2.expfpc + 3.expfpc + 3*4.expfpc = 0
 
- ( 1)  - 3*[gici10]1bn.expfpc - [gici10]2.expfpc + [gici10]3.expfpc + 3*[gici10]4.expfpc = 0
+ ( 1)  - 3*[gici10]1bn.expfpc - [gici10]2.expfpc + [gici10]3.expfpc +
+       3*[gici10]4.expfpc = 0
 
            chi2(  1) =    6.17
          Prob > chi2 =    0.0130
 
 . 
 . 
-. 
-. 
-. log close
-      name:  <unnamed>
-       log:  /Users/jadederong/Documents/CRG/coliphage/13beaches-coliphage/src/analysis/9-test-trend.log
-  log type:  text
- closed on:  27 Oct 2016, 10:04:36
----------------------------------------------------------------------------------------------------------
+end of do-file
+
+. use "/Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/13beaches-
+> analysis.dta", clear
+(13 Beaches NIH-R03 analysis dataset, created by 10-make-analysis.dataset.do)
+
+. desc watertime
+
+              storage   display    value
+variable name   type    format     label      variable label
+--------------------------------------------------------------------------------
+watertime       int     %9.0g                 Time in water (mins)
+
+. mean watertime if bodycontact==1
+
+Mean estimation                   Number of obs   =     47,053
+
+--------------------------------------------------------------
+             |       Mean   Std. Err.     [95% Conf. Interval]
+-------------+------------------------------------------------
+   watertime |   91.36705   .3580603      90.66525    92.06886
+--------------------------------------------------------------
+
+. tab bodycontact
+
+       Body |
+    contact |
+with water  |      Freq.     Percent        Cum.
+------------+-----------------------------------
+         No |     37,124       43.98       43.98
+        Yes |     47,287       56.02      100.00
+------------+-----------------------------------
+      Total |     84,411      100.00
+
+. tab bodycontact, nol
+
+       Body |
+    contact |
+with water  |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     37,124       43.98       43.98
+          1 |     47,287       56.02      100.00
+------------+-----------------------------------
+      Total |     84,411      100.00
+
+.  tabstat watertime if bodycontact==1, stats(mean) by(beach)
+
+Summary for variables: watertime
+     by categories of: beach (Beach)
+
+          beach |      mean
+----------------+----------
+         Avalon |   87.9447
+       Boqueron |  124.2039
+         Doheny |  91.79689
+      Edgewater |  81.77733
+       Fairhope |  94.25516
+        Goddard |  52.82714
+     Huntington |   59.9749
+         Malibu |  82.46784
+    Mission Bay |  137.4285
+         Silver |  58.93448
+       Surfside |  70.34973
+Washington Park |  71.99872
+           West |  69.41049
+----------------+----------
+          Total |  91.36705
+---------------------------
+
+. tab nowq
+
+   No water |
+    quality |
+       data |
+  available |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     83,452       98.86       98.86
+          1 |        959        1.14      100.00
+------------+-----------------------------------
+      Total |     84,411      100.00
+
+. drop if nowq==1
+(959 observations deleted)
+
+. tab nowq
+
+   No water |
+    quality |
+       data |
+  available |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     83,452      100.00      100.00
+------------+-----------------------------------
+      Total |     83,452      100.00
+
+.  tabstat watertime if bodycontact==1, stats(mean) by(beach)
+
+Summary for variables: watertime
+     by categories of: beach (Beach)
+
+          beach |      mean
+----------------+----------
+         Avalon |  88.02036
+       Boqueron |  124.2039
+         Doheny |   91.2946
+      Edgewater |  81.77733
+       Fairhope |  94.25516
+        Goddard |  52.82714
+     Huntington |   59.9749
+         Malibu |  82.46784
+    Mission Bay |  137.2248
+         Silver |  58.93448
+       Surfside |  70.34973
+Washington Park |  71.99872
+           West |  69.41049
+----------------+----------
+          Total |  91.17139
+---------------------------
+
+.  tabstat watertime if anycontact==1, stats(mean) by(beach)
+
+Summary for variables: watertime
+     by categories of: beach (Beach)
+
+          beach |      mean
+----------------+----------
+         Avalon |  82.45374
+       Boqueron |  122.1281
+         Doheny |  78.59211
+      Edgewater |   73.2236
+       Fairhope |  75.81255
+        Goddard |  46.28809
+     Huntington |  48.57548
+         Malibu |  66.39081
+    Mission Bay |  117.5258
+         Silver |  50.05807
+       Surfside |  65.21513
+Washington Park |   61.4122
+           West |  61.32211
+----------------+----------
+          Total |  81.42431
+---------------------------
+
+. use "/Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/neear-wq-s
+> amples.dta", clear
+(NEEAR water sample data, formatted by 5-format-neear-wq.do)
+
+. count
+  3,996
+
+. br
+
+. tab beach
+
+          Beach |      Freq.     Percent        Cum.
+----------------+-----------------------------------
+       Boqueron |        600       15.02       15.02
+      Edgewater |        396        9.91       24.92
+       Fairhope |        438       10.96       35.89
+        Goddard |        426       10.66       46.55
+     Huntington |        420       10.51       57.06
+         Silver |        423       10.59       67.64
+       Surfside |        536       13.41       81.06
+Washington Park |        421       10.54       91.59
+           West |        336        8.41      100.00
+----------------+-----------------------------------
+          Total |      3,996      100.00
+
+. use "/Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/13beaches-
+> wq-samples.dta"
+(13 beaches water quality data, created by 8-append-wq-data.do)
+
+. count
+  7,595
+
+. tab beach
+
+          Beach |      Freq.     Percent        Cum.
+----------------+-----------------------------------
+         Avalon |        705        9.28        9.28
+       Boqueron |        600        7.90       17.18
+         Doheny |        442        5.82       23.00
+      Edgewater |        396        5.21       28.22
+       Fairhope |        438        5.77       33.98
+        Goddard |        426        5.61       39.59
+     Huntington |        420        5.53       45.12
+         Malibu |        346        4.56       49.68
+    Mission Bay |      2,106       27.73       77.41
+         Silver |        423        5.57       82.98
+       Surfside |        536        7.06       90.03
+Washington Park |        421        5.54       95.58
+           West |        336        4.42      100.00
+----------------+-----------------------------------
+          Total |      7,595      100.00
+
+. di 705+442+438+346+2106
+4037
+
+. use "/Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/13beaches-
+> wq.dta"
+(13 beaches water quality data, created by 9-avg-wq-data.do)
+
+. count
+  650
+
+. br
+
+. use "/Users/jadederong/Documents/CRG/coliphage/13beaches-data/final/13beaches-
+> wq-samples.dta"
+(13 beaches water quality data, created by 8-append-wq-data.do)
+
+. br
+
+. tab beach
+
+          Beach |      Freq.     Percent        Cum.
+----------------+-----------------------------------
+         Avalon |        705        9.28        9.28
+       Boqueron |        600        7.90       17.18
+         Doheny |        442        5.82       23.00
+      Edgewater |        396        5.21       28.22
+       Fairhope |        438        5.77       33.98
+        Goddard |        426        5.61       39.59
+     Huntington |        420        5.53       45.12
+         Malibu |        346        4.56       49.68
+    Mission Bay |      2,106       27.73       77.41
+         Silver |        423        5.57       82.98
+       Surfside |        536        7.06       90.03
+Washington Park |        421        5.54       95.58
+           West |        336        4.42      100.00
+----------------+-----------------------------------
+          Total |      7,595      100.00
+
+. keep if beach=="Avalon" | beach=="Doheny" | beach=="Fairhope" | beach=="Goddar
+> d" | beach=="Malibu" | beach=="Mission Bay"
+(3,132 observations deleted)
+
+. count
+  4,463
+
+. br
+
+. drop if fpc1601mpn==. & fpc1602mpn==. & fmc1601mpn==. & fmc1602mpn==.
+(2,427 observations deleted)
+
+. count
+  2,036
+
+. br
+
+. count
+  2,036
+
+. tab beachcode
+
+Water quality |
+     sampling |
+     location |
+   beach code |      Freq.     Percent        Cum.
+--------------+-----------------------------------
+   Avalon-ABC |        586       42.37       42.37
+     Avalon-D |         30        2.17       44.54
+   Doheny-ABD |        299       21.62       66.16
+     Doheny-C |         34        2.46       68.62
+     Doheny-E |         98        7.09       75.70
+  Malibu-ABDE |        156       11.28       86.98
+     Malibu-C |         39        2.82       89.80
+Mission Bay 1 |         23        1.66       91.47
+Mission Bay 2 |         24        1.74       93.20
+Mission Bay 3 |         23        1.66       94.87
+Mission Bay 4 |         22        1.59       96.46
+Mission Bay 5 |         25        1.81       98.26
+Mission Bay 6 |         24        1.74      100.00
+--------------+-----------------------------------
+        Total |      1,383      100.00
+
+. di 1818-1383
+435
+
+. cout
+command cout is unrecognized
+r(199);
+
+. count
+  2,036
+
+. count if beachcode==.
+type mismatch
+r(109);
+
+. count if beachcode==""
+  653
+
+. br if beachcode==""
+
+. di 2036 - 34 - 98 
+1904
+
+. di 2036 - 34 - 98  - 39 - 30
+1835
+
+. exit, clear
