@@ -89,9 +89,9 @@ body.beach.p=prop.table(table(all$bodycontact,all$beach),2)[2,]
 swall.beach=table(all$swallwater,all$beach)[2,]
 swall.beach.p=prop.table(table(all$swallwater,all$beach),2)[2,]
 
-time=aggregate(all$watertime[all$bodycontact=="No"],
-   list(all$beach[all$bodycontact=="No"]),mean,na.rm=TRUE)
-time.beach=sprintf("%0.0f",time[,2]*60)
+time=aggregate(all$watertime[all$anycontact=="Yes"],
+   list(all$beach[all$anycontact=="Yes"]),mean,na.rm=TRUE)
+time.beach=sprintf("%0.0f",time[,2])
 time.beach[time.beach=="NaN"]="--"
 
 n.print=rbind(age.beach,fem.beach,white.beach,any.beach,body.beach,
@@ -109,9 +109,9 @@ table.print=cbind(n.p.paren(n.print[,1],p.print[,1]),
 table.print=data.frame(rbind(as.character(n.beach),as.character(hh.beach),table.print,
                              time.beach))
 
-table.print$label=c("Individuals","Households","0-4","5-14","15-24","25-34","35-44",
+table.print$label=c("Individuals $^{\\text{a}}$","Households $^{\\text{b}}$","0-4","5-14","15-24","25-34","35-44",
       "45-54","55-64","65-74","75+","Total","Male","Female","Total","Not white",
-      "White","Total","Any contact","Body contact","Swallowed water","Minutes swam (mean)")
+      "White","Total","Any contact","Body contact","Swallowed water","Minutes swam (mean) $^{\\text{c}}$")
 
 for(i in 3:22){
   table.print$label[i]=paste("~~~",table.print$label[i],sep="")
